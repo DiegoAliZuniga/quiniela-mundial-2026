@@ -28,8 +28,8 @@ Este paquete contiene un sitio estatico listo para GitHub Pages y un Google Apps
    - `Execute as`: `Me`
    - `Who has access`: `Anyone`
 12. Copia la URL del Web App que termina en `/exec`.
-13. En `quiniela.html` e `index.html`, confirma que `APPS_SCRIPT_URL` tenga esa URL. En este paquete ya esta configurada con:
-   `https://script.google.com/macros/s/AKfycbzQI1RJxvLAqjCR-L1MDauB1sWzVwYtX8SO3mWXozaF_QmkN3FRoAC8vW6F3aFgz1znyQ/exec`
+13. En `quiniela.html`, `index.html` y `predicciones.html`, confirma que `APPS_SCRIPT_URL` tenga esa URL. En este paquete ya esta configurada con:
+   `https://script.google.com/macros/s/AKfycby-vt500y5fZEJ5QAT7z9y0Zn7WEJJTg6iAeTf2qvYp97cqa8EWhVVPcW_9psToHu-k/exec`
 
 Si haces cambios en `apps-script.gs`, vuelve a desplegar el Web App con `Deploy` > `Manage deployments` > editar despliegue > `New version`.
 
