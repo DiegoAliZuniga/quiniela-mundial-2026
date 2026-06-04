@@ -2027,8 +2027,16 @@
       if (!identityForm.reportValidity()) return;
       state.name = playerName.value.trim();
       state.email = playerEmail.value.trim();
-      state.screen = "match";
-      state.currentIndex = firstOpenMatchIndex();
+      if (state.returnAfterIdentity) {
+        state.screen = state.returnAfterIdentity.screen || "match";
+        state.currentIndex = Number.isInteger(state.returnAfterIdentity.currentIndex)
+          ? state.returnAfterIdentity.currentIndex
+          : state.currentIndex;
+        state.returnAfterIdentity = null;
+      } else {
+        state.screen = "match";
+        state.currentIndex = firstOpenMatchIndex();
+      }
       saveState();
       render();
     });
@@ -2055,7 +2063,8 @@
 
     backBtn.addEventListener("click", () => {
       if (state.currentIndex === 0) {
-        state.screen = "identity";
+        openIdentityEditor();
+        return;
       } else {
         state.currentIndex -= 1;
       }
@@ -2064,9 +2073,7 @@
     });
 
     identityBtn.addEventListener("click", () => {
-      state.screen = "identity";
-      saveState();
-      render();
+      openIdentityEditor();
     });
 
     nextBtn.addEventListener("click", () => {
@@ -2102,6 +2109,7 @@
       state.picks = {};
       state.currentIndex = 0;
       state.screen = "identity";
+      state.returnAfterIdentity = null;
       state.submittedAt = "";
       playerName.value = "";
       playerEmail.value = "";
@@ -2126,6 +2134,7 @@
         name: "",
         email: "",
         picks: {},
+        returnAfterIdentity: null,
         submittedAt: "",
       };
       try {
@@ -2146,8 +2155,26 @@
       screens.match.hidden = state.screen !== "match";
       screens.summary.hidden = state.screen !== "summary";
 
+      if (state.screen === "identity") renderIdentity();
       if (state.screen === "match") renderMatch();
       if (state.screen === "summary") renderSummary();
+    }
+
+    function renderIdentity() {
+      const submitButton = identityForm.querySelector('button[type="submit"]');
+      submitButton.textContent = state.returnAfterIdentity ? "Guardar datos" : "Comenzar";
+      playerName.value = state.name;
+      playerEmail.value = state.email;
+    }
+
+    function openIdentityEditor() {
+      state.returnAfterIdentity = {
+        screen: state.screen === "summary" ? "summary" : "match",
+        currentIndex: state.currentIndex,
+      };
+      state.screen = "identity";
+      saveState();
+      render();
     }
 
     function renderMatch() {
@@ -2185,7 +2212,8 @@
 
       const fallback = document.createElement("span");
       fallback.className = "flag-fallback";
-      fallback.textContent = team.emoji || "🏳";
+      fallback.textContent = team.flagCode ? "" : "🏳";
+      fallback.hidden = Boolean(team.flagCode);
 
       if (team.flagCode) {
         const code = team.flagCode.toLowerCase();
@@ -2195,6 +2223,9 @@
         img.alt = `Bandera de ${team.name}`;
         img.loading = "lazy";
         img.decoding = "async";
+        img.onload = () => {
+          fallback.hidden = true;
+        };
         img.onerror = () => {
           img.hidden = true;
           fallback.hidden = false;
