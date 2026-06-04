@@ -1674,6 +1674,10 @@ function doGet(e) {
     return respond_(e, getPublicData_());
   }
 
+  if (action === "predictionsData") {
+    return respond_(e, getPredictionsData_());
+  }
+
   if (action === "syncResults") {
     return respond_(e, syncFootballDataFromWeb_(e));
   }
@@ -1856,6 +1860,22 @@ function getPublicData_() {
     results: readResults_(ss),
     ranking: readRanking_(ss),
     apiState: readApiState_(ss),
+  };
+}
+
+function getPredictionsData_() {
+  const ss = getSpreadsheet_();
+  const participants = readParticipants_(ss);
+  const maxVisibleParticipants = 16;
+  return {
+    ok: true,
+    generatedAt: new Date().toISOString(),
+    matches: MATCHES,
+    results: readResults_(ss),
+    participants: participants.slice(0, maxVisibleParticipants),
+    totalParticipants: participants.length,
+    hiddenParticipants: Math.max(participants.length - maxVisibleParticipants, 0),
+    maxVisibleParticipants: maxVisibleParticipants,
   };
 }
 
@@ -2107,6 +2127,49 @@ function readRanking_(ss) {
       totalPredictions: getCellByHeader_(row, headers, "Predicciones"),
     };
   });
+}
+
+function readParticipants_(ss) {
+  const sheet = ss.getSheetByName(RESPONSES_SHEET);
+  if (!sheet || sheet.getLastRow() < 2) return [];
+  const values = sheet.getDataRange().getValues();
+  const headers = values[0].map(function(header) { return String(header || ""); });
+  const nameIndex = headerIndex_(headers, ["Nombre"]);
+  const emailIndex = headerIndex_(headers, ["Correo"]);
+  const submittedIndex = headerIndex_(headers, ["Fecha envio", "Fecha envío", "Fecha envÃ­o"]);
+  const championIndex = headerIndex_(headers, ["Campeon", "Campeón", "CampeÃ³n"]);
+  const championCodeIndex = headerIndex_(headers, ["Codigo campeon", "Código campeón", "CÃ³digo campeÃ³n"]);
+  const jsonIndex = headerIndex_(headers, ["Selecciones JSON"]);
+  const participants = [];
+
+  values.slice(1).forEach(function(row) {
+    const name = nameIndex >= 0 ? String(row[nameIndex] || "").trim() : "";
+    const email = emailIndex >= 0 ? String(row[emailIndex] || "").trim() : "";
+    if (!name && !email) return;
+
+    const selections = jsonIndex >= 0 ? parseSelectionsJson_(row[jsonIndex]) : [];
+    const picksByMatchId = {};
+    selections.forEach(function(selection) {
+      if (!selection || !selection.id) return;
+      picksByMatchId[selection.id] = {
+        pick: selection.pick || "",
+        pickLabel: selection.pickLabel || "",
+      };
+    });
+
+    participants.push({
+      number: participants.length + 1,
+      name: name || ("Participante " + (participants.length + 1)),
+      email: maskEmail_(email),
+      submittedAt: submittedIndex >= 0 ? row[submittedIndex] : "",
+      champion: championIndex >= 0 ? String(row[championIndex] || "") : "",
+      championFlagCode: championCodeIndex >= 0 ? String(row[championCodeIndex] || "") : "",
+      totalPredictions: selections.length,
+      picksByMatchId: picksByMatchId,
+    });
+  });
+
+  return participants;
 }
 
 function readApiState_(ss) {
@@ -2475,6 +2538,14 @@ function parseSelectionsJson_(value) {
   } catch (ignore) {
     return [];
   }
+}
+
+function headerIndex_(headers, candidates) {
+  for (let i = 0; i < candidates.length; i += 1) {
+    const index = headers.indexOf(candidates[i]);
+    if (index >= 0) return index;
+  }
+  return -1;
 }
 
 function getCellByHeader_(row, headers, header) {
