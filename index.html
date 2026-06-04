@@ -419,6 +419,19 @@
       overflow-wrap: anywhere;
     }
 
+    .summary-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+      min-width: min(520px, 100%);
+    }
+
+    .summary-actions .btn {
+      min-height: 42px;
+      padding: 0 14px;
+    }
+
     .table-wrap {
       overflow-x: auto;
       border: 1px solid var(--line);
@@ -574,6 +587,10 @@
         flex-direction: column;
       }
 
+      .summary-actions {
+        min-width: 0;
+      }
+
       .identity-grid,
       .choice-grid {
         grid-template-columns: 1fr;
@@ -708,7 +725,12 @@
             <h2>Resumen de selecciones</h2>
             <p class="summary-person" id="summaryPerson"></p>
           </div>
-          <div class="meta-pill" id="summaryCount">72 selecciones</div>
+          <div class="summary-actions">
+            <button class="btn btn-secondary" type="button" id="summaryBackBtn">Volver a editar</button>
+            <button class="btn btn-secondary" type="button" id="summaryIdentityBtn">Editar datos</button>
+            <button class="btn btn-danger" type="button" id="resetBtn">Limpiar</button>
+            <button class="btn" type="button" id="submitBtn">Enviar quiniela</button>
+          </div>
         </div>
 
         <div class="table-wrap">
@@ -727,12 +749,6 @@
           </table>
         </div>
 
-        <div class="submit-row">
-          <button class="btn btn-secondary" type="button" id="summaryBackBtn">Volver a editar</button>
-          <button class="btn btn-secondary" type="button" id="summaryIdentityBtn">Editar datos</button>
-          <button class="btn btn-danger" type="button" id="resetBtn">Limpiar</button>
-          <button class="btn" type="button" id="submitBtn">Enviar quiniela</button>
-        </div>
         <div class="notice" id="successNotice" hidden></div>
       </div>
     </section>
@@ -2171,7 +2187,6 @@
     const summaryIdentityBtn = document.getElementById("summaryIdentityBtn");
     const summaryRows = document.getElementById("summaryRows");
     const summaryPerson = document.getElementById("summaryPerson");
-    const summaryCount = document.getElementById("summaryCount");
     const resetBtn = document.getElementById("resetBtn");
     const submitBtn = document.getElementById("submitBtn");
     const successNotice = document.getElementById("successNotice");
@@ -2477,7 +2492,6 @@
       }
 
       summaryPerson.textContent = `${state.name} · ${state.email}`;
-      summaryCount.textContent = `${MATCHES.length} selecciones`;
       successNotice.hidden = !state.submittedAt;
       successNotice.textContent = state.submittedAt
         ? `Enviado el ${new Date(state.submittedAt).toLocaleString("es-CR")}.`
