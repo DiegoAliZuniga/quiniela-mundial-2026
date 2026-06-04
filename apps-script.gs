@@ -4,6 +4,7 @@ const MATCHES_SHEET = "Partidos";
 const RESULTS_SHEET = "Resultados";
 const RANKING_SHEET = "Ranking";
 const API_STATE_SHEET = "Estado API";
+const DIAGNOSTIC_SHEET = "Diagnostico";
 const FOOTBALL_DATA_API_URL = "https://api.football-data.org/v4/competitions/WC/matches?season=2026";
 const FOOTBALL_DATA_TOKEN_PROPERTY = "FOOTBALL_DATA_API_KEY";
 const SYNC_SECRET_PROPERTY = "SYNC_SECRET";
@@ -1690,6 +1691,12 @@ function doPost(e) {
   return handleSubmission_(e, false);
 }
 
+function getSpreadsheet_() {
+  const active = SpreadsheetApp.getActiveSpreadsheet();
+  if (active) return active;
+  return SpreadsheetApp.openById(SPREADSHEET_ID);
+}
+
 function installFootballDataTrigger() {
   ScriptApp.getProjectTriggers().forEach(function(trigger) {
     if (trigger.getHandlerFunction() === "syncFootballData") {
@@ -1711,6 +1718,82 @@ function checkFootballDataSetup() {
   };
 }
 
+function diagnosticoQuiniela() {
+  const ss = getSpreadsheet_();
+  const sheetNames = ss.getSheets().map(function(sheet) {
+    return sheet.getName();
+  });
+  const result = {
+    ok: true,
+    configuredSpreadsheetId: SPREADSHEET_ID,
+    activeSpreadsheetId: ss.getId(),
+    spreadsheetUrl: ss.getUrl(),
+    sheets: sheetNames,
+    tokenConfigured: Boolean(getFootballDataToken_()),
+  };
+  Logger.log(JSON.stringify(result, null, 2));
+  console.log(JSON.stringify(result, null, 2));
+  writeDiagnosticSheet_(ss, result);
+  return result;
+}
+
+function setupQuinielaSheets() {
+  const ss = getSpreadsheet_();
+  const matches = normalizePayload_({
+    name: "Sistema",
+    email: "sistema@quiniela.local",
+    picks: {},
+  }).matches;
+
+  setupMatchesSheet_(ss, matches);
+
+  const resultsSheet = ss.getSheetByName(RESULTS_SHEET);
+  if (!resultsSheet || resultsSheet.getLastRow() === 0) {
+    writeResults_(ss, buildResults_([]));
+  }
+
+  const rankingSheet = ss.getSheetByName(RANKING_SHEET);
+  if (!rankingSheet || rankingSheet.getLastRow() === 0) {
+    writeRanking_(ss, []);
+  }
+
+  const apiStateSheet = ss.getSheetByName(API_STATE_SHEET);
+  if (!apiStateSheet || apiStateSheet.getLastRow() === 0) {
+    writeApiState_(ss, {
+      updatedAt: new Date().toISOString(),
+      httpStatus: "",
+      requestsAvailable: "",
+      requestCounterReset: "",
+      apiVersion: "",
+      authenticatedClient: "",
+      message: "Pendiente de sincronizar football-data.org",
+    });
+  }
+
+  const result = {
+    ok: true,
+    message: "Hojas preparadas.",
+    configuredSpreadsheetId: SPREADSHEET_ID,
+    activeSpreadsheetId: ss.getId(),
+    spreadsheetUrl: ss.getUrl(),
+    existingSheets: ss.getSheets().map(function(sheet) {
+      return sheet.getName();
+    }),
+    sheets: [MATCHES_SHEET, RESULTS_SHEET, RANKING_SHEET, API_STATE_SHEET],
+  };
+  writeDiagnosticSheet_(ss, result);
+
+  return {
+    ok: result.ok,
+    message: result.message,
+    configuredSpreadsheetId: result.configuredSpreadsheetId,
+    activeSpreadsheetId: result.activeSpreadsheetId,
+    spreadsheetUrl: result.spreadsheetUrl,
+    existingSheets: result.existingSheets,
+    sheets: result.sheets,
+  };
+}
+
 function syncFootballDataFromWeb_(e) {
   const expectedSecret = PropertiesService.getScriptProperties().getProperty(SYNC_SECRET_PROPERTY);
   const providedSecret = e && e.parameter ? e.parameter.secret : "";
@@ -1726,7 +1809,7 @@ function syncFootballData() {
 
   try {
     lock.waitLock(30000);
-    ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    ss = getSpreadsheet_();
     setupMatchesSheet_(ss, normalizePayload_({ name: "Sistema", email: "sistema@quiniela.local", picks: {} }).matches);
 
     const apiResponse = fetchFootballData_();
@@ -1753,7 +1836,7 @@ function syncFootballData() {
       message: String(error && error.message ? error.message : error),
     };
     try {
-      ss = ss || SpreadsheetApp.openById(SPREADSHEET_ID);
+      ss = ss || getSpreadsheet_();
       writeApiState_(ss, apiState);
     } catch (ignore) {}
 
@@ -1766,7 +1849,7 @@ function syncFootballData() {
 }
 
 function getPublicData_() {
-  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const ss = getSpreadsheet_();
   return {
     ok: true,
     generatedAt: new Date().toISOString(),
@@ -2081,7 +2164,7 @@ function handleSubmission_(e, useJsonp) {
     const payload = normalizePayload_(parsePayload_(e));
     validatePayload_(payload);
 
-    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const ss = getSpreadsheet_();
     setupMatchesSheet_(ss, payload.matches);
     appendResponse_(ss, payload);
 
@@ -2112,6 +2195,7 @@ function parsePayload_(e) {
 function normalizePayload_(payload) {
   if (payload && Array.isArray(payload.matches)) return payload;
   if (!payload || !payload.picks) throw new Error("No se recibieron selecciones.");
+  const champion = payload.champion && payload.champion.name ? payload.champion : null;
 
   const matches = MATCHES.map(function(match) {
     const pick = payload.picks[match.id];
@@ -2136,6 +2220,9 @@ function normalizePayload_(payload) {
     submittedAt: payload.submittedAt || new Date().toISOString(),
     name: payload.name,
     email: payload.email,
+    champion: champion,
+    championName: champion ? champion.name : "",
+    championFlagCode: champion ? champion.flagCode || "" : "",
     totalMatches: MATCHES.length,
     matches: matches,
     source: payload.source || "quiniela-mundial-2026-github-pages",
@@ -2152,6 +2239,7 @@ function getPickLabel_(match, pick) {
 function validatePayload_(payload) {
   if (!payload || typeof payload !== "object") throw new Error("Payload inválido.");
   if (!payload.name || !payload.email) throw new Error("Nombre y correo son obligatorios.");
+  if (!payload.championName) throw new Error("Debes escoger el país campeón.");
   if (!Array.isArray(payload.matches) || payload.matches.length === 0) {
     throw new Error("No se recibieron selecciones.");
   }
@@ -2186,6 +2274,8 @@ function appendResponse_(ss, payload) {
     "Fecha envío",
     "Nombre",
     "Correo",
+    "Campeón",
+    "Código campeón",
     "Total partidos",
     "Completados",
     "Selecciones JSON"
@@ -2197,6 +2287,8 @@ function appendResponse_(ss, payload) {
   setCell_(row, headers, "Fecha envío", new Date());
   setCell_(row, headers, "Nombre", payload.name);
   setCell_(row, headers, "Correo", payload.email);
+  setCell_(row, headers, "Campeón", payload.championName);
+  setCell_(row, headers, "Código campeón", payload.championFlagCode);
   setCell_(row, headers, "Total partidos", payload.totalMatches || payload.matches.length);
   setCell_(row, headers, "Completados", payload.matches.length);
   setCell_(row, headers, "Selecciones JSON", JSON.stringify(payload.matches));
@@ -2239,6 +2331,25 @@ function ensureHeaders_(sheet, requiredHeaders) {
 function setCell_(row, headers, header, value) {
   const index = headers.indexOf(header);
   if (index >= 0) row[index] = value;
+}
+
+function writeDiagnosticSheet_(ss, data) {
+  const sheet = ss.getSheetByName(DIAGNOSTIC_SHEET) || ss.insertSheet(DIAGNOSTIC_SHEET);
+  const rows = [
+    ["Campo", "Valor"],
+    ["Actualizado", new Date()],
+    ["Spreadsheet ID configurado", data.configuredSpreadsheetId || SPREADSHEET_ID],
+    ["Spreadsheet ID activo", data.activeSpreadsheetId || ss.getId()],
+    ["Spreadsheet URL", data.spreadsheetUrl || ss.getUrl()],
+    ["Token football-data configurado", data.tokenConfigured === undefined ? "" : data.tokenConfigured],
+    ["Hojas existentes", (data.existingSheets || data.sheets || []).join(", ")],
+    ["Mensaje", data.message || ""],
+  ];
+
+  sheet.clearContents();
+  sheet.getRange(1, 1, rows.length, 2).setValues(rows);
+  sheet.setFrozenRows(1);
+  sheet.autoResizeColumns(1, 2);
 }
 
 function respond_(e, value) {

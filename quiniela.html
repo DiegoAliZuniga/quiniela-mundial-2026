@@ -151,7 +151,7 @@
 
     .intro-steps {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 10px;
       margin: 18px 0 24px;
     }
@@ -382,6 +382,66 @@
       background: #eef5fb;
       font-size: 2rem;
       font-weight: 900;
+    }
+
+    .champion-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(152px, 1fr));
+      gap: 10px;
+      max-height: min(430px, 54vh);
+      overflow: auto;
+      padding: 2px 4px 6px 0;
+    }
+
+    .champion-choice {
+      min-height: 116px;
+      border: 2px solid var(--line);
+      border-radius: var(--radius);
+      padding: 12px;
+      color: var(--ink);
+      background: #ffffff;
+      display: grid;
+      gap: 10px;
+      align-content: center;
+      justify-items: center;
+      text-align: center;
+      transition: transform 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+    }
+
+    .champion-choice:hover {
+      transform: translateY(-1px);
+      border-color: rgba(31, 78, 121, 0.48);
+      box-shadow: 0 12px 24px rgba(19, 32, 51, 0.09);
+    }
+
+    .champion-choice[aria-checked="true"] {
+      border-color: var(--green);
+      box-shadow: 0 0 0 4px rgba(7, 107, 95, 0.15), 0 16px 28px rgba(7, 107, 95, 0.16);
+    }
+
+    .champion-selected {
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 10px 12px;
+      color: var(--muted);
+      background: #fbfcfd;
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+
+    .champion-selected .flag-wrap {
+      width: 44px;
+      height: 32px;
+      flex: 0 0 auto;
+    }
+
+    .champion-selected strong {
+      color: var(--green-dark);
     }
 
     .nav-row {
@@ -651,11 +711,15 @@
             <span>Escribe tu nombre y correo para identificar tu quiniela.</span>
           </div>
           <div class="intro-step">
-            <strong>2. Pronósticos</strong>
+            <strong>2. Campeón</strong>
+            <span>Elige el país que crees que levantará la copa.</span>
+          </div>
+          <div class="intro-step">
+            <strong>3. Pronósticos</strong>
             <span>Avanza partido por partido y selecciona el resultado que crees que ocurrirá.</span>
           </div>
           <div class="intro-step">
-            <strong>3. Revisión</strong>
+            <strong>4. Revisión</strong>
             <span>Confirma el resumen, edita lo necesario y envía tus selecciones.</span>
           </div>
         </div>
@@ -670,6 +734,23 @@
           </div>
           <button class="btn" type="submit">Comenzar</button>
         </form>
+      </div>
+    </section>
+
+    <section class="panel" id="championScreen" hidden>
+      <div class="panel-body">
+        <div class="intro-copy">
+          <h2>Escoge tu campeón</h2>
+          <p>Selecciona el país que crees que ganará el Mundial 2026. Esta elección se guardará junto con tus pronósticos.</p>
+        </div>
+        <div class="champion-selected" id="championSelected"></div>
+        <div class="champion-grid" id="championGrid" role="radiogroup" aria-label="Seleccionar campeón"></div>
+      </div>
+      <div class="nav-row">
+        <button class="btn btn-secondary" type="button" id="championBackBtn">Datos</button>
+        <div class="nav-actions">
+          <button class="btn" type="button" id="championNextBtn">Siguiente</button>
+        </div>
       </div>
     </section>
 
@@ -728,6 +809,7 @@
           <div class="summary-actions">
             <button class="btn btn-secondary" type="button" id="summaryBackBtn">Volver a editar</button>
             <button class="btn btn-secondary" type="button" id="summaryIdentityBtn">Editar datos</button>
+            <button class="btn btn-secondary" type="button" id="summaryChampionBtn">Editar campeón</button>
             <button class="btn btn-danger" type="button" id="resetBtn">Limpiar</button>
             <button class="btn" type="button" id="submitBtn">Enviar quiniela</button>
           </div>
@@ -2450,10 +2532,12 @@
         "crTimeMinutes": 1020
     }
 ];
+    const CHAMPION_OPTIONS = buildChampionOptions();
 
     const state = loadState();
     const screens = {
       identity: document.getElementById("identityScreen"),
+      champion: document.getElementById("championScreen"),
       match: document.getElementById("matchScreen"),
       summary: document.getElementById("summaryScreen"),
     };
@@ -2461,6 +2545,10 @@
     const identityForm = document.getElementById("identityForm");
     const playerName = document.getElementById("playerName");
     const playerEmail = document.getElementById("playerEmail");
+    const championGrid = document.getElementById("championGrid");
+    const championSelected = document.getElementById("championSelected");
+    const championBackBtn = document.getElementById("championBackBtn");
+    const championNextBtn = document.getElementById("championNextBtn");
     const globalProgress = document.getElementById("globalProgress");
     const matchCounter = document.getElementById("matchCounter");
     const pickedCounter = document.getElementById("pickedCounter");
@@ -2473,6 +2561,7 @@
     const identityBtn = document.getElementById("identityBtn");
     const summaryBackBtn = document.getElementById("summaryBackBtn");
     const summaryIdentityBtn = document.getElementById("summaryIdentityBtn");
+    const summaryChampionBtn = document.getElementById("summaryChampionBtn");
     const summaryRows = document.getElementById("summaryRows");
     const summaryPerson = document.getElementById("summaryPerson");
     const resetBtn = document.getElementById("resetBtn");
@@ -2491,7 +2580,8 @@
 
     playerName.value = state.name;
     playerEmail.value = state.email;
-    globalProgress.textContent = `${MATCHES.length} partidos`;
+    globalProgress.textContent = `Campeón + ${MATCHES.length} partidos`;
+    renderChampionOptions();
 
     identityForm.addEventListener("submit", (event) => {
       event.preventDefault();
@@ -2505,8 +2595,7 @@
           : state.currentIndex;
         state.returnAfterIdentity = null;
       } else {
-        state.screen = "match";
-        state.currentIndex = firstOpenMatchIndex();
+        state.screen = "champion";
       }
       saveState();
       render();
@@ -2522,6 +2611,40 @@
       saveState();
     });
 
+    championBackBtn.addEventListener("click", () => {
+      if (state.returnAfterChampion) {
+        state.screen = state.returnAfterChampion.screen || "summary";
+        state.currentIndex = Number.isInteger(state.returnAfterChampion.currentIndex)
+          ? state.returnAfterChampion.currentIndex
+          : state.currentIndex;
+        state.returnAfterChampion = null;
+      } else {
+        state.screen = "identity";
+      }
+      saveState();
+      render();
+    });
+
+    championNextBtn.addEventListener("click", () => {
+      if (!state.champion || !state.champion.name) {
+        showToast("Escoge el país que crees que será campeón.");
+        return;
+      }
+
+      if (state.returnAfterChampion) {
+        state.screen = state.returnAfterChampion.screen || "summary";
+        state.currentIndex = Number.isInteger(state.returnAfterChampion.currentIndex)
+          ? state.returnAfterChampion.currentIndex
+          : state.currentIndex;
+        state.returnAfterChampion = null;
+      } else {
+        state.screen = "match";
+        state.currentIndex = firstOpenMatchIndex();
+      }
+      saveState();
+      render();
+    });
+
     choiceButtons.forEach((button) => {
       button.addEventListener("click", () => {
         const match = MATCHES[state.currentIndex];
@@ -2534,7 +2657,7 @@
 
     backBtn.addEventListener("click", () => {
       if (state.currentIndex === 0) {
-        openIdentityEditor();
+        openChampionEditor();
         return;
       } else {
         state.currentIndex -= 1;
@@ -2575,16 +2698,22 @@
       openIdentityEditor();
     });
 
+    summaryChampionBtn.addEventListener("click", () => {
+      openChampionEditor();
+    });
+
     resetBtn.addEventListener("click", () => {
       const confirmed = window.confirm("¿Limpiar tus datos y selecciones?");
       if (!confirmed) return;
       localStorage.removeItem(STORAGE_KEY);
       state.name = "";
       state.email = "";
+      state.champion = null;
       state.picks = {};
       state.currentIndex = 0;
       state.screen = "identity";
       state.returnAfterIdentity = null;
+      state.returnAfterChampion = null;
       state.submittedAt = "";
       playerName.value = "";
       playerEmail.value = "";
@@ -2621,8 +2750,10 @@
         currentIndex: 0,
         name: "",
         email: "",
+        champion: null,
         picks: {},
         returnAfterIdentity: null,
+        returnAfterChampion: null,
         submittedAt: "",
       };
       try {
@@ -2640,10 +2771,12 @@
 
     function render() {
       screens.identity.hidden = state.screen !== "identity";
+      screens.champion.hidden = state.screen !== "champion";
       screens.match.hidden = state.screen !== "match";
       screens.summary.hidden = state.screen !== "summary";
 
       if (state.screen === "identity") renderIdentity();
+      if (state.screen === "champion") renderChampion();
       if (state.screen === "match") renderMatch();
       if (state.screen === "summary") renderSummary();
     }
@@ -2655,12 +2788,73 @@
       playerEmail.value = state.email;
     }
 
+    function renderChampionOptions() {
+      championGrid.replaceChildren(
+        ...CHAMPION_OPTIONS.map((team, index) => {
+          const button = document.createElement("button");
+          button.className = "champion-choice";
+          button.type = "button";
+          button.setAttribute("role", "radio");
+          button.setAttribute("aria-checked", "false");
+          button.dataset.championIndex = String(index);
+          button.append(createFlag(team));
+
+          const name = document.createElement("span");
+          name.className = "team-name";
+          name.textContent = team.name;
+          button.append(name);
+
+          button.addEventListener("click", () => {
+            state.champion = { ...team };
+            state.submittedAt = "";
+            saveState();
+            renderChampion();
+          });
+
+          return button;
+        })
+      );
+    }
+
+    function renderChampion() {
+      const selectedName = state.champion && state.champion.name ? state.champion.name : "";
+      const buttons = [...championGrid.querySelectorAll(".champion-choice")];
+      buttons.forEach((button) => {
+        const team = CHAMPION_OPTIONS[Number(button.dataset.championIndex)];
+        button.setAttribute("aria-checked", team && team.name === selectedName ? "true" : "false");
+      });
+
+      championSelected.replaceChildren();
+      if (selectedName) {
+        const team = getChampionOption(selectedName) || state.champion;
+        championSelected.append(createFlag(team));
+        const text = document.createElement("span");
+        text.innerHTML = `Campeón seleccionado: <strong>${escapeHtml(team.name)}</strong>`;
+        championSelected.append(text);
+      } else {
+        championSelected.textContent = "Aún no has escogido campeón.";
+      }
+
+      championBackBtn.textContent = state.returnAfterChampion ? "Cancelar" : "Datos";
+      championNextBtn.textContent = state.returnAfterChampion ? "Guardar campeón" : "Siguiente";
+    }
+
     function openIdentityEditor() {
       state.returnAfterIdentity = {
         screen: state.screen === "summary" ? "summary" : "match",
         currentIndex: state.currentIndex,
       };
       state.screen = "identity";
+      saveState();
+      render();
+    }
+
+    function openChampionEditor() {
+      state.returnAfterChampion = {
+        screen: state.screen === "summary" ? "summary" : "match",
+        currentIndex: state.currentIndex,
+      };
+      state.screen = "champion";
       saveState();
       render();
     }
@@ -2676,7 +2870,7 @@
       groupLabel.textContent = `Grupo ${match.group}`;
       dateLabel.textContent = `${match.crDateLabel} · ${match.crTime} CR`;
       fixtureTitle.textContent = `${match.home.name} vs ${match.away.name}`;
-      backBtn.textContent = state.currentIndex === 0 ? "Datos" : "Atrás";
+      backBtn.textContent = state.currentIndex === 0 ? "Campeón" : "Atrás";
       nextBtn.textContent = state.currentIndex === MATCHES.length - 1 ? "Ver resumen" : "Siguiente";
 
       setTeamChoice(document.querySelector('[data-pick="home"]'), match.home, "Local");
@@ -2770,6 +2964,14 @@
     }
 
     function renderSummary() {
+      if (!state.champion || !state.champion.name) {
+        state.screen = "champion";
+        saveState();
+        render();
+        showToast("Escoge el país campeón antes de revisar el resumen.");
+        return;
+      }
+
       if (!allPicked()) {
         state.screen = "match";
         state.currentIndex = firstOpenMatchIndex();
@@ -2779,7 +2981,7 @@
         return;
       }
 
-      summaryPerson.textContent = `${state.name} · ${state.email}`;
+      summaryPerson.textContent = `${state.name} · ${state.email} · Campeón: ${getChampionLabel()}`;
       successNotice.hidden = !state.submittedAt;
       successNotice.textContent = state.submittedAt
         ? `Enviado el ${new Date(state.submittedAt).toLocaleString("es-CR")}.`
@@ -2824,11 +3026,30 @@
       return "Sin marcar";
     }
 
+    function buildChampionOptions() {
+      const teams = new Map();
+      MATCHES.forEach((match) => {
+        [match.home, match.away].forEach((team) => {
+          if (!teams.has(team.name)) teams.set(team.name, { ...team });
+        });
+      });
+      return [...teams.values()].sort((a, b) => a.name.localeCompare(b.name, "es"));
+    }
+
+    function getChampionOption(name) {
+      return CHAMPION_OPTIONS.find((team) => team.name === name);
+    }
+
+    function getChampionLabel() {
+      return state.champion && state.champion.name ? state.champion.name : "Sin escoger";
+    }
+
     function buildPayload() {
       return {
         submittedAt: new Date().toISOString(),
         name: state.name,
         email: state.email,
+        champion: state.champion ? { ...state.champion } : null,
         totalMatches: MATCHES.length,
         picks: { ...state.picks },
         source: "quiniela-mundial-2026-github-pages",
@@ -2836,6 +3057,14 @@
     }
 
     async function submitEntry() {
+      if (!state.champion || !state.champion.name) {
+        showToast("Escoge el país campeón antes de enviar.");
+        state.screen = "champion";
+        saveState();
+        render();
+        return;
+      }
+
       if (!allPicked()) {
         showToast("Faltan selecciones por marcar.");
         return;

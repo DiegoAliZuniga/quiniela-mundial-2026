@@ -19,14 +19,16 @@ Este paquete contiene un sitio estatico listo para GitHub Pages y un Google Apps
    - `FOOTBALL_DATA_API_KEY`: tu API key de football-data.org.
    - `SYNC_SECRET`: opcional, solo si quieres permitir sincronizacion manual por URL.
 5. Ejecuta una vez la funcion `checkFootballDataSetup` para autorizar permisos y confirmar que la key existe.
-6. Ejecuta una vez `syncFootballData` para crear/actualizar las hojas `Resultados`, `Ranking` y `Estado API`.
-7. Ejecuta una vez `installFootballDataTrigger` para instalar una sincronizacion automatica cada 5 minutos.
-8. Ve a `Deploy` > `New deployment` > `Web app`.
-9. Usa estos valores:
+6. Ejecuta una vez `setupQuinielaSheets` para crear las hojas `Partidos`, `Resultados`, `Ranking` y `Estado API`.
+7. Si no ves las hojas, ejecuta `diagnosticoQuiniela` y revisa `spreadsheetUrl`; esa es la hoja donde el script esta escribiendo.
+8. Ejecuta una vez `syncFootballData` para consultar football-data.org y llenar resultados/API.
+9. Ejecuta una vez `installFootballDataTrigger` para instalar una sincronizacion automatica cada 5 minutos.
+10. Ve a `Deploy` > `New deployment` > `Web app`.
+11. Usa estos valores:
    - `Execute as`: `Me`
    - `Who has access`: `Anyone`
-10. Copia la URL del Web App que termina en `/exec`.
-11. En `quiniela.html` e `index.html`, confirma que `APPS_SCRIPT_URL` tenga esa URL. En este paquete ya esta configurada con:
+12. Copia la URL del Web App que termina en `/exec`.
+13. En `quiniela.html` e `index.html`, confirma que `APPS_SCRIPT_URL` tenga esa URL. En este paquete ya esta configurada con:
    `https://script.google.com/macros/s/AKfycbzQI1RJxvLAqjCR-L1MDauB1sWzVwYtX8SO3mWXozaF_QmkN3FRoAC8vW6F3aFgz1znyQ/exec`
 
 Si haces cambios en `apps-script.gs`, vuelve a desplegar el Web App con `Deploy` > `Manage deployments` > editar despliegue > `New version`.
