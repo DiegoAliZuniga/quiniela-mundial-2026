@@ -3,17 +3,20 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Quiniela Mundialista 2026</title>
+  <title>Quiniela Mundial 2026</title>
   <style>
     :root {
-      --blue: #0077b6;
-      --ice: #caf0f8;
-      --ink: #071827;
-      --paper: #ffffff;
-      --line: rgba(7, 24, 39, 0.14);
-      --green: #007f5f;
-      --red: #d62828;
-      --shadow: 0 22px 56px rgba(7, 24, 39, 0.18);
+      --ink: #132033;
+      --muted: #64748b;
+      --paper: #fffdf8;
+      --surface: #ffffff;
+      --line: #d8e0e6;
+      --green: #076b5f;
+      --green-dark: #04483f;
+      --red: #c51f32;
+      --gold: #f2b705;
+      --blue: #1f4e79;
+      --shadow: 0 22px 55px rgba(19, 32, 51, 0.12);
       --radius: 8px;
     }
 
@@ -24,282 +27,771 @@
 
     body {
       margin: 0;
+      min-height: 100vh;
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       color: var(--ink);
-      background: var(--ice);
+      background:
+        linear-gradient(180deg, rgba(246, 248, 251, 0.72), rgba(11, 20, 34, 0.32) 54%, rgba(11, 20, 34, 0.62)),
+        url("assets/stadium-background.jpg") center top / cover fixed no-repeat,
+        #142133;
     }
 
-    a,
-    button {
+    button,
+    input {
       font: inherit;
     }
 
-    .hero {
-      min-height: 78vh;
-      display: grid;
-      align-items: end;
-      padding: 28px;
-      background:
-        linear-gradient(180deg, rgba(7, 24, 39, 0.08), rgba(7, 24, 39, 0.76)),
-        url("assets/main-background.png") center / cover no-repeat;
+    button {
+      cursor: pointer;
     }
 
-    .hero-inner {
-      width: min(1120px, 100%);
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    .app-shell {
+      width: min(1040px, calc(100% - 32px));
       margin: 0 auto;
-      padding-bottom: 48px;
+      padding: 28px 0 36px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand-logo {
+      width: 52px;
+      height: 108px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(255, 255, 255, 0.72);
+      border-radius: var(--radius);
+      padding: 0;
+      background: #000000;
+      box-shadow: 0 14px 30px rgba(19, 32, 51, 0.22);
+      flex: 0 0 auto;
+      overflow: hidden;
+    }
+
+    .brand-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
     }
 
     h1,
     h2,
-    h3,
     p {
       margin: 0;
     }
 
     h1 {
-      color: #ffffff;
-      font-size: clamp(2.7rem, 8vw, 6.4rem);
-      line-height: 0.95;
-      max-width: 900px;
-      text-shadow: 0 16px 46px rgba(0, 0, 0, 0.45);
-    }
-
-    .section {
-      padding: 54px 24px;
-    }
-
-    .section.blue {
-      background: var(--blue);
-      color: #ffffff;
-    }
-
-    .section.ice {
-      background: var(--ice);
-      color: var(--ink);
-    }
-
-    .wrap {
-      width: min(1120px, 100%);
-      margin: 0 auto;
-    }
-
-    .action-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 16px;
-    }
-
-    .action-btn {
-      min-height: 86px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 2px solid rgba(255, 255, 255, 0.68);
-      border-radius: var(--radius);
-      padding: 18px;
-      color: #ffffff;
-      background: rgba(255, 255, 255, 0.13);
-      text-decoration: none;
-      font-size: 1.1rem;
-      font-weight: 900;
-      text-align: center;
-      box-shadow: 0 18px 36px rgba(7, 24, 39, 0.16);
-    }
-
-    .action-btn:hover {
-      background: rgba(255, 255, 255, 0.22);
-    }
-
-    .section-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: end;
-      gap: 18px;
-      margin-bottom: 20px;
-    }
-
-    .section-head h2 {
-      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-size: 1.9rem;
       line-height: 1.05;
+      text-shadow: 0 1px 10px rgba(255, 255, 255, 0.62);
     }
 
-    .section-note {
-      font-weight: 800;
-      opacity: 0.82;
-    }
-
-    .live-board,
-    .ranking-card {
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 34px;
       border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 12px;
+      background: rgba(255, 255, 255, 0.74);
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .panel {
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid rgba(216, 224, 230, 0.92);
       border-radius: var(--radius);
-      background: rgba(255, 255, 255, 0.78);
       box-shadow: var(--shadow);
       overflow: hidden;
+      backdrop-filter: blur(4px);
     }
 
-    .live-row {
+    .panel-body {
+      padding: 28px;
+    }
+
+    .intro-copy {
       display: grid;
-      grid-template-columns: 110px 1fr auto;
-      gap: 14px;
-      align-items: center;
-      padding: 16px 18px;
-      border-bottom: 1px solid var(--line);
-      background: #ffffff;
+      gap: 10px;
+      margin-bottom: 22px;
+      max-width: 820px;
     }
 
-    .live-row:last-child {
-      border-bottom: 0;
+    .intro-copy h2 {
+      font-size: 1.35rem;
+      line-height: 1.18;
     }
 
-    .status-pill {
-      display: inline-flex;
-      justify-content: center;
-      border-radius: 999px;
-      padding: 6px 10px;
-      background: rgba(0, 119, 182, 0.12);
-      color: var(--blue);
-      font-weight: 900;
-      white-space: nowrap;
-    }
-
-    .match-title {
-      font-weight: 900;
-      overflow-wrap: anywhere;
-    }
-
-    .score {
-      font-weight: 900;
-      font-size: 1.18rem;
-      white-space: nowrap;
-    }
-
-    .empty-state {
-      padding: 24px;
-      background: #ffffff;
-      font-weight: 800;
-      color: rgba(7, 24, 39, 0.74);
-    }
-
-    .ranking-card {
-      padding: 26px;
-      color: var(--ink);
-      background: rgba(255, 255, 255, 0.92);
-    }
-
-    .ranking-card h2 {
-      margin-bottom: 10px;
-    }
-
-    .ranking-card p {
-      color: rgba(7, 24, 39, 0.68);
-      font-weight: 800;
+    .intro-copy p {
+      color: var(--muted);
+      font-weight: 700;
       line-height: 1.5;
     }
 
-    .calendar-strip {
+    .intro-steps {
       display: grid;
-      grid-auto-flow: column;
-      grid-auto-columns: minmax(260px, 320px);
-      gap: 14px;
-      overflow-x: auto;
-      padding: 4px 4px 16px;
-      scroll-snap-type: x mandatory;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin: 18px 0 24px;
     }
 
-    .fixture-card {
-      scroll-snap-align: start;
-      min-height: 188px;
-      display: grid;
-      gap: 14px;
-      align-content: space-between;
+    .intro-step {
+      min-height: 84px;
       border: 1px solid var(--line);
       border-radius: var(--radius);
-      padding: 18px;
+      padding: 12px;
+      background: #fbfcfd;
+      display: grid;
+      gap: 6px;
+      align-content: start;
+    }
+
+    .intro-step strong {
+      color: var(--green-dark);
+    }
+
+    .intro-step span {
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .identity-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 14px;
+      align-items: end;
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+    }
+
+    label {
+      font-size: 0.87rem;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    input {
+      width: 100%;
+      min-height: 48px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 10px 12px;
+      color: var(--ink);
       background: #ffffff;
-      box-shadow: 0 14px 34px rgba(7, 24, 39, 0.1);
+      outline: none;
+    }
+
+    input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(31, 78, 121, 0.16);
+    }
+
+    .btn {
+      min-height: 48px;
+      border: 0;
+      border-radius: var(--radius);
+      padding: 0 18px;
+      font-weight: 800;
+      color: #ffffff;
+      background: var(--green);
+      box-shadow: 0 12px 22px rgba(7, 107, 95, 0.2);
+      white-space: nowrap;
+    }
+
+    .btn:hover:not(:disabled) {
+      background: var(--green-dark);
+    }
+
+    .btn-secondary {
+      color: var(--ink);
+      background: #edf2f7;
+      box-shadow: none;
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: #e2e8f0;
+    }
+
+    .btn-danger {
+      background: var(--red);
+      box-shadow: 0 12px 22px rgba(197, 31, 50, 0.18);
+    }
+
+    .match-head {
+      display: grid;
+      gap: 14px;
+      padding: 22px 28px 0;
+    }
+
+    .progress-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      color: var(--muted);
+      font-weight: 800;
+      font-size: 0.93rem;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 10px;
+      background: #e7edf2;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--green), var(--gold), var(--red));
+      transition: width 180ms ease;
+    }
+
+    .fixture {
+      display: grid;
+      gap: 20px;
+      padding: 22px 28px 28px;
     }
 
     .fixture-meta {
       display: flex;
-      justify-content: space-between;
+      flex-wrap: wrap;
       gap: 10px;
-      color: rgba(7, 24, 39, 0.68);
-      font-weight: 900;
+      align-items: center;
+      color: var(--muted);
+      font-weight: 800;
     }
 
-    .fixture-teams {
-      font-size: 1.13rem;
-      line-height: 1.22;
-      font-weight: 900;
+    .fixture-title {
+      font-size: 1.55rem;
+      line-height: 1.18;
       overflow-wrap: anywhere;
     }
 
-    .fixture-time {
+    .choice-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 160px minmax(0, 1fr);
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .choice {
+      min-height: 150px;
+      border: 2px solid var(--line);
+      border-radius: var(--radius);
+      background: #ffffff;
+      color: var(--ink);
+      padding: 16px;
+      display: grid;
+      gap: 12px;
+      align-content: center;
+      justify-items: center;
+      text-align: center;
+      transition: transform 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+    }
+
+    .choice:hover {
+      transform: translateY(-1px);
+      border-color: rgba(31, 78, 121, 0.48);
+      box-shadow: 0 12px 24px rgba(19, 32, 51, 0.09);
+    }
+
+    .choice[aria-pressed="true"] {
+      border-color: var(--green);
+      box-shadow: 0 0 0 4px rgba(7, 107, 95, 0.15), 0 16px 28px rgba(7, 107, 95, 0.16);
+    }
+
+    .choice.draw[aria-pressed="true"] {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 4px rgba(242, 183, 5, 0.2), 0 16px 28px rgba(19, 32, 51, 0.1);
+    }
+
+    .flag-wrap {
+      position: relative;
+      width: 76px;
+      height: 54px;
+      display: grid;
+      place-items: center;
+      border: 1px solid #d5dde6;
+      border-radius: 6px;
+      overflow: hidden;
+      background: #f8fafc;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.55);
+    }
+
+    .flag-wrap img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .flag-fallback {
+      font-size: 1.85rem;
+      line-height: 1;
+      z-index: 0;
+    }
+
+    .team-name {
+      font-size: 1.18rem;
+      font-weight: 900;
+      line-height: 1.17;
+      overflow-wrap: anywhere;
+    }
+
+    .choice small {
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .draw-symbol {
+      width: 76px;
+      height: 54px;
+      display: grid;
+      place-items: center;
+      border-radius: 6px;
       color: var(--blue);
+      background: #eef5fb;
+      font-size: 2rem;
       font-weight: 900;
     }
 
-    @media (max-width: 760px) {
-      .hero {
-        min-height: 68vh;
-        padding: 20px;
+    .nav-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      border-top: 1px solid var(--line);
+      padding: 18px 28px;
+      background: #fbfcfd;
+    }
+
+    .nav-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .summary-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: start;
+      margin-bottom: 18px;
+    }
+
+    .summary-head h2 {
+      font-size: 1.45rem;
+      margin-bottom: 6px;
+    }
+
+    .summary-person {
+      color: var(--muted);
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+
+    .summary-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+      min-width: min(520px, 100%);
+    }
+
+    .summary-actions .btn {
+      min-height: 42px;
+      padding: 0 14px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #ffffff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 780px;
+    }
+
+    th,
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid #e8edf2;
+      text-align: left;
+      vertical-align: middle;
+      font-size: 0.94rem;
+    }
+
+    th {
+      color: var(--muted);
+      background: #f7fafc;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      font-weight: 900;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .pick-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 6px 10px;
+      color: var(--green-dark);
+      background: rgba(7, 107, 95, 0.11);
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .edit-link {
+      border: 0;
+      background: transparent;
+      color: var(--blue);
+      font-weight: 900;
+      padding: 4px 0;
+    }
+
+    .submit-row {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 18px;
+      flex-wrap: wrap;
+    }
+
+    .notice {
+      margin-top: 16px;
+      border-left: 4px solid var(--green);
+      background: rgba(7, 107, 95, 0.08);
+      padding: 12px 14px;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      color: var(--green-dark);
+      font-weight: 800;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 22px;
+      transform: translateX(-50%);
+      width: min(520px, calc(100% - 28px));
+      padding: 12px 14px;
+      border-radius: var(--radius);
+      color: #ffffff;
+      background: var(--ink);
+      box-shadow: var(--shadow);
+      font-weight: 800;
+      text-align: center;
+      z-index: 20;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 16;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      background: rgba(9, 19, 33, 0.58);
+      backdrop-filter: blur(4px);
+    }
+
+    .edit-modal {
+      width: min(820px, 100%);
+      max-height: min(760px, calc(100vh - 36px));
+      overflow: auto;
+      border: 1px solid rgba(216, 224, 230, 0.92);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.98);
+      box-shadow: 0 28px 70px rgba(9, 19, 33, 0.28);
+    }
+
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 22px 24px 12px;
+      align-items: start;
+    }
+
+    .modal-head h2 {
+      font-size: 1.24rem;
+      line-height: 1.18;
+      overflow-wrap: anywhere;
+    }
+
+    .modal-kicker {
+      color: var(--muted);
+      font-weight: 900;
+      margin-bottom: 6px;
+    }
+
+    .modal-body {
+      display: grid;
+      gap: 18px;
+      padding: 0 24px 24px;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      border-top: 1px solid var(--line);
+      padding-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    @media (max-width: 820px) {
+      .topbar,
+      .summary-head {
+        align-items: stretch;
+        flex-direction: column;
       }
 
-      .action-grid,
-      .live-row {
+      .summary-actions {
+        min-width: 0;
+      }
+
+      .identity-grid,
+      .choice-grid {
         grid-template-columns: 1fr;
       }
 
-      .section-head {
-        align-items: start;
+      .intro-steps {
+        grid-template-columns: 1fr;
+      }
+
+      .choice {
+        min-height: 122px;
+      }
+
+      .panel-body,
+      .match-head,
+      .fixture,
+      .nav-row {
+        padding-left: 18px;
+        padding-right: 18px;
+      }
+
+      .nav-row,
+      .nav-actions,
+      .modal-actions {
+        align-items: stretch;
         flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
       }
     }
   </style>
 </head>
 <body>
-  <header class="hero">
-    <div class="hero-inner">
-      <h1>Quiniela Mundialista 2026</h1>
-    </div>
-  </header>
-
-  <section class="section blue" aria-label="Acciones principales">
-    <div class="wrap action-grid">
-      <a class="action-btn" href="quiniela.html">Llenar quiniela</a>
-      <a class="action-btn" href="predicciones.html">Mostrar predicciones de participantes</a>
-    </div>
-  </section>
-
-  <section class="section ice" aria-label="Resultados en vivo">
-    <div class="wrap">
-      <div class="section-head">
-        <h2>Resultados en tiempo real</h2>
-        <p class="section-note" id="liveClock"></p>
+  <main class="app-shell">
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-logo">
+          <img src="https://img.favpng.com/6/1/5/world-cup-2026-logo-fifa-2026-logo-featuring-trophy-design-By6wambc.jpg" alt="Logo FIFA World Cup">
+        </div>
+        <div>
+          <h1>Quiniela Mundial 2026</h1>
+        </div>
       </div>
-      <div class="live-board" id="liveBoard"></div>
+      <div class="meta-pill" id="globalProgress">72 partidos</div>
     </div>
-  </section>
 
-  <section class="section blue" aria-label="Ranking de la quiniela">
-    <div class="wrap ranking-card">
-      <h2>Ranking de la quiniela</h2>
-      <p>Esta sección se activará cuando se definan los resultados oficiales y se calcule el puntaje de cada participante.</p>
-    </div>
-  </section>
-
-  <section class="section ice" aria-label="Calendario de próximos partidos">
-    <div class="wrap">
-      <div class="section-head">
-        <h2>Próximos partidos</h2>
-        <p class="section-note">Horario Costa Rica</p>
+    <section class="panel" id="identityScreen">
+      <div class="panel-body">
+        <div class="intro-copy">
+          <h2>Antes de empezar</h2>
+          <p>Completa tus datos y marca un pronóstico para cada partido de la fase de grupos. Puedes escoger local, empate o visita; al final verás un resumen completo antes de enviar tu quiniela.</p>
+        </div>
+        <div class="intro-steps" aria-label="Instrucciones">
+          <div class="intro-step">
+            <strong>1. Datos</strong>
+            <span>Escribe tu nombre y correo para identificar tu quiniela.</span>
+          </div>
+          <div class="intro-step">
+            <strong>2. Pronósticos</strong>
+            <span>Avanza partido por partido y selecciona el resultado que crees que ocurrirá.</span>
+          </div>
+          <div class="intro-step">
+            <strong>3. Revisión</strong>
+            <span>Confirma el resumen, edita lo necesario y envía tus selecciones.</span>
+          </div>
+        </div>
+        <form class="identity-grid" id="identityForm">
+          <div class="field">
+            <label for="playerName">Nombre</label>
+            <input id="playerName" name="playerName" autocomplete="name" maxlength="80" required>
+          </div>
+          <div class="field">
+            <label for="playerEmail">Correo</label>
+            <input id="playerEmail" name="playerEmail" type="email" autocomplete="email" maxlength="120" required>
+          </div>
+          <button class="btn" type="submit">Comenzar</button>
+        </form>
       </div>
-      <div class="calendar-strip" id="calendarStrip"></div>
+    </section>
+
+    <section class="panel" id="matchScreen" hidden>
+      <div class="match-head">
+        <div class="progress-row">
+          <span id="matchCounter">Partido 1 de 72</span>
+          <span id="pickedCounter">0 marcados</span>
+        </div>
+        <div class="progress-track" aria-hidden="true">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+      </div>
+
+      <div class="fixture">
+        <div class="fixture-meta">
+          <span class="meta-pill" id="groupLabel">Grupo A</span>
+          <span class="meta-pill" id="dateLabel">11 jun 2026</span>
+        </div>
+        <h2 class="fixture-title" id="fixtureTitle">México vs Sudáfrica</h2>
+
+        <div class="choice-grid" role="group" aria-label="Seleccionar pronóstico">
+          <button class="choice" type="button" data-pick="home" aria-pressed="false">
+            <span class="flag-slot"></span>
+            <span class="team-name"></span>
+            <small>Local</small>
+          </button>
+          <button class="choice draw" type="button" data-pick="draw" aria-pressed="false">
+            <span class="draw-symbol" aria-hidden="true">=</span>
+            <span class="team-name">Empate</span>
+          </button>
+          <button class="choice" type="button" data-pick="away" aria-pressed="false">
+            <span class="flag-slot"></span>
+            <span class="team-name"></span>
+            <small>Visita</small>
+          </button>
+        </div>
+      </div>
+
+      <div class="nav-row">
+        <button class="btn btn-secondary" type="button" id="backBtn">Atrás</button>
+        <div class="nav-actions">
+          <button class="btn btn-secondary" type="button" id="identityBtn">Editar datos</button>
+          <button class="btn" type="button" id="nextBtn">Siguiente</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="summaryScreen" hidden>
+      <div class="panel-body">
+        <div class="summary-head">
+          <div>
+            <h2>Resumen de selecciones</h2>
+            <p class="summary-person" id="summaryPerson"></p>
+          </div>
+          <div class="summary-actions">
+            <button class="btn btn-secondary" type="button" id="summaryBackBtn">Volver a editar</button>
+            <button class="btn btn-secondary" type="button" id="summaryIdentityBtn">Editar datos</button>
+            <button class="btn btn-danger" type="button" id="resetBtn">Limpiar</button>
+            <button class="btn" type="button" id="submitBtn">Enviar quiniela</button>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Grupo</th>
+                <th>Fecha</th>
+                <th>Partido</th>
+                <th>Selección</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="summaryRows"></tbody>
+          </table>
+        </div>
+
+        <div class="notice" id="successNotice" hidden></div>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal-backdrop" id="editPickModal" role="dialog" aria-modal="true" aria-labelledby="editPickTitle" hidden>
+    <div class="edit-modal">
+      <div class="modal-head">
+        <div>
+          <p class="modal-kicker" id="editPickMeta"></p>
+          <h2 id="editPickTitle"></h2>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="choice-grid" role="group" aria-label="Editar pronóstico">
+          <button class="choice" type="button" data-modal-pick="home" aria-pressed="false">
+            <span class="flag-slot"></span>
+            <span class="team-name"></span>
+            <small>Local</small>
+          </button>
+          <button class="choice draw" type="button" data-modal-pick="draw" aria-pressed="false">
+            <span class="draw-symbol" aria-hidden="true">=</span>
+            <span class="team-name">Empate</span>
+          </button>
+          <button class="choice" type="button" data-modal-pick="away" aria-pressed="false">
+            <span class="flag-slot"></span>
+            <span class="team-name"></span>
+            <small>Visita</small>
+          </button>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-secondary" type="button" id="editPickCancelBtn">Cancelar</button>
+          <button class="btn" type="button" id="editPickSaveBtn">Guardar selección</button>
+        </div>
+      </div>
     </div>
-  </section>
+  </div>
+
+  <div class="toast" id="toast" hidden></div>
 
   <script>
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzQI1RJxvLAqjCR-L1MDauB1sWzVwYtX8SO3mWXozaF_QmkN3FRoAC8vW6F3aFgz1znyQ/exec";
+    const STORAGE_KEY = "quiniela-mundial-2026-v1";
     const MATCHES = [
     {
         "id": "M001",
@@ -1670,60 +2162,467 @@
         }
     }
 ];
-    const CR_TIME_ZONE = "America/Costa_Rica";
-    const liveBoard = document.getElementById("liveBoard");
-    const calendarStrip = document.getElementById("calendarStrip");
-    const liveClock = document.getElementById("liveClock");
 
-    function todayInCostaRica() {
-      const formatter = new Intl.DateTimeFormat("en-CA", {
-        timeZone: CR_TIME_ZONE,
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
+    const state = loadState();
+    const screens = {
+      identity: document.getElementById("identityScreen"),
+      match: document.getElementById("matchScreen"),
+      summary: document.getElementById("summaryScreen"),
+    };
+
+    const identityForm = document.getElementById("identityForm");
+    const playerName = document.getElementById("playerName");
+    const playerEmail = document.getElementById("playerEmail");
+    const globalProgress = document.getElementById("globalProgress");
+    const matchCounter = document.getElementById("matchCounter");
+    const pickedCounter = document.getElementById("pickedCounter");
+    const progressBar = document.getElementById("progressBar");
+    const groupLabel = document.getElementById("groupLabel");
+    const dateLabel = document.getElementById("dateLabel");
+    const fixtureTitle = document.getElementById("fixtureTitle");
+    const backBtn = document.getElementById("backBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const identityBtn = document.getElementById("identityBtn");
+    const summaryBackBtn = document.getElementById("summaryBackBtn");
+    const summaryIdentityBtn = document.getElementById("summaryIdentityBtn");
+    const summaryRows = document.getElementById("summaryRows");
+    const summaryPerson = document.getElementById("summaryPerson");
+    const resetBtn = document.getElementById("resetBtn");
+    const submitBtn = document.getElementById("submitBtn");
+    const successNotice = document.getElementById("successNotice");
+    const toast = document.getElementById("toast");
+    const choiceButtons = [...document.querySelectorAll(".choice[data-pick]")];
+    const editPickModal = document.getElementById("editPickModal");
+    const editPickMeta = document.getElementById("editPickMeta");
+    const editPickTitle = document.getElementById("editPickTitle");
+    const editPickCancelBtn = document.getElementById("editPickCancelBtn");
+    const editPickSaveBtn = document.getElementById("editPickSaveBtn");
+    const modalChoiceButtons = [...document.querySelectorAll(".choice[data-modal-pick]")];
+    let summaryEditIndex = null;
+    let pendingModalPick = null;
+
+    playerName.value = state.name;
+    playerEmail.value = state.email;
+    globalProgress.textContent = `${MATCHES.length} partidos`;
+
+    identityForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      if (!identityForm.reportValidity()) return;
+      state.name = playerName.value.trim();
+      state.email = playerEmail.value.trim();
+      if (state.returnAfterIdentity) {
+        state.screen = state.returnAfterIdentity.screen || "match";
+        state.currentIndex = Number.isInteger(state.returnAfterIdentity.currentIndex)
+          ? state.returnAfterIdentity.currentIndex
+          : state.currentIndex;
+        state.returnAfterIdentity = null;
+      } else {
+        state.screen = "match";
+        state.currentIndex = firstOpenMatchIndex();
+      }
+      saveState();
+      render();
+    });
+
+    playerName.addEventListener("input", () => {
+      state.name = playerName.value.trim();
+      saveState();
+    });
+
+    playerEmail.addEventListener("input", () => {
+      state.email = playerEmail.value.trim();
+      saveState();
+    });
+
+    choiceButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const match = MATCHES[state.currentIndex];
+        state.picks[match.id] = button.dataset.pick;
+        state.submittedAt = "";
+        saveState();
+        renderMatch();
       });
-      return formatter.format(new Date());
-    }
+    });
 
-    function renderLive() {
-      const today = todayInCostaRica();
-      const todayMatches = MATCHES.filter((match) => match.date === today);
-      liveClock.textContent = new Intl.DateTimeFormat("es-CR", {
-        timeZone: CR_TIME_ZONE,
-        dateStyle: "medium",
-        timeStyle: "short",
-      }).format(new Date());
+    backBtn.addEventListener("click", () => {
+      if (state.currentIndex === 0) {
+        openIdentityEditor();
+        return;
+      } else {
+        state.currentIndex -= 1;
+      }
+      saveState();
+      render();
+    });
 
-      if (todayMatches.length === 0) {
-        liveBoard.innerHTML = '<div class="empty-state">No hay partidos registrados para hoy. Cuando haya partidos en curso, aparecerán aquí.</div>';
+    identityBtn.addEventListener("click", () => {
+      openIdentityEditor();
+    });
+
+    nextBtn.addEventListener("click", () => {
+      const match = MATCHES[state.currentIndex];
+      if (!state.picks[match.id]) {
+        showToast("Marca local, empate o visita para continuar.");
         return;
       }
 
-      liveBoard.innerHTML = todayMatches.map((match) => `
-        <div class="live-row">
-          <span class="status-pill">Hoy</span>
-          <span class="match-title">${escapeHtml(match.home.name)} vs ${escapeHtml(match.away.name)}</span>
-          <span class="score">0 - 0</span>
-        </div>
-      `).join("");
+      if (state.currentIndex < MATCHES.length - 1) {
+        state.currentIndex += 1;
+        state.screen = "match";
+      } else {
+        state.screen = "summary";
+      }
+      saveState();
+      render();
+    });
+
+    summaryBackBtn.addEventListener("click", () => {
+      state.screen = "match";
+      state.currentIndex = firstOpenMatchIndex();
+      saveState();
+      render();
+    });
+
+    summaryIdentityBtn.addEventListener("click", () => {
+      openIdentityEditor();
+    });
+
+    resetBtn.addEventListener("click", () => {
+      const confirmed = window.confirm("¿Limpiar tus datos y selecciones?");
+      if (!confirmed) return;
+      localStorage.removeItem(STORAGE_KEY);
+      state.name = "";
+      state.email = "";
+      state.picks = {};
+      state.currentIndex = 0;
+      state.screen = "identity";
+      state.returnAfterIdentity = null;
+      state.submittedAt = "";
+      playerName.value = "";
+      playerEmail.value = "";
+      render();
+    });
+
+    submitBtn.addEventListener("click", submitEntry);
+    summaryRows.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-edit-index]");
+      if (!button) return;
+      openSummaryEditModal(Number(button.dataset.editIndex));
+    });
+
+    modalChoiceButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        setModalPick(button.dataset.modalPick);
+      });
+    });
+
+    editPickCancelBtn.addEventListener("click", closeSummaryEditModal);
+    editPickSaveBtn.addEventListener("click", saveSummaryModalPick);
+    editPickModal.addEventListener("click", (event) => {
+      if (event.target === editPickModal) closeSummaryEditModal();
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && !editPickModal.hidden) closeSummaryEditModal();
+    });
+
+    function loadState() {
+      const fallback = {
+        version: 1,
+        screen: "identity",
+        currentIndex: 0,
+        name: "",
+        email: "",
+        picks: {},
+        returnAfterIdentity: null,
+        submittedAt: "",
+      };
+      try {
+        const stored = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if (!stored || stored.version !== 1) return fallback;
+        return { ...fallback, ...stored, picks: stored.picks || {} };
+      } catch {
+        return fallback;
+      }
     }
 
-    function renderCalendar() {
-      const today = todayInCostaRica();
-      const upcoming = MATCHES
-        .filter((match) => match.date >= today)
-        .slice(0, 24);
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
 
-      calendarStrip.innerHTML = upcoming.map((match) => `
-        <article class="fixture-card">
-          <div class="fixture-meta">
-            <span>Grupo ${escapeHtml(match.group)}</span>
-            <span>${escapeHtml(match.dateLabel)}</span>
-          </div>
-          <div class="fixture-teams">${escapeHtml(match.home.name)} vs ${escapeHtml(match.away.name)}</div>
-          <div class="fixture-time">Hora CR: por confirmar</div>
-        </article>
-      `).join("");
+    function render() {
+      screens.identity.hidden = state.screen !== "identity";
+      screens.match.hidden = state.screen !== "match";
+      screens.summary.hidden = state.screen !== "summary";
+
+      if (state.screen === "identity") renderIdentity();
+      if (state.screen === "match") renderMatch();
+      if (state.screen === "summary") renderSummary();
+    }
+
+    function renderIdentity() {
+      const submitButton = identityForm.querySelector('button[type="submit"]');
+      submitButton.textContent = state.returnAfterIdentity ? "Guardar datos" : "Comenzar";
+      playerName.value = state.name;
+      playerEmail.value = state.email;
+    }
+
+    function openIdentityEditor() {
+      state.returnAfterIdentity = {
+        screen: state.screen === "summary" ? "summary" : "match",
+        currentIndex: state.currentIndex,
+      };
+      state.screen = "identity";
+      saveState();
+      render();
+    }
+
+    function renderMatch() {
+      const match = MATCHES[state.currentIndex];
+      const picked = countPicked();
+      const progress = Math.round((picked / MATCHES.length) * 100);
+
+      matchCounter.textContent = `Partido ${state.currentIndex + 1} de ${MATCHES.length}`;
+      pickedCounter.textContent = `${picked} marcados`;
+      progressBar.style.width = `${progress}%`;
+      groupLabel.textContent = `Grupo ${match.group}`;
+      dateLabel.textContent = match.dateLabel;
+      fixtureTitle.textContent = `${match.home.name} vs ${match.away.name}`;
+      backBtn.textContent = state.currentIndex === 0 ? "Datos" : "Atrás";
+      nextBtn.textContent = state.currentIndex === MATCHES.length - 1 ? "Ver resumen" : "Siguiente";
+
+      setTeamChoice(document.querySelector('[data-pick="home"]'), match.home, "Local");
+      setTeamChoice(document.querySelector('[data-pick="away"]'), match.away, "Visita");
+
+      const selected = state.picks[match.id] || "";
+      choiceButtons.forEach((button) => {
+        button.setAttribute("aria-pressed", button.dataset.pick === selected ? "true" : "false");
+      });
+    }
+
+    function setTeamChoice(button, team, sideLabel) {
+      button.querySelector(".flag-slot").replaceChildren(createFlag(team));
+      button.querySelector(".team-name").textContent = team.name;
+      button.querySelector("small").textContent = sideLabel;
+    }
+
+    function openSummaryEditModal(index) {
+      summaryEditIndex = index;
+      const match = MATCHES[summaryEditIndex];
+      if (!match) return;
+
+      pendingModalPick = state.picks[match.id] || "home";
+      editPickMeta.textContent = `Partido ${match.number} · Grupo ${match.group} · ${match.dateLabel}`;
+      editPickTitle.textContent = `${match.home.name} vs ${match.away.name}`;
+      setTeamChoice(document.querySelector('[data-modal-pick="home"]'), match.home, "Local");
+      setTeamChoice(document.querySelector('[data-modal-pick="away"]'), match.away, "Visita");
+      setModalPick(pendingModalPick);
+      editPickModal.hidden = false;
+      editPickSaveBtn.focus();
+    }
+
+    function setModalPick(pick) {
+      pendingModalPick = pick;
+      modalChoiceButtons.forEach((button) => {
+        button.setAttribute("aria-pressed", button.dataset.modalPick === pendingModalPick ? "true" : "false");
+      });
+      editPickSaveBtn.disabled = !pendingModalPick;
+    }
+
+    function saveSummaryModalPick() {
+      const match = MATCHES[summaryEditIndex];
+      if (!match || !pendingModalPick) {
+        showToast("Selecciona local, empate o visita.");
+        return;
+      }
+
+      state.picks[match.id] = pendingModalPick;
+      state.submittedAt = "";
+      saveState();
+      closeSummaryEditModal();
+      renderSummary();
+      showToast("Selección actualizada.");
+    }
+
+    function closeSummaryEditModal() {
+      editPickModal.hidden = true;
+      summaryEditIndex = null;
+      pendingModalPick = null;
+    }
+
+    function createFlag(team) {
+      const wrap = document.createElement("span");
+      wrap.className = "flag-wrap";
+
+      const fallback = document.createElement("span");
+      fallback.className = "flag-fallback";
+      fallback.textContent = team.flagCode ? "" : "🏳";
+      fallback.hidden = Boolean(team.flagCode);
+
+      if (team.flagCode) {
+        const code = team.flagCode.toLowerCase();
+        const img = document.createElement("img");
+        img.src = `https://flagcdn.com/w80/${code}.png`;
+        img.srcset = `https://flagcdn.com/w160/${code}.png 2x`;
+        img.alt = `Bandera de ${team.name}`;
+        img.loading = "lazy";
+        img.decoding = "async";
+        img.onload = () => {
+          fallback.hidden = true;
+        };
+        img.onerror = () => {
+          img.hidden = true;
+          fallback.hidden = false;
+        };
+        wrap.append(img);
+      }
+
+      wrap.append(fallback);
+      return wrap;
+    }
+
+    function renderSummary() {
+      if (!allPicked()) {
+        state.screen = "match";
+        state.currentIndex = firstOpenMatchIndex();
+        saveState();
+        render();
+        showToast("Faltan selecciones por marcar.");
+        return;
+      }
+
+      summaryPerson.textContent = `${state.name} · ${state.email}`;
+      successNotice.hidden = !state.submittedAt;
+      successNotice.textContent = state.submittedAt
+        ? `Enviado el ${new Date(state.submittedAt).toLocaleString("es-CR")}.`
+        : "";
+      submitBtn.disabled = Boolean(state.submittedAt);
+
+      summaryRows.replaceChildren(
+        ...MATCHES.map((match, index) => {
+          const row = document.createElement("tr");
+          const pickLabel = getPickLabel(match);
+          row.innerHTML = `
+            <td>${match.number}</td>
+            <td>${match.group}</td>
+            <td>${match.dateLabel}</td>
+            <td>${escapeHtml(match.home.name)} vs ${escapeHtml(match.away.name)}</td>
+            <td><span class="pick-badge">${escapeHtml(pickLabel)}</span></td>
+            <td><button class="edit-link" type="button" data-edit-index="${index}">Editar</button></td>
+          `;
+          return row;
+        })
+      );
+    }
+
+    function firstOpenMatchIndex() {
+      const openIndex = MATCHES.findIndex((match) => !state.picks[match.id]);
+      return openIndex === -1 ? Math.min(state.currentIndex, MATCHES.length - 1) : openIndex;
+    }
+
+    function countPicked() {
+      return MATCHES.reduce((count, match) => count + (state.picks[match.id] ? 1 : 0), 0);
+    }
+
+    function allPicked() {
+      return countPicked() === MATCHES.length;
+    }
+
+    function getPickLabel(match) {
+      const pick = state.picks[match.id];
+      if (pick === "home") return match.home.name;
+      if (pick === "away") return match.away.name;
+      if (pick === "draw") return "Empate";
+      return "Sin marcar";
+    }
+
+    function buildPayload() {
+      return {
+        submittedAt: new Date().toISOString(),
+        name: state.name,
+        email: state.email,
+        totalMatches: MATCHES.length,
+        picks: { ...state.picks },
+        source: "quiniela-mundial-2026-github-pages",
+      };
+    }
+
+    async function submitEntry() {
+      if (!allPicked()) {
+        showToast("Faltan selecciones por marcar.");
+        return;
+      }
+
+      if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("PEGA_AQUI")) {
+        showToast("Falta configurar la URL del Apps Script en index.html.");
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Enviando...";
+
+      try {
+        const payload = buildPayload();
+        const response = await submitWithJsonp(payload);
+        state.submittedAt = response.savedAt || payload.submittedAt;
+        saveState();
+        renderSummary();
+        showToast("Quiniela guardada en Google Sheets.");
+      } catch (error) {
+        submitBtn.disabled = false;
+        showToast(`No se pudo guardar: ${error.message || "revisa Apps Script"}`);
+      } finally {
+        submitBtn.textContent = "Enviar quiniela";
+      }
+    }
+
+    function submitWithJsonp(payload) {
+      return new Promise((resolve, reject) => {
+        const callbackName = `quinielaCallback_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+        const script = document.createElement("script");
+        const params = new URLSearchParams({
+          payload: JSON.stringify(payload),
+          callback: callbackName,
+        });
+        const separator = APPS_SCRIPT_URL.includes("?") ? "&" : "?";
+        const timeout = window.setTimeout(() => {
+          cleanup();
+          reject(new Error("Apps Script no respondió."));
+        }, 20000);
+
+        window[callbackName] = (data) => {
+          cleanup();
+          if (data && data.ok) {
+            resolve(data);
+          } else {
+            reject(new Error((data && data.error) || "Apps Script rechazó la solicitud."));
+          }
+        };
+
+        script.onerror = () => {
+          cleanup();
+          reject(new Error("no se pudo cargar el Web App."));
+        };
+
+        function cleanup() {
+          window.clearTimeout(timeout);
+          delete window[callbackName];
+          script.remove();
+        }
+
+        script.src = `${APPS_SCRIPT_URL}${separator}${params.toString()}`;
+        script.async = true;
+        document.body.append(script);
+      });
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.hidden = false;
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => {
+        toast.hidden = true;
+      }, 3400);
     }
 
     function escapeHtml(value) {
@@ -1735,9 +2634,7 @@
         .replaceAll("'", "&#039;");
     }
 
-    renderLive();
-    renderCalendar();
-    window.setInterval(renderLive, 60000);
+    render();
   </script>
 </body>
 </html>
