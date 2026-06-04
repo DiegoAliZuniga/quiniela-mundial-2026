@@ -1,6 +1,13 @@
 const SPREADSHEET_ID = "1bJ6OEcfab_stv8aEq-qggJssYhQPciODAX0tOhD54kQ";
 const RESPONSES_SHEET = "Respuestas";
 const MATCHES_SHEET = "Partidos";
+const RESULTS_SHEET = "Resultados";
+const RANKING_SHEET = "Ranking";
+const API_STATE_SHEET = "Estado API";
+const FOOTBALL_DATA_API_URL = "https://api.football-data.org/v4/competitions/WC/matches?season=2026";
+const FOOTBALL_DATA_TOKEN_PROPERTY = "FOOTBALL_DATA_API_KEY";
+const SYNC_SECRET_PROPERTY = "SYNC_SECRET";
+const POINTS_PER_HIT = 1;
 const MATCHES = [
   {
     "id": "M001",
@@ -1661,6 +1668,15 @@ const MATCHES = [
 ];
 
 function doGet(e) {
+  const action = e && e.parameter ? e.parameter.action : "";
+  if (action === "publicData") {
+    return respond_(e, getPublicData_());
+  }
+
+  if (action === "syncResults") {
+    return respond_(e, syncFootballDataFromWeb_(e));
+  }
+
   if (e && e.parameter && e.parameter.payload) {
     return handleSubmission_(e, true);
   }
@@ -1672,6 +1688,388 @@ function doGet(e) {
 
 function doPost(e) {
   return handleSubmission_(e, false);
+}
+
+function installFootballDataTrigger() {
+  ScriptApp.getProjectTriggers().forEach(function(trigger) {
+    if (trigger.getHandlerFunction() === "syncFootballData") {
+      ScriptApp.deleteTrigger(trigger);
+    }
+  });
+  ScriptApp.newTrigger("syncFootballData").timeBased().everyMinutes(5).create();
+  return { ok: true, message: "Trigger instalado cada 5 minutos." };
+}
+
+function checkFootballDataSetup() {
+  const token = getFootballDataToken_();
+  return {
+    ok: Boolean(token),
+    tokenConfigured: Boolean(token),
+    triggerInstalled: ScriptApp.getProjectTriggers().some(function(trigger) {
+      return trigger.getHandlerFunction() === "syncFootballData";
+    }),
+  };
+}
+
+function syncFootballDataFromWeb_(e) {
+  const expectedSecret = PropertiesService.getScriptProperties().getProperty(SYNC_SECRET_PROPERTY);
+  const providedSecret = e && e.parameter ? e.parameter.secret : "";
+  if (!expectedSecret || providedSecret !== expectedSecret) {
+    return { ok: false, error: "No autorizado. Configura SYNC_SECRET si necesitas sincronizar desde URL." };
+  }
+  return syncFootballData();
+}
+
+function syncFootballData() {
+  const lock = LockService.getScriptLock();
+  let ss;
+
+  try {
+    lock.waitLock(30000);
+    ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    setupMatchesSheet_(ss, normalizePayload_({ name: "Sistema", email: "sistema@quiniela.local", picks: {} }).matches);
+
+    const apiResponse = fetchFootballData_();
+    const results = buildResults_(apiResponse.matches);
+    writeResults_(ss, results);
+    const ranking = rebuildRanking_(ss, results);
+    writeApiState_(ss, apiResponse.apiState);
+
+    return {
+      ok: true,
+      syncedAt: apiResponse.apiState.updatedAt,
+      results: results.length,
+      ranking: ranking.length,
+      apiState: apiResponse.apiState,
+    };
+  } catch (error) {
+    const apiState = error && error.apiState ? error.apiState : {
+      updatedAt: new Date().toISOString(),
+      httpStatus: "",
+      requestsAvailable: "",
+      requestCounterReset: "",
+      apiVersion: "",
+      authenticatedClient: "",
+      message: String(error && error.message ? error.message : error),
+    };
+    try {
+      ss = ss || SpreadsheetApp.openById(SPREADSHEET_ID);
+      writeApiState_(ss, apiState);
+    } catch (ignore) {}
+
+    return { ok: false, error: String(error && error.message ? error.message : error), apiState: apiState };
+  } finally {
+    try {
+      lock.releaseLock();
+    } catch (ignore) {}
+  }
+}
+
+function getPublicData_() {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  return {
+    ok: true,
+    generatedAt: new Date().toISOString(),
+    results: readResults_(ss),
+    ranking: readRanking_(ss),
+    apiState: readApiState_(ss),
+  };
+}
+
+function fetchFootballData_() {
+  const token = getFootballDataToken_();
+  if (!token) {
+    throw new Error("Falta configurar la propiedad de script FOOTBALL_DATA_API_KEY.");
+  }
+
+  const response = UrlFetchApp.fetch(FOOTBALL_DATA_API_URL, {
+    method: "get",
+    muteHttpExceptions: true,
+    headers: {
+      "X-Auth-Token": token,
+    },
+  });
+  const httpStatus = response.getResponseCode();
+  const apiState = extractApiState_(response, httpStatus);
+  const body = response.getContentText();
+  let data = {};
+
+  try {
+    data = JSON.parse(body || "{}");
+  } catch (ignore) {}
+
+  if (httpStatus < 200 || httpStatus >= 300) {
+    const error = new Error(data.message || data.error || ("football-data.org respondio HTTP " + httpStatus));
+    error.apiState = apiState;
+    throw error;
+  }
+
+  return { matches: data.matches || [], apiState: apiState };
+}
+
+function buildResults_(apiMatches) {
+  const usedApiIds = {};
+  return MATCHES.map(function(localMatch) {
+    const apiMatchInfo = findApiMatch_(localMatch, apiMatches || [], usedApiIds);
+    return buildResult_(localMatch, apiMatchInfo ? apiMatchInfo.match : null, apiMatchInfo ? apiMatchInfo.reversed : false);
+  });
+}
+
+function findApiMatch_(localMatch, apiMatches, usedApiIds) {
+  const homeAliases = teamAliases_(localMatch.home.name);
+  const awayAliases = teamAliases_(localMatch.away.name);
+
+  for (let i = 0; i < apiMatches.length; i += 1) {
+    const apiMatch = apiMatches[i];
+    const apiId = String(apiMatch.id || i);
+    if (usedApiIds[apiId]) continue;
+
+    const apiHome = teamNameVariants_(apiMatch.homeTeam);
+    const apiAway = teamNameVariants_(apiMatch.awayTeam);
+    const direct = hasAnyAlias_(homeAliases, apiHome) && hasAnyAlias_(awayAliases, apiAway);
+    const reversed = hasAnyAlias_(homeAliases, apiAway) && hasAnyAlias_(awayAliases, apiHome);
+    if (direct || reversed) {
+      usedApiIds[apiId] = true;
+      return { match: apiMatch, reversed: reversed };
+    }
+  }
+
+  return null;
+}
+
+function buildResult_(localMatch, apiMatch, reversed) {
+  const score = apiMatch && apiMatch.score ? apiMatch.score : {};
+  const fullTime = score.fullTime || score.regularTime || {};
+  const apiHomeGoals = numberOrBlank_(fullTime.home);
+  const apiAwayGoals = numberOrBlank_(fullTime.away);
+  const homeGoals = reversed ? apiAwayGoals : apiHomeGoals;
+  const awayGoals = reversed ? apiHomeGoals : apiAwayGoals;
+  const winner = mapWinner_(score.winner, reversed);
+  const updatedAt = apiMatch && apiMatch.lastUpdated ? apiMatch.lastUpdated : "";
+
+  return {
+    matchId: localMatch.id,
+    apiId: apiMatch ? apiMatch.id || "" : "",
+    number: localMatch.number,
+    group: localMatch.group,
+    crDate: localMatch.crDate,
+    crDateLabel: localMatch.crDateLabel,
+    crTime: localMatch.crTime,
+    home: localMatch.home.name,
+    away: localMatch.away.name,
+    status: apiMatch ? apiMatch.status || "SCHEDULED" : "SCHEDULED",
+    homeGoals: homeGoals,
+    awayGoals: awayGoals,
+    score: homeGoals === "" || awayGoals === "" ? "" : homeGoals + " - " + awayGoals,
+    winner: winner,
+    winnerLabel: getPickLabel_(localMatch, winner),
+    apiUpdatedAt: updatedAt,
+    utcDate: apiMatch ? apiMatch.utcDate || "" : "",
+  };
+}
+
+function writeResults_(ss, results) {
+  const sheet = ss.getSheetByName(RESULTS_SHEET) || ss.insertSheet(RESULTS_SHEET);
+  const headers = [
+    "ID",
+    "API ID",
+    "Numero",
+    "Grupo",
+    "Fecha CR",
+    "Hora CR",
+    "Local",
+    "Visita",
+    "Estado",
+    "Marcador",
+    "Goles Local",
+    "Goles Visita",
+    "Ganador",
+    "Ganador etiqueta",
+    "Actualizado API",
+    "Fecha UTC API",
+  ];
+  const rows = [headers].concat(results.map(function(result) {
+    return [
+      result.matchId,
+      result.apiId,
+      result.number,
+      result.group,
+      result.crDate,
+      result.crTime,
+      result.home,
+      result.away,
+      result.status,
+      result.score,
+      result.homeGoals,
+      result.awayGoals,
+      result.winner,
+      result.winnerLabel,
+      result.apiUpdatedAt,
+      result.utcDate,
+    ];
+  }));
+
+  sheet.clearContents();
+  sheet.getRange(1, 1, rows.length, headers.length).setValues(rows);
+  sheet.setFrozenRows(1);
+  sheet.autoResizeColumns(1, headers.length);
+}
+
+function rebuildRanking_(ss, results) {
+  const responsesSheet = ss.getSheetByName(RESPONSES_SHEET);
+  const finishedResults = {};
+  (results || []).forEach(function(result) {
+    if ((result.status === "FINISHED" || result.status === "AWARDED") && result.winner) {
+      finishedResults[result.matchId] = result.winner;
+    }
+  });
+  const computedMatches = Object.keys(finishedResults).length;
+  const ranking = [];
+
+  if (responsesSheet && responsesSheet.getLastRow() > 1) {
+    const values = responsesSheet.getDataRange().getValues();
+    const headers = values[0].map(function(header) { return String(header || ""); });
+    const nameIndex = headers.indexOf("Nombre");
+    const emailIndex = headers.indexOf("Correo");
+    const submittedIndex = headers.indexOf("Fecha envio") !== -1 ? headers.indexOf("Fecha envio") : headers.indexOf("Fecha envío");
+    const jsonIndex = headers.indexOf("Selecciones JSON");
+
+    values.slice(1).forEach(function(row) {
+      const selections = parseSelectionsJson_(row[jsonIndex]);
+      let hits = 0;
+      selections.forEach(function(selection) {
+        if (finishedResults[selection.id] && finishedResults[selection.id] === selection.pick) hits += 1;
+      });
+      ranking.push({
+        name: String(row[nameIndex] || ""),
+        email: String(row[emailIndex] || ""),
+        submittedAt: submittedIndex >= 0 ? row[submittedIndex] : "",
+        points: hits * POINTS_PER_HIT,
+        hits: hits,
+        computedMatches: computedMatches,
+        totalPredictions: selections.length,
+      });
+    });
+  }
+
+  ranking.sort(function(a, b) {
+    return b.points - a.points ||
+      b.hits - a.hits ||
+      String(a.submittedAt || "").localeCompare(String(b.submittedAt || ""));
+  });
+  ranking.forEach(function(row, index) {
+    row.position = index + 1;
+  });
+
+  writeRanking_(ss, ranking);
+  return ranking;
+}
+
+function writeRanking_(ss, ranking) {
+  const sheet = ss.getSheetByName(RANKING_SHEET) || ss.insertSheet(RANKING_SHEET);
+  const headers = ["Posicion", "Nombre", "Correo", "Puntos", "Aciertos", "Partidos computados", "Predicciones", "Actualizado"];
+  const updatedAt = new Date();
+  const rows = [headers].concat((ranking || []).map(function(row) {
+    return [row.position, row.name, row.email, row.points, row.hits, row.computedMatches, row.totalPredictions, updatedAt];
+  }));
+
+  sheet.clearContents();
+  sheet.getRange(1, 1, Math.max(rows.length, 1), headers.length).setValues(rows);
+  sheet.setFrozenRows(1);
+  sheet.autoResizeColumns(1, headers.length);
+}
+
+function readResults_(ss) {
+  const sheet = ss.getSheetByName(RESULTS_SHEET);
+  if (!sheet || sheet.getLastRow() < 2) return [];
+  const values = sheet.getDataRange().getValues();
+  const headers = values[0].map(function(header) { return String(header || ""); });
+
+  return values.slice(1).map(function(row) {
+    return {
+      matchId: getCellByHeader_(row, headers, "ID"),
+      apiId: getCellByHeader_(row, headers, "API ID"),
+      number: getCellByHeader_(row, headers, "Numero"),
+      group: getCellByHeader_(row, headers, "Grupo"),
+      crDate: getCellByHeader_(row, headers, "Fecha CR"),
+      crTime: getCellByHeader_(row, headers, "Hora CR"),
+      home: getCellByHeader_(row, headers, "Local"),
+      away: getCellByHeader_(row, headers, "Visita"),
+      status: getCellByHeader_(row, headers, "Estado"),
+      score: getCellByHeader_(row, headers, "Marcador"),
+      homeGoals: getCellByHeader_(row, headers, "Goles Local"),
+      awayGoals: getCellByHeader_(row, headers, "Goles Visita"),
+      winner: getCellByHeader_(row, headers, "Ganador"),
+      winnerLabel: getCellByHeader_(row, headers, "Ganador etiqueta"),
+      apiUpdatedAt: getCellByHeader_(row, headers, "Actualizado API"),
+      utcDate: getCellByHeader_(row, headers, "Fecha UTC API"),
+    };
+  });
+}
+
+function readRanking_(ss) {
+  const sheet = ss.getSheetByName(RANKING_SHEET);
+  if (!sheet || sheet.getLastRow() < 2) return [];
+  const values = sheet.getDataRange().getValues();
+  const headers = values[0].map(function(header) { return String(header || ""); });
+
+  return values.slice(1).map(function(row) {
+    return {
+      position: getCellByHeader_(row, headers, "Posicion"),
+      name: getCellByHeader_(row, headers, "Nombre"),
+      email: maskEmail_(getCellByHeader_(row, headers, "Correo")),
+      points: getCellByHeader_(row, headers, "Puntos"),
+      hits: getCellByHeader_(row, headers, "Aciertos"),
+      computedMatches: getCellByHeader_(row, headers, "Partidos computados"),
+      totalPredictions: getCellByHeader_(row, headers, "Predicciones"),
+    };
+  });
+}
+
+function readApiState_(ss) {
+  const sheet = ss.getSheetByName(API_STATE_SHEET);
+  if (!sheet || sheet.getLastRow() < 2) return null;
+  const values = sheet.getDataRange().getValues();
+  const headers = values[0].map(function(header) { return String(header || ""); });
+  const row = values[1];
+  return {
+    updatedAt: getCellByHeader_(row, headers, "Actualizado"),
+    httpStatus: getCellByHeader_(row, headers, "HTTP"),
+    requestsAvailable: getCellByHeader_(row, headers, "X-RequestsAvailable"),
+    requestCounterReset: getCellByHeader_(row, headers, "X-RequestCounter-Reset"),
+    apiVersion: getCellByHeader_(row, headers, "X-API-Version"),
+    authenticatedClient: getCellByHeader_(row, headers, "X-Authenticated-Client"),
+    message: getCellByHeader_(row, headers, "Mensaje"),
+  };
+}
+
+function writeApiState_(ss, apiState) {
+  const sheet = ss.getSheetByName(API_STATE_SHEET) || ss.insertSheet(API_STATE_SHEET);
+  const headers = [
+    "Actualizado",
+    "HTTP",
+    "X-RequestsAvailable",
+    "X-RequestCounter-Reset",
+    "X-API-Version",
+    "X-Authenticated-Client",
+    "Mensaje",
+    "URL",
+  ];
+  const row = [
+    apiState.updatedAt || new Date().toISOString(),
+    apiState.httpStatus || "",
+    apiState.requestsAvailable || "",
+    apiState.requestCounterReset || "",
+    apiState.apiVersion || "",
+    apiState.authenticatedClient || "",
+    apiState.message || "",
+    FOOTBALL_DATA_API_URL,
+  ];
+
+  sheet.clearContents();
+  sheet.getRange(1, 1, 2, headers.length).setValues([headers, row]);
+  sheet.setFrozenRows(1);
+  sheet.autoResizeColumns(1, headers.length);
 }
 
 function handleSubmission_(e, useJsonp) {
@@ -1841,6 +2239,145 @@ function ensureHeaders_(sheet, requiredHeaders) {
 function setCell_(row, headers, header, value) {
   const index = headers.indexOf(header);
   if (index >= 0) row[index] = value;
+}
+
+function respond_(e, value) {
+  return e && e.parameter && e.parameter.callback ? javascript_(e.parameter.callback, value) : json_(value);
+}
+
+function getFootballDataToken_() {
+  return PropertiesService.getScriptProperties().getProperty(FOOTBALL_DATA_TOKEN_PROPERTY);
+}
+
+function extractApiState_(response, httpStatus) {
+  const headers = response.getAllHeaders ? response.getAllHeaders() : response.getHeaders();
+  return {
+    updatedAt: new Date().toISOString(),
+    httpStatus: httpStatus,
+    requestsAvailable: getHeader_(headers, "X-RequestsAvailable") || getHeader_(headers, "X-Requests-Available"),
+    requestCounterReset: getHeader_(headers, "X-RequestCounter-Reset"),
+    apiVersion: getHeader_(headers, "X-API-Version"),
+    authenticatedClient: getHeader_(headers, "X-Authenticated-Client"),
+    message: httpStatus >= 200 && httpStatus < 300 ? "OK" : "Error",
+  };
+}
+
+function getHeader_(headers, name) {
+  const wanted = String(name || "").toLowerCase();
+  const keys = Object.keys(headers || {});
+  for (let i = 0; i < keys.length; i += 1) {
+    if (String(keys[i]).toLowerCase() === wanted) return headers[keys[i]];
+  }
+  return "";
+}
+
+function teamAliases_(localName) {
+  const aliases = {
+    "México": ["Mexico"],
+    "Sudáfrica": ["South Africa"],
+    "República de Corea": ["Korea Republic", "South Korea", "Republic of Korea"],
+    "República Checa": ["Czechia", "Czech Republic"],
+    "Canadá": ["Canada"],
+    "Bosnia y Herzegovina": ["Bosnia and Herzegovina", "Bosnia-Herzegovina"],
+    "Catar": ["Qatar"],
+    "Suiza": ["Switzerland"],
+    "Brasil": ["Brazil"],
+    "Marruecos": ["Morocco"],
+    "Haití": ["Haiti"],
+    "Escocia": ["Scotland"],
+    "Estados Unidos": ["United States", "USA", "United States of America"],
+    "Paraguay": ["Paraguay"],
+    "Australia": ["Australia"],
+    "Turquía": ["Turkey", "Türkiye", "Turkiye"],
+    "Alemania": ["Germany"],
+    "Curazao": ["Curacao", "Curaçao"],
+    "Costa de Marfil": ["Cote d'Ivoire", "Côte d'Ivoire", "Ivory Coast"],
+    "Ecuador": ["Ecuador"],
+    "Países Bajos": ["Netherlands", "Holland"],
+    "Japón": ["Japan"],
+    "Suecia": ["Sweden"],
+    "Túnez": ["Tunisia"],
+    "Bélgica": ["Belgium"],
+    "Egipto": ["Egypt"],
+    "Irán": ["Iran", "IR Iran"],
+    "Nueva Zelanda": ["New Zealand"],
+    "España": ["Spain"],
+    "Cabo Verde": ["Cape Verde"],
+    "Arabia Saudí": ["Saudi Arabia", "Saudi Arabia"],
+    "Uruguay": ["Uruguay"],
+    "Francia": ["France"],
+    "Senegal": ["Senegal"],
+    "Irak": ["Iraq"],
+    "Noruega": ["Norway"],
+    "Argentina": ["Argentina"],
+    "Argelia": ["Algeria"],
+    "Austria": ["Austria"],
+    "Jordania": ["Jordan"],
+    "Portugal": ["Portugal"],
+    "República Dem. del Congo": ["DR Congo", "Congo DR", "Democratic Republic of Congo", "Congo"],
+    "Uzbekistán": ["Uzbekistan"],
+    "Colombia": ["Colombia"],
+    "Inglaterra": ["England"],
+    "Croacia": ["Croatia"],
+    "Ghana": ["Ghana"],
+    "Panamá": ["Panama"],
+  };
+  return [localName].concat(aliases[localName] || []).map(normalizeTeamName_);
+}
+
+function teamNameVariants_(team) {
+  if (!team) return [];
+  return [team.name, team.shortName, team.tla].filter(Boolean).map(normalizeTeamName_);
+}
+
+function hasAnyAlias_(aliases, variants) {
+  return aliases.some(function(alias) {
+    return variants.indexOf(alias) !== -1;
+  });
+}
+
+function normalizeTeamName_(value) {
+  return String(value || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+function numberOrBlank_(value) {
+  return typeof value === "number" ? value : "";
+}
+
+function mapWinner_(winner, reversed) {
+  if (winner === "DRAW") return "draw";
+  if (winner === "HOME_TEAM") return reversed ? "away" : "home";
+  if (winner === "AWAY_TEAM") return reversed ? "home" : "away";
+  return "";
+}
+
+function parseSelectionsJson_(value) {
+  try {
+    const selections = JSON.parse(String(value || "[]"));
+    return Array.isArray(selections) ? selections : [];
+  } catch (ignore) {
+    return [];
+  }
+}
+
+function getCellByHeader_(row, headers, header) {
+  const index = headers.indexOf(header);
+  return index >= 0 ? row[index] : "";
+}
+
+function maskEmail_(email) {
+  const value = String(email || "");
+  const parts = value.split("@");
+  if (parts.length !== 2) return "";
+  const local = parts[0];
+  const visible = local.slice(0, Math.min(2, local.length));
+  return visible + "***@" + parts[1];
 }
 
 function json_(value) {

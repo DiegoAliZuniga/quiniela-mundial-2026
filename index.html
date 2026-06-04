@@ -191,10 +191,58 @@
       margin-bottom: 10px;
     }
 
+    .ranking-card > p:not(.sync-note) {
+      display: none;
+    }
+
     .ranking-card p {
       color: rgba(7, 24, 39, 0.68);
       font-weight: 800;
       line-height: 1.5;
+    }
+
+    .ranking-board {
+      display: grid;
+      gap: 10px;
+    }
+
+    .ranking-row {
+      display: grid;
+      grid-template-columns: 54px 1fr auto;
+      gap: 14px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px 14px;
+      background: #ffffff;
+    }
+
+    .ranking-position,
+    .ranking-points {
+      font-weight: 950;
+      color: var(--blue);
+      white-space: nowrap;
+    }
+
+    .ranking-name {
+      display: block;
+      font-weight: 950;
+      overflow-wrap: anywhere;
+    }
+
+    .ranking-email {
+      display: block;
+      margin-top: 2px;
+      color: rgba(7, 24, 39, 0.62);
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+
+    .sync-note {
+      margin-top: 14px;
+      color: rgba(7, 24, 39, 0.62);
+      font-size: 0.92rem;
+      font-weight: 800;
     }
 
     .calendar-strip {
@@ -285,6 +333,10 @@
   <section class="section blue" aria-label="Ranking de la quiniela">
     <div class="wrap ranking-card">
       <h2>Ranking de la quiniela</h2>
+      <div class="ranking-board" id="rankingBoard">
+        <p>Esta seccion se activara cuando se definan los resultados oficiales y se calcule el puntaje de cada participante.</p>
+      </div>
+      <p class="sync-note" id="syncNote"></p>
       <p>Esta sección se activará cuando se definan los resultados oficiales y se calcule el puntaje de cada participante.</p>
     </div>
   </section>
@@ -1958,10 +2010,17 @@
         "crTimeMinutes": 1020
     }
 ];
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzQI1RJxvLAqjCR-L1MDauB1sWzVwYtX8SO3mWXozaF_QmkN3FRoAC8vW6F3aFgz1znyQ/exec";
     const CR_TIME_ZONE = "America/Costa_Rica";
+    const DATA_REFRESH_MS = 60000;
+    const LIVE_STATUSES = new Set(["IN_PLAY", "PAUSED", "EXTRA_TIME", "PENALTY_SHOOTOUT"]);
+    const FINISHED_STATUSES = new Set(["FINISHED", "AWARDED"]);
     const liveBoard = document.getElementById("liveBoard");
     const calendarStrip = document.getElementById("calendarStrip");
     const liveClock = document.getElementById("liveClock");
+    const rankingBoard = document.getElementById("rankingBoard");
+    const syncNote = document.getElementById("syncNote");
+    let publicData = { results: [], ranking: [], apiState: null, generatedAt: "" };
 
     function nowInCostaRica() {
       const formatter = new Intl.DateTimeFormat("en-CA", {
@@ -1986,6 +2045,9 @@
 
     function renderLive() {
       const now = nowInCostaRica();
+      const liveResults = publicData.results
+        .filter((result) => LIVE_STATUSES.has(result.status))
+        .sort((a, b) => getMatchSortValue(a.matchId) - getMatchSortValue(b.matchId));
       const liveMatches = MATCHES
         .filter((match) =>
           match.crDate === now.date &&
@@ -1999,6 +2061,17 @@
         timeStyle: "short",
       }).format(new Date());
 
+      if (liveResults.length > 0) {
+        liveBoard.innerHTML = liveResults.map((result) => `
+          <div class="live-row">
+            <span class="status-pill">${escapeHtml(formatStatus(result.status))}</span>
+            <span class="match-title">${escapeHtml(result.home)} vs ${escapeHtml(result.away)}</span>
+            <span class="score">${escapeHtml(formatScore(result))}</span>
+          </div>
+        `).join("");
+        return;
+      }
+
       if (liveMatches.length === 0) {
         liveBoard.innerHTML = '<div class="empty-state">No hay partidos en curso ahora. Cuando coincida la hora CR de un partido, aparecerá aquí.</div>';
         return;
@@ -2008,7 +2081,7 @@
         <div class="live-row">
           <span class="status-pill">En vivo</span>
           <span class="match-title">${escapeHtml(match.home.name)} vs ${escapeHtml(match.away.name)}</span>
-          <span class="score">Marcador por actualizar</span>
+          <span class="score">${escapeHtml(formatScore(resultByMatchId(match.id)) || "Marcador por actualizar")}</span>
         </div>
       `).join("");
     }
@@ -2017,8 +2090,9 @@
       const now = nowInCostaRica();
       const upcoming = MATCHES
         .filter((match) =>
-          match.crDate > now.date ||
-          (match.crDate === now.date && match.crTimeMinutes + 130 >= now.minutes)
+          !FINISHED_STATUSES.has((resultByMatchId(match.id) || {}).status) &&
+          (match.crDate > now.date ||
+          (match.crDate === now.date && match.crTimeMinutes + 130 >= now.minutes))
         )
         .sort((a, b) =>
           a.crDate.localeCompare(b.crDate) ||
@@ -2034,9 +2108,142 @@
             <span>${escapeHtml(match.crDateLabel)}</span>
           </div>
           <div class="fixture-teams">${escapeHtml(match.home.name)} vs ${escapeHtml(match.away.name)}</div>
-          <div class="fixture-time">Hora CR: ${escapeHtml(match.crTime)}</div>
+          <div class="fixture-time">${escapeHtml(fixtureStatus(match))}</div>
         </article>
       `).join("");
+    }
+
+    function renderRanking() {
+      const ranking = Array.isArray(publicData.ranking) ? publicData.ranking.slice(0, 10) : [];
+      if (ranking.length === 0) {
+        rankingBoard.innerHTML = "<p>Esta seccion se activara cuando se definan los resultados oficiales y se calcule el puntaje de cada participante.</p>";
+      } else {
+        rankingBoard.innerHTML = ranking.map((row) => `
+          <div class="ranking-row">
+            <span class="ranking-position">#${escapeHtml(row.position)}</span>
+            <span>
+              <span class="ranking-name">${escapeHtml(row.name)}</span>
+              <span class="ranking-email">${escapeHtml(row.email || "")}</span>
+            </span>
+            <span class="ranking-points">${escapeHtml(row.points)} pts</span>
+          </div>
+        `).join("");
+      }
+
+      const apiState = publicData.apiState || {};
+      if (publicData.generatedAt || apiState.updatedAt) {
+        const rateText = apiState.requestsAvailable !== "" && apiState.requestsAvailable !== undefined
+          ? ` · Requests disponibles: ${apiState.requestsAvailable}`
+          : "";
+        syncNote.textContent = `Actualizado: ${formatDateTime(publicData.generatedAt || apiState.updatedAt)}${rateText}`;
+      }
+    }
+
+    function resultByMatchId(matchId) {
+      return publicData.results.find((result) => result.matchId === matchId);
+    }
+
+    function getMatchSortValue(matchId) {
+      const match = MATCHES.find((item) => item.id === matchId);
+      if (!match) return Number.MAX_SAFE_INTEGER;
+      return Number(`${match.crDate.replaceAll("-", "")}${String(match.crTimeMinutes).padStart(4, "0")}${String(match.number).padStart(3, "0")}`);
+    }
+
+    function formatStatus(status) {
+      return {
+        SCHEDULED: "Programado",
+        TIMED: "Programado",
+        IN_PLAY: "En vivo",
+        PAUSED: "Descanso",
+        EXTRA_TIME: "Tiempo extra",
+        PENALTY_SHOOTOUT: "Penales",
+        FINISHED: "Finalizado",
+        SUSPENDED: "Suspendido",
+        POSTPONED: "Pospuesto",
+        CANCELLED: "Cancelado",
+        AWARDED: "Adjudicado",
+      }[status] || "Por jugar";
+    }
+
+    function formatScore(result) {
+      if (!result || result.homeGoals === "" || result.awayGoals === "" || result.homeGoals === null || result.awayGoals === null) return "";
+      return `${result.homeGoals} - ${result.awayGoals}`;
+    }
+
+    function fixtureStatus(match) {
+      const result = resultByMatchId(match.id);
+      const score = formatScore(result);
+      if (score) return `${formatStatus(result.status)} · ${score}`;
+      return `Hora CR: ${match.crTime}`;
+    }
+
+    function formatDateTime(value) {
+      if (!value) return "";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return value;
+      return new Intl.DateTimeFormat("es-CR", {
+        timeZone: CR_TIME_ZONE,
+        dateStyle: "medium",
+        timeStyle: "short",
+      }).format(date);
+    }
+
+    function loadPublicData() {
+      if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("PEGA_AQUI")) {
+        renderLive();
+        renderCalendar();
+        renderRanking();
+        return Promise.resolve();
+      }
+
+      return jsonp(`${APPS_SCRIPT_URL}?action=publicData`)
+        .then((data) => {
+          if (data && data.ok) {
+            publicData = {
+              results: Array.isArray(data.results) ? data.results : [],
+              ranking: Array.isArray(data.ranking) ? data.ranking : [],
+              apiState: data.apiState || null,
+              generatedAt: data.generatedAt || "",
+            };
+          }
+        })
+        .catch(() => {})
+        .finally(() => {
+          renderLive();
+          renderCalendar();
+          renderRanking();
+        });
+    }
+
+    function jsonp(url) {
+      return new Promise((resolve, reject) => {
+        const callbackName = `quinielaData_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+        const separator = url.includes("?") ? "&" : "?";
+        const script = document.createElement("script");
+        const timeout = window.setTimeout(() => {
+          cleanup();
+          reject(new Error("Tiempo de espera agotado."));
+        }, 12000);
+
+        window[callbackName] = (data) => {
+          cleanup();
+          resolve(data);
+        };
+
+        script.onerror = () => {
+          cleanup();
+          reject(new Error("No se pudo cargar la informacion."));
+        };
+
+        function cleanup() {
+          window.clearTimeout(timeout);
+          delete window[callbackName];
+          if (script.parentNode) script.parentNode.removeChild(script);
+        }
+
+        script.src = `${url}${separator}callback=${encodeURIComponent(callbackName)}`;
+        document.body.appendChild(script);
+      });
     }
 
     function escapeHtml(value) {
@@ -2050,7 +2257,10 @@
 
     renderLive();
     renderCalendar();
+    renderRanking();
+    loadPublicData();
     window.setInterval(renderLive, 60000);
+    window.setInterval(loadPublicData, DATA_REFRESH_MS);
   </script>
 </body>
 </html>

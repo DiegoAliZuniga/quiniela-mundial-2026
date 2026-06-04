@@ -1,34 +1,48 @@
 # Quiniela Mundial 2026
 
-Este paquete contiene un sitio estático listo para GitHub Pages y un Google Apps Script para guardar las respuestas en la hoja indicada.
+Este paquete contiene un sitio estatico listo para GitHub Pages y un Google Apps Script para guardar quinielas, sincronizar resultados desde football-data.org y calcular ranking.
 
 ## Archivos
 
-- `index.html`: página principal de la quiniela.
+- `index.html`: pagina principal con resultados, ranking y calendario.
 - `quiniela.html`: formulario de quiniela. Muestra un partido por vez, incluye banderas y resume todas las selecciones antes de enviar.
-- `predicciones.html`: página preparada para mostrar predicciones de participantes.
-- `apps-script.gs`: endpoint que recibe las respuestas y las guarda en Google Sheets.
+- `predicciones.html`: pagina preparada para mostrar predicciones de participantes.
+- `apps-script.gs`: backend de Google Apps Script para respuestas, resultados, ranking y football-data.org.
 
-## Configurar Google Sheets
+## Configurar Google Sheets y Apps Script
 
 1. Abre [script.google.com](https://script.google.com/) y crea un proyecto.
 2. Pega el contenido de `apps-script.gs`.
 3. Confirma que `SPREADSHEET_ID` sea:
    `1bJ6OEcfab_stv8aEq-qggJssYhQPciODAX0tOhD54kQ`
-4. Ve a `Deploy` > `New deployment` > `Web app`.
-5. Usa estos valores:
+4. En Apps Script, ve a `Project Settings` > `Script properties` y agrega:
+   - `FOOTBALL_DATA_API_KEY`: tu API key de football-data.org.
+   - `SYNC_SECRET`: opcional, solo si quieres permitir sincronizacion manual por URL.
+5. Ejecuta una vez la funcion `checkFootballDataSetup` para autorizar permisos y confirmar que la key existe.
+6. Ejecuta una vez `syncFootballData` para crear/actualizar las hojas `Resultados`, `Ranking` y `Estado API`.
+7. Ejecuta una vez `installFootballDataTrigger` para instalar una sincronizacion automatica cada 5 minutos.
+8. Ve a `Deploy` > `New deployment` > `Web app`.
+9. Usa estos valores:
    - `Execute as`: `Me`
    - `Who has access`: `Anyone`
-6. Copia la URL del Web App que termina en `/exec`.
-7. En `quiniela.html`, confirma que `APPS_SCRIPT_URL` tenga esa URL. En este paquete ya está configurada con:
+10. Copia la URL del Web App que termina en `/exec`.
+11. En `quiniela.html` e `index.html`, confirma que `APPS_SCRIPT_URL` tenga esa URL. En este paquete ya esta configurada con:
    `https://script.google.com/macros/s/AKfycbzQI1RJxvLAqjCR-L1MDauB1sWzVwYtX8SO3mWXozaF_QmkN3FRoAC8vW6F3aFgz1znyQ/exec`
 
 Si haces cambios en `apps-script.gs`, vuelve a desplegar el Web App con `Deploy` > `Manage deployments` > editar despliegue > `New version`.
 
+## Como funciona la actualizacion automatica
+
+- `syncFootballData` consulta `https://api.football-data.org/v4/competitions/WC/matches?season=2026` usando `X-Auth-Token`.
+- Los headers `X-RequestsAvailable`, `X-RequestCounter-Reset`, `X-API-Version` y `X-Authenticated-Client` se guardan en `Estado API`.
+- `Resultados` guarda marcador, estado y ganador de cada partido.
+- `Ranking` da 1 punto por cada seleccion acertada en partidos finalizados.
+- `index.html` lee `?action=publicData` desde Apps Script cada 60 segundos; no llama directamente a football-data.org.
+
 ## Subir a GitHub Pages
 
 1. Crea un repositorio en GitHub.
-2. Sube todo el contenido de esta carpeta a la raíz del repositorio: `index.html`, `quiniela.html`, `predicciones.html`, `apps-script.gs`, `matches.json`, `README.md` y la carpeta `assets`.
-3. En `Settings` > `Pages`, publica desde la rama principal y la carpeta raíz.
+2. Sube todo el contenido de esta carpeta a la raiz del repositorio: `index.html`, `quiniela.html`, `predicciones.html`, `apps-script.gs`, `matches.json`, `README.md` y la carpeta `assets`.
+3. En `Settings` > `Pages`, publica desde la rama principal y la carpeta raiz.
 
-El Apps Script creará automáticamente las pestañas `Respuestas` y `Partidos` si no existen.
+El Apps Script creara automaticamente las pestanas `Respuestas`, `Partidos`, `Resultados`, `Ranking` y `Estado API` cuando se usen las funciones correspondientes.
