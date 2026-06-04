@@ -131,6 +131,53 @@
       padding: 28px;
     }
 
+    .intro-copy {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 22px;
+      max-width: 820px;
+    }
+
+    .intro-copy h2 {
+      font-size: 1.35rem;
+      line-height: 1.18;
+    }
+
+    .intro-copy p {
+      color: var(--muted);
+      font-weight: 700;
+      line-height: 1.5;
+    }
+
+    .intro-steps {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin: 18px 0 24px;
+    }
+
+    .intro-step {
+      min-height: 84px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 12px;
+      background: #fbfcfd;
+      display: grid;
+      gap: 6px;
+      align-content: start;
+    }
+
+    .intro-step strong {
+      color: var(--green-dark);
+    }
+
+    .intro-step span {
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
     .identity-grid {
       display: grid;
       grid-template-columns: 1fr 1fr auto;
@@ -532,6 +579,10 @@
         grid-template-columns: 1fr;
       }
 
+      .intro-steps {
+        grid-template-columns: 1fr;
+      }
+
       .choice {
         min-height: 122px;
       }
@@ -573,6 +624,24 @@
 
     <section class="panel" id="identityScreen">
       <div class="panel-body">
+        <div class="intro-copy">
+          <h2>Antes de empezar</h2>
+          <p>Completa tus datos y marca un pronóstico para cada partido de la fase de grupos. Puedes escoger local, empate o visita; al final verás un resumen completo antes de enviar tu quiniela.</p>
+        </div>
+        <div class="intro-steps" aria-label="Instrucciones">
+          <div class="intro-step">
+            <strong>1. Datos</strong>
+            <span>Escribe tu nombre y correo para identificar tu quiniela.</span>
+          </div>
+          <div class="intro-step">
+            <strong>2. Pronósticos</strong>
+            <span>Avanza partido por partido y selecciona el resultado que crees que ocurrirá.</span>
+          </div>
+          <div class="intro-step">
+            <strong>3. Revisión</strong>
+            <span>Confirma el resumen, edita lo necesario y envía tus selecciones.</span>
+          </div>
+        </div>
         <form class="identity-grid" id="identityForm">
           <div class="field">
             <label for="playerName">Nombre</label>
