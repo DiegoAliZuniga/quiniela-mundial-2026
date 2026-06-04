@@ -1,0 +1,1565 @@
+const SPREADSHEET_ID = "1bJ6OEcfab_stv8aEq-qggJssYhQPciODAX0tOhD54kQ";
+const RESPONSES_SHEET = "Respuestas";
+const MATCHES_SHEET = "Partidos";
+const MATCHES = [
+  {
+    "id": "M001",
+    "number": 1,
+    "group": "A",
+    "date": "2026-06-11",
+    "dateLabel": "11 jun 2026",
+    "home": {
+      "name": "México",
+      "sourceName": "méxico",
+      "flagCode": "mx",
+      "emoji": "🇲🇽"
+    },
+    "away": {
+      "name": "Sudáfrica",
+      "sourceName": "sudáfrica",
+      "flagCode": "za",
+      "emoji": "🇿🇦"
+    }
+  },
+  {
+    "id": "M002",
+    "number": 2,
+    "group": "A",
+    "date": "2026-06-11",
+    "dateLabel": "11 jun 2026",
+    "home": {
+      "name": "República de Corea",
+      "sourceName": "república de corea",
+      "flagCode": "kr",
+      "emoji": "🇰🇷"
+    },
+    "away": {
+      "name": "República Checa",
+      "sourceName": "república checa",
+      "flagCode": "cz",
+      "emoji": "🇨🇿"
+    }
+  },
+  {
+    "id": "M003",
+    "number": 3,
+    "group": "A",
+    "date": "2026-06-18",
+    "dateLabel": "18 jun 2026",
+    "home": {
+      "name": "República Checa",
+      "sourceName": "república checa",
+      "flagCode": "cz",
+      "emoji": "🇨🇿"
+    },
+    "away": {
+      "name": "Sudáfrica",
+      "sourceName": "sudáfrica",
+      "flagCode": "za",
+      "emoji": "🇿🇦"
+    }
+  },
+  {
+    "id": "M004",
+    "number": 4,
+    "group": "A",
+    "date": "2026-06-18",
+    "dateLabel": "18 jun 2026",
+    "home": {
+      "name": "México",
+      "sourceName": "méxico",
+      "flagCode": "mx",
+      "emoji": "🇲🇽"
+    },
+    "away": {
+      "name": "República de Corea",
+      "sourceName": "república de corea",
+      "flagCode": "kr",
+      "emoji": "🇰🇷"
+    }
+  },
+  {
+    "id": "M005",
+    "number": 5,
+    "group": "A",
+    "date": "2026-06-24",
+    "dateLabel": "24 jun 2026",
+    "home": {
+      "name": "República Checa",
+      "sourceName": "república checa",
+      "flagCode": "cz",
+      "emoji": "🇨🇿"
+    },
+    "away": {
+      "name": "México",
+      "sourceName": "méxico",
+      "flagCode": "mx",
+      "emoji": "🇲🇽"
+    }
+  },
+  {
+    "id": "M006",
+    "number": 6,
+    "group": "A",
+    "date": "2026-06-24",
+    "dateLabel": "24 jun 2026",
+    "home": {
+      "name": "Sudáfrica",
+      "sourceName": "sudáfrica",
+      "flagCode": "za",
+      "emoji": "🇿🇦"
+    },
+    "away": {
+      "name": "República de Corea",
+      "sourceName": "república de corea",
+      "flagCode": "kr",
+      "emoji": "🇰🇷"
+    }
+  },
+  {
+    "id": "M007",
+    "number": 7,
+    "group": "B",
+    "date": "2026-06-12",
+    "dateLabel": "12 jun 2026",
+    "home": {
+      "name": "Canadá",
+      "sourceName": "canadá",
+      "flagCode": "ca",
+      "emoji": "🇨🇦"
+    },
+    "away": {
+      "name": "Bosnia y Herzegovina",
+      "sourceName": "bosnia-herzegovina",
+      "flagCode": "ba",
+      "emoji": "🇧🇦"
+    }
+  },
+  {
+    "id": "M008",
+    "number": 8,
+    "group": "B",
+    "date": "2026-06-13",
+    "dateLabel": "13 jun 2026",
+    "home": {
+      "name": "Catar",
+      "sourceName": "catar",
+      "flagCode": "qa",
+      "emoji": "🇶🇦"
+    },
+    "away": {
+      "name": "Suiza",
+      "sourceName": "suiza",
+      "flagCode": "ch",
+      "emoji": "🇨🇭"
+    }
+  },
+  {
+    "id": "M009",
+    "number": 9,
+    "group": "B",
+    "date": "2026-06-18",
+    "dateLabel": "18 jun 2026",
+    "home": {
+      "name": "Suiza",
+      "sourceName": "suiza",
+      "flagCode": "ch",
+      "emoji": "🇨🇭"
+    },
+    "away": {
+      "name": "Bosnia y Herzegovina",
+      "sourceName": "bosnia-herzegovina",
+      "flagCode": "ba",
+      "emoji": "🇧🇦"
+    }
+  },
+  {
+    "id": "M010",
+    "number": 10,
+    "group": "B",
+    "date": "2026-06-18",
+    "dateLabel": "18 jun 2026",
+    "home": {
+      "name": "Canadá",
+      "sourceName": "canadá",
+      "flagCode": "ca",
+      "emoji": "🇨🇦"
+    },
+    "away": {
+      "name": "Catar",
+      "sourceName": "catar",
+      "flagCode": "qa",
+      "emoji": "🇶🇦"
+    }
+  },
+  {
+    "id": "M011",
+    "number": 11,
+    "group": "B",
+    "date": "2026-06-24",
+    "dateLabel": "24 jun 2026",
+    "home": {
+      "name": "Suiza",
+      "sourceName": "suiza",
+      "flagCode": "ch",
+      "emoji": "🇨🇭"
+    },
+    "away": {
+      "name": "Canadá",
+      "sourceName": "canadá",
+      "flagCode": "ca",
+      "emoji": "🇨🇦"
+    }
+  },
+  {
+    "id": "M012",
+    "number": 12,
+    "group": "B",
+    "date": "2026-06-24",
+    "dateLabel": "24 jun 2026",
+    "home": {
+      "name": "Bosnia y Herzegovina",
+      "sourceName": "bosnia-herzegovina",
+      "flagCode": "ba",
+      "emoji": "🇧🇦"
+    },
+    "away": {
+      "name": "Catar",
+      "sourceName": "catar",
+      "flagCode": "qa",
+      "emoji": "🇶🇦"
+    }
+  },
+  {
+    "id": "M013",
+    "number": 13,
+    "group": "C",
+    "date": "2026-06-13",
+    "dateLabel": "13 jun 2026",
+    "home": {
+      "name": "Brasil",
+      "sourceName": "brasil",
+      "flagCode": "br",
+      "emoji": "🇧🇷"
+    },
+    "away": {
+      "name": "Marruecos",
+      "sourceName": "marruecos",
+      "flagCode": "ma",
+      "emoji": "🇲🇦"
+    }
+  },
+  {
+    "id": "M014",
+    "number": 14,
+    "group": "C",
+    "date": "2026-06-13",
+    "dateLabel": "13 jun 2026",
+    "home": {
+      "name": "Haití",
+      "sourceName": "haití",
+      "flagCode": "ht",
+      "emoji": "🇭🇹"
+    },
+    "away": {
+      "name": "Escocia",
+      "sourceName": "escocia",
+      "flagCode": "gb-sct",
+      "emoji": "🏳"
+    }
+  },
+  {
+    "id": "M015",
+    "number": 15,
+    "group": "C",
+    "date": "2026-06-19",
+    "dateLabel": "19 jun 2026",
+    "home": {
+      "name": "Escocia",
+      "sourceName": "escocia",
+      "flagCode": "gb-sct",
+      "emoji": "🏳"
+    },
+    "away": {
+      "name": "Marruecos",
+      "sourceName": "marruecos",
+      "flagCode": "ma",
+      "emoji": "🇲🇦"
+    }
+  },
+  {
+    "id": "M016",
+    "number": 16,
+    "group": "C",
+    "date": "2026-06-19",
+    "dateLabel": "19 jun 2026",
+    "home": {
+      "name": "Brasil",
+      "sourceName": "brasil",
+      "flagCode": "br",
+      "emoji": "🇧🇷"
+    },
+    "away": {
+      "name": "Haití",
+      "sourceName": "haití",
+      "flagCode": "ht",
+      "emoji": "🇭🇹"
+    }
+  },
+  {
+    "id": "M017",
+    "number": 17,
+    "group": "C",
+    "date": "2026-06-24",
+    "dateLabel": "24 jun 2026",
+    "home": {
+      "name": "Escocia",
+      "sourceName": "escocia",
+      "flagCode": "gb-sct",
+      "emoji": "🏳"
+    },
+    "away": {
+      "name": "Brasil",
+      "sourceName": "brasil",
+      "flagCode": "br",
+      "emoji": "🇧🇷"
+    }
+  },
+  {
+    "id": "M018",
+    "number": 18,
+    "group": "C",
+    "date": "2026-06-24",
+    "dateLabel": "24 jun 2026",
+    "home": {
+      "name": "Marruecos",
+      "sourceName": "marruecos",
+      "flagCode": "ma",
+      "emoji": "🇲🇦"
+    },
+    "away": {
+      "name": "Haití",
+      "sourceName": "haití",
+      "flagCode": "ht",
+      "emoji": "🇭🇹"
+    }
+  },
+  {
+    "id": "M019",
+    "number": 19,
+    "group": "D",
+    "date": "2026-06-12",
+    "dateLabel": "12 jun 2026",
+    "home": {
+      "name": "Estados Unidos",
+      "sourceName": "estados unidos",
+      "flagCode": "us",
+      "emoji": "🇺🇸"
+    },
+    "away": {
+      "name": "Paraguay",
+      "sourceName": "paraguay",
+      "flagCode": "py",
+      "emoji": "🇵🇾"
+    }
+  },
+  {
+    "id": "M020",
+    "number": 20,
+    "group": "D",
+    "date": "2026-06-13",
+    "dateLabel": "13 jun 2026",
+    "home": {
+      "name": "Australia",
+      "sourceName": "australia",
+      "flagCode": "au",
+      "emoji": "🇦🇺"
+    },
+    "away": {
+      "name": "Turquía",
+      "sourceName": "turquía",
+      "flagCode": "tr",
+      "emoji": "🇹🇷"
+    }
+  },
+  {
+    "id": "M021",
+    "number": 21,
+    "group": "D",
+    "date": "2026-06-19",
+    "dateLabel": "19 jun 2026",
+    "home": {
+      "name": "Estados Unidos",
+      "sourceName": "estados unidos",
+      "flagCode": "us",
+      "emoji": "🇺🇸"
+    },
+    "away": {
+      "name": "Australia",
+      "sourceName": "australia",
+      "flagCode": "au",
+      "emoji": "🇦🇺"
+    }
+  },
+  {
+    "id": "M022",
+    "number": 22,
+    "group": "D",
+    "date": "2026-06-19",
+    "dateLabel": "19 jun 2026",
+    "home": {
+      "name": "Turquía",
+      "sourceName": "turquía",
+      "flagCode": "tr",
+      "emoji": "🇹🇷"
+    },
+    "away": {
+      "name": "Paraguay",
+      "sourceName": "paraguay",
+      "flagCode": "py",
+      "emoji": "🇵🇾"
+    }
+  },
+  {
+    "id": "M023",
+    "number": 23,
+    "group": "D",
+    "date": "2026-06-25",
+    "dateLabel": "25 jun 2026",
+    "home": {
+      "name": "Turquía",
+      "sourceName": "turquía",
+      "flagCode": "tr",
+      "emoji": "🇹🇷"
+    },
+    "away": {
+      "name": "Estados Unidos",
+      "sourceName": "estados unidos",
+      "flagCode": "us",
+      "emoji": "🇺🇸"
+    }
+  },
+  {
+    "id": "M024",
+    "number": 24,
+    "group": "D",
+    "date": "2026-06-25",
+    "dateLabel": "25 jun 2026",
+    "home": {
+      "name": "Paraguay",
+      "sourceName": "paraguay",
+      "flagCode": "py",
+      "emoji": "🇵🇾"
+    },
+    "away": {
+      "name": "Australia",
+      "sourceName": "australia",
+      "flagCode": "au",
+      "emoji": "🇦🇺"
+    }
+  },
+  {
+    "id": "M025",
+    "number": 25,
+    "group": "E",
+    "date": "2026-06-14",
+    "dateLabel": "14 jun 2026",
+    "home": {
+      "name": "Alemania",
+      "sourceName": "alemania",
+      "flagCode": "de",
+      "emoji": "🇩🇪"
+    },
+    "away": {
+      "name": "Curazao",
+      "sourceName": "curazao",
+      "flagCode": "cw",
+      "emoji": "🇨🇼"
+    }
+  },
+  {
+    "id": "M026",
+    "number": 26,
+    "group": "E",
+    "date": "2026-06-14",
+    "dateLabel": "14 jun 2026",
+    "home": {
+      "name": "Costa de Marfil",
+      "sourceName": "costa de marfil",
+      "flagCode": "ci",
+      "emoji": "🇨🇮"
+    },
+    "away": {
+      "name": "Ecuador",
+      "sourceName": "ecuador",
+      "flagCode": "ec",
+      "emoji": "🇪🇨"
+    }
+  },
+  {
+    "id": "M027",
+    "number": 27,
+    "group": "E",
+    "date": "2026-06-20",
+    "dateLabel": "20 jun 2026",
+    "home": {
+      "name": "Alemania",
+      "sourceName": "alemania",
+      "flagCode": "de",
+      "emoji": "🇩🇪"
+    },
+    "away": {
+      "name": "Costa de Marfil",
+      "sourceName": "costa de marfil",
+      "flagCode": "ci",
+      "emoji": "🇨🇮"
+    }
+  },
+  {
+    "id": "M028",
+    "number": 28,
+    "group": "E",
+    "date": "2026-06-20",
+    "dateLabel": "20 jun 2026",
+    "home": {
+      "name": "Ecuador",
+      "sourceName": "ecuador",
+      "flagCode": "ec",
+      "emoji": "🇪🇨"
+    },
+    "away": {
+      "name": "Curazao",
+      "sourceName": "curazao",
+      "flagCode": "cw",
+      "emoji": "🇨🇼"
+    }
+  },
+  {
+    "id": "M029",
+    "number": 29,
+    "group": "E",
+    "date": "2026-06-25",
+    "dateLabel": "25 jun 2026",
+    "home": {
+      "name": "Curazao",
+      "sourceName": "curazao",
+      "flagCode": "cw",
+      "emoji": "🇨🇼"
+    },
+    "away": {
+      "name": "Costa de Marfil",
+      "sourceName": "costa de marfil",
+      "flagCode": "ci",
+      "emoji": "🇨🇮"
+    }
+  },
+  {
+    "id": "M030",
+    "number": 30,
+    "group": "E",
+    "date": "2026-06-25",
+    "dateLabel": "25 jun 2026",
+    "home": {
+      "name": "Ecuador",
+      "sourceName": "ecuador",
+      "flagCode": "ec",
+      "emoji": "🇪🇨"
+    },
+    "away": {
+      "name": "Alemania",
+      "sourceName": "alemania",
+      "flagCode": "de",
+      "emoji": "🇩🇪"
+    }
+  },
+  {
+    "id": "M031",
+    "number": 31,
+    "group": "F",
+    "date": "2026-06-14",
+    "dateLabel": "14 jun 2026",
+    "home": {
+      "name": "Países Bajos",
+      "sourceName": "países bajos",
+      "flagCode": "nl",
+      "emoji": "🇳🇱"
+    },
+    "away": {
+      "name": "Japón",
+      "sourceName": "japón",
+      "flagCode": "jp",
+      "emoji": "🇯🇵"
+    }
+  },
+  {
+    "id": "M032",
+    "number": 32,
+    "group": "F",
+    "date": "2026-06-14",
+    "dateLabel": "14 jun 2026",
+    "home": {
+      "name": "Suecia",
+      "sourceName": "suecia",
+      "flagCode": "se",
+      "emoji": "🇸🇪"
+    },
+    "away": {
+      "name": "Túnez",
+      "sourceName": "túnez",
+      "flagCode": "tn",
+      "emoji": "🇹🇳"
+    }
+  },
+  {
+    "id": "M033",
+    "number": 33,
+    "group": "F",
+    "date": "2026-06-20",
+    "dateLabel": "20 jun 2026",
+    "home": {
+      "name": "Países Bajos",
+      "sourceName": "países bajos",
+      "flagCode": "nl",
+      "emoji": "🇳🇱"
+    },
+    "away": {
+      "name": "Suecia",
+      "sourceName": "suecia",
+      "flagCode": "se",
+      "emoji": "🇸🇪"
+    }
+  },
+  {
+    "id": "M034",
+    "number": 34,
+    "group": "F",
+    "date": "2026-06-20",
+    "dateLabel": "20 jun 2026",
+    "home": {
+      "name": "Túnez",
+      "sourceName": "túnez",
+      "flagCode": "tn",
+      "emoji": "🇹🇳"
+    },
+    "away": {
+      "name": "Japón",
+      "sourceName": "japón",
+      "flagCode": "jp",
+      "emoji": "🇯🇵"
+    }
+  },
+  {
+    "id": "M035",
+    "number": 35,
+    "group": "F",
+    "date": "2026-06-25",
+    "dateLabel": "25 jun 2026",
+    "home": {
+      "name": "Japón",
+      "sourceName": "japón",
+      "flagCode": "jp",
+      "emoji": "🇯🇵"
+    },
+    "away": {
+      "name": "Suecia",
+      "sourceName": "suecia",
+      "flagCode": "se",
+      "emoji": "🇸🇪"
+    }
+  },
+  {
+    "id": "M036",
+    "number": 36,
+    "group": "F",
+    "date": "2026-06-25",
+    "dateLabel": "25 jun 2026",
+    "home": {
+      "name": "Túnez",
+      "sourceName": "túnez",
+      "flagCode": "tn",
+      "emoji": "🇹🇳"
+    },
+    "away": {
+      "name": "Países Bajos",
+      "sourceName": "países bajos",
+      "flagCode": "nl",
+      "emoji": "🇳🇱"
+    }
+  },
+  {
+    "id": "M037",
+    "number": 37,
+    "group": "G",
+    "date": "2026-06-15",
+    "dateLabel": "15 jun 2026",
+    "home": {
+      "name": "Bélgica",
+      "sourceName": "bélgica",
+      "flagCode": "be",
+      "emoji": "🇧🇪"
+    },
+    "away": {
+      "name": "Egipto",
+      "sourceName": "egipto",
+      "flagCode": "eg",
+      "emoji": "🇪🇬"
+    }
+  },
+  {
+    "id": "M038",
+    "number": 38,
+    "group": "G",
+    "date": "2026-06-15",
+    "dateLabel": "15 jun 2026",
+    "home": {
+      "name": "Irán",
+      "sourceName": "irán",
+      "flagCode": "ir",
+      "emoji": "🇮🇷"
+    },
+    "away": {
+      "name": "Nueva Zelanda",
+      "sourceName": "nueva zelanda",
+      "flagCode": "nz",
+      "emoji": "🇳🇿"
+    }
+  },
+  {
+    "id": "M039",
+    "number": 39,
+    "group": "G",
+    "date": "2026-06-21",
+    "dateLabel": "21 jun 2026",
+    "home": {
+      "name": "Bélgica",
+      "sourceName": "bélgica",
+      "flagCode": "be",
+      "emoji": "🇧🇪"
+    },
+    "away": {
+      "name": "Irán",
+      "sourceName": "irán",
+      "flagCode": "ir",
+      "emoji": "🇮🇷"
+    }
+  },
+  {
+    "id": "M040",
+    "number": 40,
+    "group": "G",
+    "date": "2026-06-21",
+    "dateLabel": "21 jun 2026",
+    "home": {
+      "name": "Nueva Zelanda",
+      "sourceName": "nueva zelanda",
+      "flagCode": "nz",
+      "emoji": "🇳🇿"
+    },
+    "away": {
+      "name": "Egipto",
+      "sourceName": "egipto",
+      "flagCode": "eg",
+      "emoji": "🇪🇬"
+    }
+  },
+  {
+    "id": "M041",
+    "number": 41,
+    "group": "G",
+    "date": "2026-06-26",
+    "dateLabel": "26 jun 2026",
+    "home": {
+      "name": "Egipto",
+      "sourceName": "egipto",
+      "flagCode": "eg",
+      "emoji": "🇪🇬"
+    },
+    "away": {
+      "name": "Irán",
+      "sourceName": "irán",
+      "flagCode": "ir",
+      "emoji": "🇮🇷"
+    }
+  },
+  {
+    "id": "M042",
+    "number": 42,
+    "group": "G",
+    "date": "2026-06-26",
+    "dateLabel": "26 jun 2026",
+    "home": {
+      "name": "Nueva Zelanda",
+      "sourceName": "nueva zelanda",
+      "flagCode": "nz",
+      "emoji": "🇳🇿"
+    },
+    "away": {
+      "name": "Bélgica",
+      "sourceName": "bélgica",
+      "flagCode": "be",
+      "emoji": "🇧🇪"
+    }
+  },
+  {
+    "id": "M043",
+    "number": 43,
+    "group": "H",
+    "date": "2026-06-15",
+    "dateLabel": "15 jun 2026",
+    "home": {
+      "name": "España",
+      "sourceName": "españa",
+      "flagCode": "es",
+      "emoji": "🇪🇸"
+    },
+    "away": {
+      "name": "Cabo Verde",
+      "sourceName": "cabo verde",
+      "flagCode": "cv",
+      "emoji": "🇨🇻"
+    }
+  },
+  {
+    "id": "M044",
+    "number": 44,
+    "group": "H",
+    "date": "2026-06-15",
+    "dateLabel": "15 jun 2026",
+    "home": {
+      "name": "Arabia Saudí",
+      "sourceName": "arabia saudí",
+      "flagCode": "sa",
+      "emoji": "🇸🇦"
+    },
+    "away": {
+      "name": "Uruguay",
+      "sourceName": "uruguay",
+      "flagCode": "uy",
+      "emoji": "🇺🇾"
+    }
+  },
+  {
+    "id": "M045",
+    "number": 45,
+    "group": "H",
+    "date": "2026-06-21",
+    "dateLabel": "21 jun 2026",
+    "home": {
+      "name": "España",
+      "sourceName": "españa",
+      "flagCode": "es",
+      "emoji": "🇪🇸"
+    },
+    "away": {
+      "name": "Arabia Saudí",
+      "sourceName": "arabia saudí",
+      "flagCode": "sa",
+      "emoji": "🇸🇦"
+    }
+  },
+  {
+    "id": "M046",
+    "number": 46,
+    "group": "H",
+    "date": "2026-06-21",
+    "dateLabel": "21 jun 2026",
+    "home": {
+      "name": "Uruguay",
+      "sourceName": "uruguay",
+      "flagCode": "uy",
+      "emoji": "🇺🇾"
+    },
+    "away": {
+      "name": "Cabo Verde",
+      "sourceName": "cabo verde",
+      "flagCode": "cv",
+      "emoji": "🇨🇻"
+    }
+  },
+  {
+    "id": "M047",
+    "number": 47,
+    "group": "H",
+    "date": "2026-06-26",
+    "dateLabel": "26 jun 2026",
+    "home": {
+      "name": "Cabo Verde",
+      "sourceName": "cabo verde",
+      "flagCode": "cv",
+      "emoji": "🇨🇻"
+    },
+    "away": {
+      "name": "Arabia Saudí",
+      "sourceName": "arabia saudí",
+      "flagCode": "sa",
+      "emoji": "🇸🇦"
+    }
+  },
+  {
+    "id": "M048",
+    "number": 48,
+    "group": "H",
+    "date": "2026-06-26",
+    "dateLabel": "26 jun 2026",
+    "home": {
+      "name": "Uruguay",
+      "sourceName": "uruguay",
+      "flagCode": "uy",
+      "emoji": "🇺🇾"
+    },
+    "away": {
+      "name": "España",
+      "sourceName": "españa",
+      "flagCode": "es",
+      "emoji": "🇪🇸"
+    }
+  },
+  {
+    "id": "M049",
+    "number": 49,
+    "group": "I",
+    "date": "2026-06-16",
+    "dateLabel": "16 jun 2026",
+    "home": {
+      "name": "Francia",
+      "sourceName": "francia",
+      "flagCode": "fr",
+      "emoji": "🇫🇷"
+    },
+    "away": {
+      "name": "Senegal",
+      "sourceName": "senegal",
+      "flagCode": "sn",
+      "emoji": "🇸🇳"
+    }
+  },
+  {
+    "id": "M050",
+    "number": 50,
+    "group": "I",
+    "date": "2026-06-16",
+    "dateLabel": "16 jun 2026",
+    "home": {
+      "name": "Irak",
+      "sourceName": "irak",
+      "flagCode": "iq",
+      "emoji": "🇮🇶"
+    },
+    "away": {
+      "name": "Noruega",
+      "sourceName": "noruega",
+      "flagCode": "no",
+      "emoji": "🇳🇴"
+    }
+  },
+  {
+    "id": "M051",
+    "number": 51,
+    "group": "I",
+    "date": "2026-06-22",
+    "dateLabel": "22 jun 2026",
+    "home": {
+      "name": "Francia",
+      "sourceName": "francia",
+      "flagCode": "fr",
+      "emoji": "🇫🇷"
+    },
+    "away": {
+      "name": "Irak",
+      "sourceName": "irak",
+      "flagCode": "iq",
+      "emoji": "🇮🇶"
+    }
+  },
+  {
+    "id": "M052",
+    "number": 52,
+    "group": "I",
+    "date": "2026-06-22",
+    "dateLabel": "22 jun 2026",
+    "home": {
+      "name": "Noruega",
+      "sourceName": "noruega",
+      "flagCode": "no",
+      "emoji": "🇳🇴"
+    },
+    "away": {
+      "name": "Senegal",
+      "sourceName": "senegal",
+      "flagCode": "sn",
+      "emoji": "🇸🇳"
+    }
+  },
+  {
+    "id": "M053",
+    "number": 53,
+    "group": "I",
+    "date": "2026-06-26",
+    "dateLabel": "26 jun 2026",
+    "home": {
+      "name": "Noruega",
+      "sourceName": "noruega",
+      "flagCode": "no",
+      "emoji": "🇳🇴"
+    },
+    "away": {
+      "name": "Francia",
+      "sourceName": "francia",
+      "flagCode": "fr",
+      "emoji": "🇫🇷"
+    }
+  },
+  {
+    "id": "M054",
+    "number": 54,
+    "group": "I",
+    "date": "2026-06-26",
+    "dateLabel": "26 jun 2026",
+    "home": {
+      "name": "Senegal",
+      "sourceName": "senegal",
+      "flagCode": "sn",
+      "emoji": "🇸🇳"
+    },
+    "away": {
+      "name": "Irak",
+      "sourceName": "irak",
+      "flagCode": "iq",
+      "emoji": "🇮🇶"
+    }
+  },
+  {
+    "id": "M055",
+    "number": 55,
+    "group": "J",
+    "date": "2026-06-16",
+    "dateLabel": "16 jun 2026",
+    "home": {
+      "name": "Argentina",
+      "sourceName": "argentina",
+      "flagCode": "ar",
+      "emoji": "🇦🇷"
+    },
+    "away": {
+      "name": "Argelia",
+      "sourceName": "argelia",
+      "flagCode": "dz",
+      "emoji": "🇩🇿"
+    }
+  },
+  {
+    "id": "M056",
+    "number": 56,
+    "group": "J",
+    "date": "2026-06-16",
+    "dateLabel": "16 jun 2026",
+    "home": {
+      "name": "Austria",
+      "sourceName": "austria",
+      "flagCode": "at",
+      "emoji": "🇦🇹"
+    },
+    "away": {
+      "name": "Jordania",
+      "sourceName": "jordania",
+      "flagCode": "jo",
+      "emoji": "🇯🇴"
+    }
+  },
+  {
+    "id": "M057",
+    "number": 57,
+    "group": "J",
+    "date": "2026-06-22",
+    "dateLabel": "22 jun 2026",
+    "home": {
+      "name": "Argentina",
+      "sourceName": "argentina",
+      "flagCode": "ar",
+      "emoji": "🇦🇷"
+    },
+    "away": {
+      "name": "Austria",
+      "sourceName": "austria",
+      "flagCode": "at",
+      "emoji": "🇦🇹"
+    }
+  },
+  {
+    "id": "M058",
+    "number": 58,
+    "group": "J",
+    "date": "2026-06-22",
+    "dateLabel": "22 jun 2026",
+    "home": {
+      "name": "Jordania",
+      "sourceName": "jordania",
+      "flagCode": "jo",
+      "emoji": "🇯🇴"
+    },
+    "away": {
+      "name": "Argelia",
+      "sourceName": "argelia",
+      "flagCode": "dz",
+      "emoji": "🇩🇿"
+    }
+  },
+  {
+    "id": "M059",
+    "number": 59,
+    "group": "J",
+    "date": "2026-06-27",
+    "dateLabel": "27 jun 2026",
+    "home": {
+      "name": "Argelia",
+      "sourceName": "argelia",
+      "flagCode": "dz",
+      "emoji": "🇩🇿"
+    },
+    "away": {
+      "name": "Austria",
+      "sourceName": "austria",
+      "flagCode": "at",
+      "emoji": "🇦🇹"
+    }
+  },
+  {
+    "id": "M060",
+    "number": 60,
+    "group": "J",
+    "date": "2026-06-27",
+    "dateLabel": "27 jun 2026",
+    "home": {
+      "name": "Jordania",
+      "sourceName": "jordania",
+      "flagCode": "jo",
+      "emoji": "🇯🇴"
+    },
+    "away": {
+      "name": "Argentina",
+      "sourceName": "argentina",
+      "flagCode": "ar",
+      "emoji": "🇦🇷"
+    }
+  },
+  {
+    "id": "M061",
+    "number": 61,
+    "group": "K",
+    "date": "2026-06-17",
+    "dateLabel": "17 jun 2026",
+    "home": {
+      "name": "Portugal",
+      "sourceName": "portugal",
+      "flagCode": "pt",
+      "emoji": "🇵🇹"
+    },
+    "away": {
+      "name": "República Dem. del Congo",
+      "sourceName": "r d congo",
+      "flagCode": "cd",
+      "emoji": "🇨🇩"
+    }
+  },
+  {
+    "id": "M062",
+    "number": 62,
+    "group": "K",
+    "date": "2026-06-17",
+    "dateLabel": "17 jun 2026",
+    "home": {
+      "name": "Uzbekistán",
+      "sourceName": "uzbekistán",
+      "flagCode": "uz",
+      "emoji": "🇺🇿"
+    },
+    "away": {
+      "name": "Colombia",
+      "sourceName": "colombia",
+      "flagCode": "co",
+      "emoji": "🇨🇴"
+    }
+  },
+  {
+    "id": "M063",
+    "number": 63,
+    "group": "K",
+    "date": "2026-06-23",
+    "dateLabel": "23 jun 2026",
+    "home": {
+      "name": "Portugal",
+      "sourceName": "portugal",
+      "flagCode": "pt",
+      "emoji": "🇵🇹"
+    },
+    "away": {
+      "name": "Uzbekistán",
+      "sourceName": "uzbekistán",
+      "flagCode": "uz",
+      "emoji": "🇺🇿"
+    }
+  },
+  {
+    "id": "M064",
+    "number": 64,
+    "group": "K",
+    "date": "2026-06-23",
+    "dateLabel": "23 jun 2026",
+    "home": {
+      "name": "Colombia",
+      "sourceName": "colombia",
+      "flagCode": "co",
+      "emoji": "🇨🇴"
+    },
+    "away": {
+      "name": "República Dem. del Congo",
+      "sourceName": "r d congo",
+      "flagCode": "cd",
+      "emoji": "🇨🇩"
+    }
+  },
+  {
+    "id": "M065",
+    "number": 65,
+    "group": "K",
+    "date": "2026-06-27",
+    "dateLabel": "27 jun 2026",
+    "home": {
+      "name": "Colombia",
+      "sourceName": "colombia",
+      "flagCode": "co",
+      "emoji": "🇨🇴"
+    },
+    "away": {
+      "name": "Portugal",
+      "sourceName": "portugal",
+      "flagCode": "pt",
+      "emoji": "🇵🇹"
+    }
+  },
+  {
+    "id": "M066",
+    "number": 66,
+    "group": "K",
+    "date": "2026-06-27",
+    "dateLabel": "27 jun 2026",
+    "home": {
+      "name": "República Dem. del Congo",
+      "sourceName": "r d congo",
+      "flagCode": "cd",
+      "emoji": "🇨🇩"
+    },
+    "away": {
+      "name": "Uzbekistán",
+      "sourceName": "uzbekistán",
+      "flagCode": "uz",
+      "emoji": "🇺🇿"
+    }
+  },
+  {
+    "id": "M067",
+    "number": 67,
+    "group": "L",
+    "date": "2026-06-17",
+    "dateLabel": "17 jun 2026",
+    "home": {
+      "name": "Inglaterra",
+      "sourceName": "inglaterra",
+      "flagCode": "gb-eng",
+      "emoji": "🏳"
+    },
+    "away": {
+      "name": "Croacia",
+      "sourceName": "croacia",
+      "flagCode": "hr",
+      "emoji": "🇭🇷"
+    }
+  },
+  {
+    "id": "M068",
+    "number": 68,
+    "group": "L",
+    "date": "2026-06-17",
+    "dateLabel": "17 jun 2026",
+    "home": {
+      "name": "Ghana",
+      "sourceName": "ghana",
+      "flagCode": "gh",
+      "emoji": "🇬🇭"
+    },
+    "away": {
+      "name": "Panamá",
+      "sourceName": "panamá",
+      "flagCode": "pa",
+      "emoji": "🇵🇦"
+    }
+  },
+  {
+    "id": "M069",
+    "number": 69,
+    "group": "L",
+    "date": "2026-06-23",
+    "dateLabel": "23 jun 2026",
+    "home": {
+      "name": "Inglaterra",
+      "sourceName": "inglaterra",
+      "flagCode": "gb-eng",
+      "emoji": "🏳"
+    },
+    "away": {
+      "name": "Ghana",
+      "sourceName": "ghana",
+      "flagCode": "gh",
+      "emoji": "🇬🇭"
+    }
+  },
+  {
+    "id": "M070",
+    "number": 70,
+    "group": "L",
+    "date": "2026-06-23",
+    "dateLabel": "23 jun 2026",
+    "home": {
+      "name": "Panamá",
+      "sourceName": "panamá",
+      "flagCode": "pa",
+      "emoji": "🇵🇦"
+    },
+    "away": {
+      "name": "Croacia",
+      "sourceName": "croacia",
+      "flagCode": "hr",
+      "emoji": "🇭🇷"
+    }
+  },
+  {
+    "id": "M071",
+    "number": 71,
+    "group": "L",
+    "date": "2026-06-27",
+    "dateLabel": "27 jun 2026",
+    "home": {
+      "name": "Panamá",
+      "sourceName": "panamá",
+      "flagCode": "pa",
+      "emoji": "🇵🇦"
+    },
+    "away": {
+      "name": "Inglaterra",
+      "sourceName": "inglaterra",
+      "flagCode": "gb-eng",
+      "emoji": "🏳"
+    }
+  },
+  {
+    "id": "M072",
+    "number": 72,
+    "group": "L",
+    "date": "2026-06-27",
+    "dateLabel": "27 jun 2026",
+    "home": {
+      "name": "Croacia",
+      "sourceName": "croacia",
+      "flagCode": "hr",
+      "emoji": "🇭🇷"
+    },
+    "away": {
+      "name": "Ghana",
+      "sourceName": "ghana",
+      "flagCode": "gh",
+      "emoji": "🇬🇭"
+    }
+  }
+];
+
+function doGet(e) {
+  if (e && e.parameter && e.parameter.payload) {
+    return handleSubmission_(e, true);
+  }
+
+  return ContentService
+    .createTextOutput("Endpoint activo para Quiniela Mundial 2026")
+    .setMimeType(ContentService.MimeType.TEXT);
+}
+
+function doPost(e) {
+  return handleSubmission_(e, false);
+}
+
+function handleSubmission_(e, useJsonp) {
+  const lock = LockService.getScriptLock();
+  let response;
+
+  try {
+    lock.waitLock(30000);
+    const payload = normalizePayload_(parsePayload_(e));
+    validatePayload_(payload);
+
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    setupMatchesSheet_(ss, payload.matches);
+    appendResponse_(ss, payload);
+
+    response = { ok: true, savedAt: new Date().toISOString() };
+  } catch (error) {
+    response = { ok: false, error: String(error && error.message ? error.message : error) };
+  } finally {
+    try {
+      lock.releaseLock();
+    } catch (ignore) {}
+  }
+
+  return useJsonp ? javascript_(e.parameter.callback, response) : json_(response);
+}
+
+function parsePayload_(e) {
+  if (e && e.parameter && e.parameter.payload) {
+    return JSON.parse(e.parameter.payload);
+  }
+
+  if (e && e.postData && e.postData.contents) {
+    return JSON.parse(e.postData.contents);
+  }
+
+  throw new Error("No se recibió payload.");
+}
+
+function normalizePayload_(payload) {
+  if (payload && Array.isArray(payload.matches)) return payload;
+  if (!payload || !payload.picks) throw new Error("No se recibieron selecciones.");
+
+  const matches = MATCHES.map(function(match) {
+    const pick = payload.picks[match.id];
+    return {
+      id: match.id,
+      number: match.number,
+      group: match.group,
+      date: match.date,
+      dateLabel: match.dateLabel,
+      home: match.home.name,
+      away: match.away.name,
+      pick: pick,
+      pickLabel: getPickLabel_(match, pick),
+    };
+  });
+
+  return {
+    submittedAt: payload.submittedAt || new Date().toISOString(),
+    name: payload.name,
+    email: payload.email,
+    totalMatches: MATCHES.length,
+    matches: matches,
+    source: payload.source || "quiniela-mundial-2026-github-pages",
+  };
+}
+
+function getPickLabel_(match, pick) {
+  if (pick === "home") return match.home.name;
+  if (pick === "away") return match.away.name;
+  if (pick === "draw") return "Empate";
+  return "";
+}
+
+function validatePayload_(payload) {
+  if (!payload || typeof payload !== "object") throw new Error("Payload inválido.");
+  if (!payload.name || !payload.email) throw new Error("Nombre y correo son obligatorios.");
+  if (!Array.isArray(payload.matches) || payload.matches.length === 0) {
+    throw new Error("No se recibieron selecciones.");
+  }
+
+  const missing = payload.matches.filter(function(match) {
+    return !match.id || !match.home || !match.away || ["home", "away", "draw"].indexOf(match.pick) === -1 || !match.pickLabel;
+  });
+  if (missing.length > 0) throw new Error("Hay selecciones incompletas.");
+}
+
+function setupMatchesSheet_(ss, matches) {
+  const sheet = ss.getSheetByName(MATCHES_SHEET) || ss.insertSheet(MATCHES_SHEET);
+  if (sheet.getLastRow() > 0) return;
+
+  const rows = [["ID", "Número", "Grupo", "Fecha", "Local", "Visita"]];
+  matches.forEach(function(match) {
+    rows.push([match.id, match.number, match.group, match.date, match.home, match.away]);
+  });
+
+  sheet.getRange(1, 1, rows.length, rows[0].length).setValues(rows);
+  sheet.setFrozenRows(1);
+  sheet.autoResizeColumns(1, rows[0].length);
+}
+
+function appendResponse_(ss, payload) {
+  const sheet = ss.getSheetByName(RESPONSES_SHEET) || ss.insertSheet(RESPONSES_SHEET);
+  const matchHeaders = payload.matches.map(function(match) {
+    return match.id + " " + match.home + " vs " + match.away;
+  });
+
+  const requiredHeaders = [
+    "Fecha envío",
+    "Nombre",
+    "Correo",
+    "Total partidos",
+    "Completados",
+    "Selecciones JSON"
+  ].concat(matchHeaders);
+
+  const headers = ensureHeaders_(sheet, requiredHeaders);
+  const row = headers.map(function() { return ""; });
+
+  setCell_(row, headers, "Fecha envío", new Date());
+  setCell_(row, headers, "Nombre", payload.name);
+  setCell_(row, headers, "Correo", payload.email);
+  setCell_(row, headers, "Total partidos", payload.totalMatches || payload.matches.length);
+  setCell_(row, headers, "Completados", payload.matches.length);
+  setCell_(row, headers, "Selecciones JSON", JSON.stringify(payload.matches));
+
+  payload.matches.forEach(function(match) {
+    const header = match.id + " " + match.home + " vs " + match.away;
+    setCell_(row, headers, header, match.pickLabel);
+  });
+
+  sheet.appendRow(row);
+  sheet.setFrozenRows(1);
+  sheet.autoResizeColumns(1, Math.min(headers.length, 12));
+}
+
+function ensureHeaders_(sheet, requiredHeaders) {
+  if (sheet.getLastRow() === 0) {
+    sheet.getRange(1, 1, 1, requiredHeaders.length).setValues([requiredHeaders]);
+    return requiredHeaders.slice();
+  }
+
+  const lastColumn = Math.max(sheet.getLastColumn(), 1);
+  const existingHeaders = sheet
+    .getRange(1, 1, 1, lastColumn)
+    .getValues()[0]
+    .map(function(header) { return String(header || ""); });
+
+  const missingHeaders = requiredHeaders.filter(function(header) {
+    return existingHeaders.indexOf(header) === -1;
+  });
+
+  if (missingHeaders.length > 0) {
+    sheet
+      .getRange(1, existingHeaders.length + 1, 1, missingHeaders.length)
+      .setValues([missingHeaders]);
+  }
+
+  return existingHeaders.concat(missingHeaders);
+}
+
+function setCell_(row, headers, header, value) {
+  const index = headers.indexOf(header);
+  if (index >= 0) row[index] = value;
+}
+
+function json_(value) {
+  return ContentService
+    .createTextOutput(JSON.stringify(value))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function javascript_(callback, value) {
+  const safeCallback = /^[A-Za-z_$][0-9A-Za-z_$]*$/.test(callback || "") ? callback : "callback";
+  return ContentService
+    .createTextOutput(safeCallback + "(" + JSON.stringify(value) + ");")
+    .setMimeType(ContentService.MimeType.JAVASCRIPT);
+}
