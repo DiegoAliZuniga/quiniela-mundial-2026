@@ -460,6 +460,62 @@
       z-index: 20;
     }
 
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 16;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      background: rgba(9, 19, 33, 0.58);
+      backdrop-filter: blur(4px);
+    }
+
+    .edit-modal {
+      width: min(820px, 100%);
+      max-height: min(760px, calc(100vh - 36px));
+      overflow: auto;
+      border: 1px solid rgba(216, 224, 230, 0.92);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.98);
+      box-shadow: 0 28px 70px rgba(9, 19, 33, 0.28);
+    }
+
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 22px 24px 12px;
+      align-items: start;
+    }
+
+    .modal-head h2 {
+      font-size: 1.24rem;
+      line-height: 1.18;
+      overflow-wrap: anywhere;
+    }
+
+    .modal-kicker {
+      color: var(--muted);
+      font-weight: 900;
+      margin-bottom: 6px;
+    }
+
+    .modal-body {
+      display: grid;
+      gap: 18px;
+      padding: 0 24px 24px;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      border-top: 1px solid var(--line);
+      padding-top: 16px;
+      flex-wrap: wrap;
+    }
+
     [hidden] {
       display: none !important;
     }
@@ -489,7 +545,8 @@
       }
 
       .nav-row,
-      .nav-actions {
+      .nav-actions,
+      .modal-actions {
         align-items: stretch;
         flex-direction: column;
       }
@@ -604,6 +661,7 @@
 
         <div class="submit-row">
           <button class="btn btn-secondary" type="button" id="summaryBackBtn">Volver a editar</button>
+          <button class="btn btn-secondary" type="button" id="summaryIdentityBtn">Editar datos</button>
           <button class="btn btn-danger" type="button" id="resetBtn">Limpiar</button>
           <button class="btn" type="button" id="submitBtn">Enviar quiniela</button>
         </div>
@@ -611,6 +669,40 @@
       </div>
     </section>
   </main>
+
+  <div class="modal-backdrop" id="editPickModal" role="dialog" aria-modal="true" aria-labelledby="editPickTitle" hidden>
+    <div class="edit-modal">
+      <div class="modal-head">
+        <div>
+          <p class="modal-kicker" id="editPickMeta"></p>
+          <h2 id="editPickTitle"></h2>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="choice-grid" role="group" aria-label="Editar pronóstico">
+          <button class="choice" type="button" data-modal-pick="home" aria-pressed="false">
+            <span class="flag-slot"></span>
+            <span class="team-name"></span>
+            <small>Local</small>
+          </button>
+          <button class="choice draw" type="button" data-modal-pick="draw" aria-pressed="false">
+            <span class="draw-symbol" aria-hidden="true">=</span>
+            <span class="team-name">Empate</span>
+            <small>Resultado</small>
+          </button>
+          <button class="choice" type="button" data-modal-pick="away" aria-pressed="false">
+            <span class="flag-slot"></span>
+            <span class="team-name"></span>
+            <small>Visita</small>
+          </button>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-secondary" type="button" id="editPickCancelBtn">Cancelar</button>
+          <button class="btn" type="button" id="editPickSaveBtn">Guardar selección</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div class="toast" id="toast" hidden></div>
 
@@ -2009,6 +2101,7 @@
     const nextBtn = document.getElementById("nextBtn");
     const identityBtn = document.getElementById("identityBtn");
     const summaryBackBtn = document.getElementById("summaryBackBtn");
+    const summaryIdentityBtn = document.getElementById("summaryIdentityBtn");
     const summaryRows = document.getElementById("summaryRows");
     const summaryPerson = document.getElementById("summaryPerson");
     const summaryCount = document.getElementById("summaryCount");
@@ -2017,6 +2110,14 @@
     const successNotice = document.getElementById("successNotice");
     const toast = document.getElementById("toast");
     const choiceButtons = [...document.querySelectorAll(".choice[data-pick]")];
+    const editPickModal = document.getElementById("editPickModal");
+    const editPickMeta = document.getElementById("editPickMeta");
+    const editPickTitle = document.getElementById("editPickTitle");
+    const editPickCancelBtn = document.getElementById("editPickCancelBtn");
+    const editPickSaveBtn = document.getElementById("editPickSaveBtn");
+    const modalChoiceButtons = [...document.querySelectorAll(".choice[data-modal-pick]")];
+    let summaryEditIndex = null;
+    let pendingModalPick = null;
 
     playerName.value = state.name;
     playerEmail.value = state.email;
@@ -2100,6 +2201,10 @@
       render();
     });
 
+    summaryIdentityBtn.addEventListener("click", () => {
+      openIdentityEditor();
+    });
+
     resetBtn.addEventListener("click", () => {
       const confirmed = window.confirm("¿Limpiar tus datos y selecciones?");
       if (!confirmed) return;
@@ -2120,10 +2225,23 @@
     summaryRows.addEventListener("click", (event) => {
       const button = event.target.closest("[data-edit-index]");
       if (!button) return;
-      state.currentIndex = Number(button.dataset.editIndex);
-      state.screen = "match";
-      saveState();
-      render();
+      openSummaryEditModal(Number(button.dataset.editIndex));
+    });
+
+    modalChoiceButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        setModalPick(button.dataset.modalPick);
+      });
+    });
+
+    editPickCancelBtn.addEventListener("click", closeSummaryEditModal);
+    editPickSaveBtn.addEventListener("click", saveSummaryModalPick);
+    editPickModal.addEventListener("click", (event) => {
+      if (event.target === editPickModal) closeSummaryEditModal();
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && !editPickModal.hidden) closeSummaryEditModal();
     });
 
     function loadState() {
@@ -2204,6 +2322,50 @@
       button.querySelector(".flag-slot").replaceChildren(createFlag(team));
       button.querySelector(".team-name").textContent = team.name;
       button.querySelector("small").textContent = sideLabel;
+    }
+
+    function openSummaryEditModal(index) {
+      summaryEditIndex = index;
+      const match = MATCHES[summaryEditIndex];
+      if (!match) return;
+
+      pendingModalPick = state.picks[match.id] || "home";
+      editPickMeta.textContent = `Partido ${match.number} · Grupo ${match.group} · ${match.dateLabel}`;
+      editPickTitle.textContent = `${match.home.name} vs ${match.away.name}`;
+      setTeamChoice(document.querySelector('[data-modal-pick="home"]'), match.home, "Local");
+      setTeamChoice(document.querySelector('[data-modal-pick="away"]'), match.away, "Visita");
+      setModalPick(pendingModalPick);
+      editPickModal.hidden = false;
+      editPickSaveBtn.focus();
+    }
+
+    function setModalPick(pick) {
+      pendingModalPick = pick;
+      modalChoiceButtons.forEach((button) => {
+        button.setAttribute("aria-pressed", button.dataset.modalPick === pendingModalPick ? "true" : "false");
+      });
+      editPickSaveBtn.disabled = !pendingModalPick;
+    }
+
+    function saveSummaryModalPick() {
+      const match = MATCHES[summaryEditIndex];
+      if (!match || !pendingModalPick) {
+        showToast("Selecciona local, empate o visita.");
+        return;
+      }
+
+      state.picks[match.id] = pendingModalPick;
+      state.submittedAt = "";
+      saveState();
+      closeSummaryEditModal();
+      renderSummary();
+      showToast("Selección actualizada.");
+    }
+
+    function closeSummaryEditModal() {
+      editPickModal.hidden = true;
+      summaryEditIndex = null;
+      pendingModalPick = null;
     }
 
     function createFlag(team) {
