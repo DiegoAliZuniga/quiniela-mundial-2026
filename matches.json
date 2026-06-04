@@ -16,7 +16,11 @@
       "sourceName": "sudáfrica",
       "flagCode": "za",
       "emoji": "🇿🇦"
-    }
+    },
+    "crDate": "2026-06-11",
+    "crDateLabel": "11 jun 2026",
+    "crTime": "3:00 p.m.",
+    "crTimeMinutes": 900
   },
   {
     "id": "M002",
@@ -35,7 +39,11 @@
       "sourceName": "república checa",
       "flagCode": "cz",
       "emoji": "🇨🇿"
-    }
+    },
+    "crDate": "2026-06-11",
+    "crDateLabel": "11 jun 2026",
+    "crTime": "10:00 p.m.",
+    "crTimeMinutes": 1320
   },
   {
     "id": "M003",
@@ -54,7 +62,11 @@
       "sourceName": "sudáfrica",
       "flagCode": "za",
       "emoji": "🇿🇦"
-    }
+    },
+    "crDate": "2026-06-18",
+    "crDateLabel": "18 jun 2026",
+    "crTime": "12:00 p.m.",
+    "crTimeMinutes": 720
   },
   {
     "id": "M004",
@@ -73,7 +85,11 @@
       "sourceName": "república de corea",
       "flagCode": "kr",
       "emoji": "🇰🇷"
-    }
+    },
+    "crDate": "2026-06-18",
+    "crDateLabel": "18 jun 2026",
+    "crTime": "9:00 p.m.",
+    "crTimeMinutes": 1260
   },
   {
     "id": "M005",
@@ -92,7 +108,11 @@
       "sourceName": "méxico",
       "flagCode": "mx",
       "emoji": "🇲🇽"
-    }
+    },
+    "crDate": "2026-06-24",
+    "crDateLabel": "24 jun 2026",
+    "crTime": "9:00 p.m.",
+    "crTimeMinutes": 1260
   },
   {
     "id": "M006",
@@ -111,7 +131,11 @@
       "sourceName": "república de corea",
       "flagCode": "kr",
       "emoji": "🇰🇷"
-    }
+    },
+    "crDate": "2026-06-24",
+    "crDateLabel": "24 jun 2026",
+    "crTime": "9:00 p.m.",
+    "crTimeMinutes": 1260
   },
   {
     "id": "M007",
@@ -130,7 +154,11 @@
       "sourceName": "bosnia-herzegovina",
       "flagCode": "ba",
       "emoji": "🇧🇦"
-    }
+    },
+    "crDate": "2026-06-12",
+    "crDateLabel": "12 jun 2026",
+    "crTime": "3:00 p.m.",
+    "crTimeMinutes": 900
   },
   {
     "id": "M008",
@@ -149,7 +177,11 @@
       "sourceName": "suiza",
       "flagCode": "ch",
       "emoji": "🇨🇭"
-    }
+    },
+    "crDate": "2026-06-13",
+    "crDateLabel": "13 jun 2026",
+    "crTime": "3:00 p.m.",
+    "crTimeMinutes": 900
   },
   {
     "id": "M009",
@@ -168,7 +200,11 @@
       "sourceName": "bosnia-herzegovina",
       "flagCode": "ba",
       "emoji": "🇧🇦"
-    }
+    },
+    "crDate": "2026-06-18",
+    "crDateLabel": "18 jun 2026",
+    "crTime": "3:00 p.m.",
+    "crTimeMinutes": 900
   },
   {
     "id": "M010",
@@ -187,7 +223,11 @@
       "sourceName": "catar",
       "flagCode": "qa",
       "emoji": "🇶🇦"
-    }
+    },
+    "crDate": "2026-06-18",
+    "crDateLabel": "18 jun 2026",
+    "crTime": "6:00 p.m.",
+    "crTimeMinutes": 1080
   },
   {
     "id": "M011",
@@ -206,7 +246,11 @@
       "sourceName": "canadá",
       "flagCode": "ca",
       "emoji": "🇨🇦"
-    }
+    },
+    "crDate": "2026-06-24",
+    "crDateLabel": "24 jun 2026",
+    "crTime": "3:00 p.m.",
+    "crTimeMinutes": 900
   },
   {
     "id": "M012",
@@ -225,7 +269,11 @@
       "sourceName": "catar",
       "flagCode": "qa",
       "emoji": "🇶🇦"
-    }
+    },
+    "crDate": "2026-06-24",
+    "crDateLabel": "24 jun 2026",
+    "crTime": "3:00 p.m.",
+    "crTimeMinutes": 900
   },
   {
     "id": "M013",
@@ -244,7 +292,11 @@
       "sourceName": "marruecos",
       "flagCode": "ma",
       "emoji": "🇲🇦"
-    }
+    },
+    "crDate": "2026-06-13",
+    "crDateLabel": "13 jun 2026",
+    "crTime": "6:00 p.m.",
+    "crTimeMinutes": 1080
   },
   {
     "id": "M014",
@@ -263,7 +315,11 @@
       "sourceName": "escocia",
       "flagCode": "gb-sct",
       "emoji": "🏳"
-    }
+    },
+    "crDate": "2026-06-13",
+    "crDateLabel": "13 jun 2026",
+    "crTime": "9:00 p.m.",
+    "crTimeMinutes": 1260
   },
   {
     "id": "M015",
@@ -282,7 +338,11 @@
       "sourceName": "marruecos",
       "flagCode": "ma",
       "emoji": "🇲🇦"
-    }
+    },
+    "crDate": "2026-06-19",
+    "crDateLabel": "19 jun 2026",
+    "crTime": "6:00 p.m.",
+    "crTimeMinutes": 1080
   },
   {
     "id": "M016",
@@ -301,7 +361,11 @@
       "sourceName": "haití",
       "flagCode": "ht",
       "emoji": "🇭🇹"
-    }
+    },
+    "crDate": "2026-06-19",
+    "crDateLabel": "19 jun 2026",
+    "crTime": "8:30 p.m.",
+    "crTimeMinutes": 1230
   },
   {
     "id": "M017",
@@ -320,7 +384,11 @@
       "sourceName": "brasil",
       "flagCode": "br",
       "emoji": "🇧🇷"
-    }
+    },
+    "crDate": "2026-06-24",
+    "crDateLabel": "24 jun 2026",
+    "crTime": "6:00 p.m.",
+    "crTimeMinutes": 1080
   },
   {
     "id": "M018",
@@ -339,7 +407,11 @@
       "sourceName": "haití",
       "flagCode": "ht",
       "emoji": "🇭🇹"
-    }
+    },
+    "crDate": "2026-06-24",
+    "crDateLabel": "24 jun 2026",
+    "crTime": "6:00 p.m.",
+    "crTimeMinutes": 1080
   },
   {
     "id": "M019",
@@ -358,7 +430,11 @@
       "sourceName": "paraguay",
       "flagCode": "py",
       "emoji": "🇵🇾"
-    }
+    },
+    "crDate": "2026-06-12",
+    "crDateLabel": "12 jun 2026",
+    "crTime": "9:00 p.m.",
+    "crTimeMinutes": 1260
   },
   {
     "id": "M020",
@@ -377,7 +453,11 @@
       "sourceName": "turquía",
       "flagCode": "tr",
       "emoji": "🇹🇷"
-    }
+    },
+    "crDate": "2026-06-14",
+    "crDateLabel": "14 jun 2026",
+    "crTime": "12:00 a.m.",
+    "crTimeMinutes": 0
   },
   {
     "id": "M021",
@@ -396,7 +476,11 @@
       "sourceName": "australia",
       "flagCode": "au",
       "emoji": "🇦🇺"
-    }
+    },
+    "crDate": "2026-06-19",
+    "crDateLabel": "19 jun 2026",
+    "crTime": "3:00 p.m.",
+    "crTimeMinutes": 900
   },
   {
     "id": "M022",
@@ -415,7 +499,11 @@
       "sourceName": "paraguay",
       "flagCode": "py",
       "emoji": "🇵🇾"
-    }
+    },
+    "crDate": "2026-06-19",
+    "crDateLabel": "19 jun 2026",
+    "crTime": "11:00 p.m.",
+    "crTimeMinutes": 1380
   },
   {
     "id": "M023",
@@ -434,7 +522,11 @@
       "sourceName": "estados unidos",
       "flagCode": "us",
       "emoji": "🇺🇸"
-    }
+    },
+    "crDate": "2026-06-25",
+    "crDateLabel": "25 jun 2026",
+    "crTime": "10:00 p.m.",
+    "crTimeMinutes": 1320
   },
   {
     "id": "M024",
@@ -453,7 +545,11 @@
       "sourceName": "australia",
       "flagCode": "au",
       "emoji": "🇦🇺"
-    }
+    },
+    "crDate": "2026-06-25",
+    "crDateLabel": "25 jun 2026",
+    "crTime": "10:00 p.m.",
+    "crTimeMinutes": 1320
   },
   {
     "id": "M025",
@@ -472,7 +568,11 @@
       "sourceName": "curazao",
       "flagCode": "cw",
       "emoji": "🇨🇼"
-    }
+    },
+    "crDate": "2026-06-14",
+    "crDateLabel": "14 jun 2026",
+    "crTime": "1:00 p.m.",
+    "crTimeMinutes": 780
   },
   {
     "id": "M026",
@@ -491,7 +591,11 @@
       "sourceName": "ecuador",
       "flagCode": "ec",
       "emoji": "🇪🇨"
-    }
+    },
+    "crDate": "2026-06-14",
+    "crDateLabel": "14 jun 2026",
+    "crTime": "7:00 p.m.",
+    "crTimeMinutes": 1140
   },
   {
     "id": "M027",
@@ -510,7 +614,11 @@
       "sourceName": "costa de marfil",
       "flagCode": "ci",
       "emoji": "🇨🇮"
-    }
+    },
+    "crDate": "2026-06-20",
+    "crDateLabel": "20 jun 2026",
+    "crTime": "4:00 p.m.",
+    "crTimeMinutes": 960
   },
   {
     "id": "M028",
@@ -529,7 +637,11 @@
       "sourceName": "curazao",
       "flagCode": "cw",
       "emoji": "🇨🇼"
-    }
+    },
+    "crDate": "2026-06-20",
+    "crDateLabel": "20 jun 2026",
+    "crTime": "8:00 p.m.",
+    "crTimeMinutes": 1200
   },
   {
     "id": "M029",
@@ -548,7 +660,11 @@
       "sourceName": "costa de marfil",
       "flagCode": "ci",
       "emoji": "🇨🇮"
-    }
+    },
+    "crDate": "2026-06-25",
+    "crDateLabel": "25 jun 2026",
+    "crTime": "4:00 p.m.",
+    "crTimeMinutes": 960
   },
   {
     "id": "M030",
@@ -567,7 +683,11 @@
       "sourceName": "alemania",
       "flagCode": "de",
       "emoji": "🇩🇪"
-    }
+    },
+    "crDate": "2026-06-25",
+    "crDateLabel": "25 jun 2026",
+    "crTime": "4:00 p.m.",
+    "crTimeMinutes": 960
   },
   {
     "id": "M031",
@@ -586,7 +706,11 @@
       "sourceName": "japón",
       "flagCode": "jp",
       "emoji": "🇯🇵"
-    }
+    },
+    "crDate": "2026-06-14",
+    "crDateLabel": "14 jun 2026",
+    "crTime": "4:00 p.m.",
+    "crTimeMinutes": 960
   },
   {
     "id": "M032",
@@ -605,7 +729,11 @@
       "sourceName": "túnez",
       "flagCode": "tn",
       "emoji": "🇹🇳"
-    }
+    },
+    "crDate": "2026-06-14",
+    "crDateLabel": "14 jun 2026",
+    "crTime": "10:00 p.m.",
+    "crTimeMinutes": 1320
   },
   {
     "id": "M033",
@@ -624,7 +752,11 @@
       "sourceName": "suecia",
       "flagCode": "se",
       "emoji": "🇸🇪"
-    }
+    },
+    "crDate": "2026-06-20",
+    "crDateLabel": "20 jun 2026",
+    "crTime": "1:00 p.m.",
+    "crTimeMinutes": 780
   },
   {
     "id": "M034",
@@ -643,7 +775,11 @@
       "sourceName": "japón",
       "flagCode": "jp",
       "emoji": "🇯🇵"
-    }
+    },
+    "crDate": "2026-06-21",
+    "crDateLabel": "21 jun 2026",
+    "crTime": "12:00 a.m.",
+    "crTimeMinutes": 0
   },
   {
     "id": "M035",
@@ -662,7 +798,11 @@
       "sourceName": "suecia",
       "flagCode": "se",
       "emoji": "🇸🇪"
-    }
+    },
+    "crDate": "2026-06-25",
+    "crDateLabel": "25 jun 2026",
+    "crTime": "7:00 p.m.",
+    "crTimeMinutes": 1140
   },
   {
     "id": "M036",
@@ -681,7 +821,11 @@
       "sourceName": "países bajos",
       "flagCode": "nl",
       "emoji": "🇳🇱"
-    }
+    },
+    "crDate": "2026-06-25",
+    "crDateLabel": "25 jun 2026",
+    "crTime": "7:00 p.m.",
+    "crTimeMinutes": 1140
   },
   {
     "id": "M037",
@@ -700,7 +844,11 @@
       "sourceName": "egipto",
       "flagCode": "eg",
       "emoji": "🇪🇬"
-    }
+    },
+    "crDate": "2026-06-15",
+    "crDateLabel": "15 jun 2026",
+    "crTime": "3:00 p.m.",
+    "crTimeMinutes": 900
   },
   {
     "id": "M038",
@@ -719,7 +867,11 @@
       "sourceName": "nueva zelanda",
       "flagCode": "nz",
       "emoji": "🇳🇿"
-    }
+    },
+    "crDate": "2026-06-15",
+    "crDateLabel": "15 jun 2026",
+    "crTime": "9:00 p.m.",
+    "crTimeMinutes": 1260
   },
   {
     "id": "M039",
@@ -738,7 +890,11 @@
       "sourceName": "irán",
       "flagCode": "ir",
       "emoji": "🇮🇷"
-    }
+    },
+    "crDate": "2026-06-21",
+    "crDateLabel": "21 jun 2026",
+    "crTime": "3:00 p.m.",
+    "crTimeMinutes": 900
   },
   {
     "id": "M040",
@@ -757,7 +913,11 @@
       "sourceName": "egipto",
       "flagCode": "eg",
       "emoji": "🇪🇬"
-    }
+    },
+    "crDate": "2026-06-21",
+    "crDateLabel": "21 jun 2026",
+    "crTime": "9:00 p.m.",
+    "crTimeMinutes": 1260
   },
   {
     "id": "M041",
@@ -776,7 +936,11 @@
       "sourceName": "irán",
       "flagCode": "ir",
       "emoji": "🇮🇷"
-    }
+    },
+    "crDate": "2026-06-26",
+    "crDateLabel": "26 jun 2026",
+    "crTime": "11:00 p.m.",
+    "crTimeMinutes": 1380
   },
   {
     "id": "M042",
@@ -795,7 +959,11 @@
       "sourceName": "bélgica",
       "flagCode": "be",
       "emoji": "🇧🇪"
-    }
+    },
+    "crDate": "2026-06-26",
+    "crDateLabel": "26 jun 2026",
+    "crTime": "11:00 p.m.",
+    "crTimeMinutes": 1380
   },
   {
     "id": "M043",
@@ -814,7 +982,11 @@
       "sourceName": "cabo verde",
       "flagCode": "cv",
       "emoji": "🇨🇻"
-    }
+    },
+    "crDate": "2026-06-15",
+    "crDateLabel": "15 jun 2026",
+    "crTime": "12:00 p.m.",
+    "crTimeMinutes": 720
   },
   {
     "id": "M044",
@@ -833,7 +1005,11 @@
       "sourceName": "uruguay",
       "flagCode": "uy",
       "emoji": "🇺🇾"
-    }
+    },
+    "crDate": "2026-06-15",
+    "crDateLabel": "15 jun 2026",
+    "crTime": "6:00 p.m.",
+    "crTimeMinutes": 1080
   },
   {
     "id": "M045",
@@ -852,7 +1028,11 @@
       "sourceName": "arabia saudí",
       "flagCode": "sa",
       "emoji": "🇸🇦"
-    }
+    },
+    "crDate": "2026-06-21",
+    "crDateLabel": "21 jun 2026",
+    "crTime": "12:00 p.m.",
+    "crTimeMinutes": 720
   },
   {
     "id": "M046",
@@ -871,7 +1051,11 @@
       "sourceName": "cabo verde",
       "flagCode": "cv",
       "emoji": "🇨🇻"
-    }
+    },
+    "crDate": "2026-06-21",
+    "crDateLabel": "21 jun 2026",
+    "crTime": "6:00 p.m.",
+    "crTimeMinutes": 1080
   },
   {
     "id": "M047",
@@ -890,7 +1074,11 @@
       "sourceName": "arabia saudí",
       "flagCode": "sa",
       "emoji": "🇸🇦"
-    }
+    },
+    "crDate": "2026-06-26",
+    "crDateLabel": "26 jun 2026",
+    "crTime": "8:00 p.m.",
+    "crTimeMinutes": 1200
   },
   {
     "id": "M048",
@@ -909,7 +1097,11 @@
       "sourceName": "españa",
       "flagCode": "es",
       "emoji": "🇪🇸"
-    }
+    },
+    "crDate": "2026-06-26",
+    "crDateLabel": "26 jun 2026",
+    "crTime": "8:00 p.m.",
+    "crTimeMinutes": 1200
   },
   {
     "id": "M049",
@@ -928,7 +1120,11 @@
       "sourceName": "senegal",
       "flagCode": "sn",
       "emoji": "🇸🇳"
-    }
+    },
+    "crDate": "2026-06-16",
+    "crDateLabel": "16 jun 2026",
+    "crTime": "3:00 p.m.",
+    "crTimeMinutes": 900
   },
   {
     "id": "M050",
@@ -947,7 +1143,11 @@
       "sourceName": "noruega",
       "flagCode": "no",
       "emoji": "🇳🇴"
-    }
+    },
+    "crDate": "2026-06-16",
+    "crDateLabel": "16 jun 2026",
+    "crTime": "6:00 p.m.",
+    "crTimeMinutes": 1080
   },
   {
     "id": "M051",
@@ -966,7 +1166,11 @@
       "sourceName": "irak",
       "flagCode": "iq",
       "emoji": "🇮🇶"
-    }
+    },
+    "crDate": "2026-06-22",
+    "crDateLabel": "22 jun 2026",
+    "crTime": "5:00 p.m.",
+    "crTimeMinutes": 1020
   },
   {
     "id": "M052",
@@ -985,7 +1189,11 @@
       "sourceName": "senegal",
       "flagCode": "sn",
       "emoji": "🇸🇳"
-    }
+    },
+    "crDate": "2026-06-22",
+    "crDateLabel": "22 jun 2026",
+    "crTime": "8:00 p.m.",
+    "crTimeMinutes": 1200
   },
   {
     "id": "M053",
@@ -1004,7 +1212,11 @@
       "sourceName": "francia",
       "flagCode": "fr",
       "emoji": "🇫🇷"
-    }
+    },
+    "crDate": "2026-06-26",
+    "crDateLabel": "26 jun 2026",
+    "crTime": "3:00 p.m.",
+    "crTimeMinutes": 900
   },
   {
     "id": "M054",
@@ -1023,7 +1235,11 @@
       "sourceName": "irak",
       "flagCode": "iq",
       "emoji": "🇮🇶"
-    }
+    },
+    "crDate": "2026-06-26",
+    "crDateLabel": "26 jun 2026",
+    "crTime": "3:00 p.m.",
+    "crTimeMinutes": 900
   },
   {
     "id": "M055",
@@ -1042,7 +1258,11 @@
       "sourceName": "argelia",
       "flagCode": "dz",
       "emoji": "🇩🇿"
-    }
+    },
+    "crDate": "2026-06-16",
+    "crDateLabel": "16 jun 2026",
+    "crTime": "9:00 p.m.",
+    "crTimeMinutes": 1260
   },
   {
     "id": "M056",
@@ -1061,7 +1281,11 @@
       "sourceName": "jordania",
       "flagCode": "jo",
       "emoji": "🇯🇴"
-    }
+    },
+    "crDate": "2026-06-17",
+    "crDateLabel": "17 jun 2026",
+    "crTime": "12:00 a.m.",
+    "crTimeMinutes": 0
   },
   {
     "id": "M057",
@@ -1080,7 +1304,11 @@
       "sourceName": "austria",
       "flagCode": "at",
       "emoji": "🇦🇹"
-    }
+    },
+    "crDate": "2026-06-22",
+    "crDateLabel": "22 jun 2026",
+    "crTime": "1:00 p.m.",
+    "crTimeMinutes": 780
   },
   {
     "id": "M058",
@@ -1099,7 +1327,11 @@
       "sourceName": "argelia",
       "flagCode": "dz",
       "emoji": "🇩🇿"
-    }
+    },
+    "crDate": "2026-06-22",
+    "crDateLabel": "22 jun 2026",
+    "crTime": "11:00 p.m.",
+    "crTimeMinutes": 1380
   },
   {
     "id": "M059",
@@ -1118,7 +1350,11 @@
       "sourceName": "austria",
       "flagCode": "at",
       "emoji": "🇦🇹"
-    }
+    },
+    "crDate": "2026-06-27",
+    "crDateLabel": "27 jun 2026",
+    "crTime": "10:00 p.m.",
+    "crTimeMinutes": 1320
   },
   {
     "id": "M060",
@@ -1137,7 +1373,11 @@
       "sourceName": "argentina",
       "flagCode": "ar",
       "emoji": "🇦🇷"
-    }
+    },
+    "crDate": "2026-06-27",
+    "crDateLabel": "27 jun 2026",
+    "crTime": "10:00 p.m.",
+    "crTimeMinutes": 1320
   },
   {
     "id": "M061",
@@ -1156,7 +1396,11 @@
       "sourceName": "r d congo",
       "flagCode": "cd",
       "emoji": "🇨🇩"
-    }
+    },
+    "crDate": "2026-06-17",
+    "crDateLabel": "17 jun 2026",
+    "crTime": "1:00 p.m.",
+    "crTimeMinutes": 780
   },
   {
     "id": "M062",
@@ -1175,7 +1419,11 @@
       "sourceName": "colombia",
       "flagCode": "co",
       "emoji": "🇨🇴"
-    }
+    },
+    "crDate": "2026-06-17",
+    "crDateLabel": "17 jun 2026",
+    "crTime": "10:00 p.m.",
+    "crTimeMinutes": 1320
   },
   {
     "id": "M063",
@@ -1194,7 +1442,11 @@
       "sourceName": "uzbekistán",
       "flagCode": "uz",
       "emoji": "🇺🇿"
-    }
+    },
+    "crDate": "2026-06-23",
+    "crDateLabel": "23 jun 2026",
+    "crTime": "1:00 p.m.",
+    "crTimeMinutes": 780
   },
   {
     "id": "M064",
@@ -1213,7 +1465,11 @@
       "sourceName": "r d congo",
       "flagCode": "cd",
       "emoji": "🇨🇩"
-    }
+    },
+    "crDate": "2026-06-23",
+    "crDateLabel": "23 jun 2026",
+    "crTime": "10:00 p.m.",
+    "crTimeMinutes": 1320
   },
   {
     "id": "M065",
@@ -1232,7 +1488,11 @@
       "sourceName": "portugal",
       "flagCode": "pt",
       "emoji": "🇵🇹"
-    }
+    },
+    "crDate": "2026-06-27",
+    "crDateLabel": "27 jun 2026",
+    "crTime": "7:30 p.m.",
+    "crTimeMinutes": 1170
   },
   {
     "id": "M066",
@@ -1251,7 +1511,11 @@
       "sourceName": "uzbekistán",
       "flagCode": "uz",
       "emoji": "🇺🇿"
-    }
+    },
+    "crDate": "2026-06-27",
+    "crDateLabel": "27 jun 2026",
+    "crTime": "7:30 p.m.",
+    "crTimeMinutes": 1170
   },
   {
     "id": "M067",
@@ -1270,7 +1534,11 @@
       "sourceName": "croacia",
       "flagCode": "hr",
       "emoji": "🇭🇷"
-    }
+    },
+    "crDate": "2026-06-17",
+    "crDateLabel": "17 jun 2026",
+    "crTime": "4:00 p.m.",
+    "crTimeMinutes": 960
   },
   {
     "id": "M068",
@@ -1289,7 +1557,11 @@
       "sourceName": "panamá",
       "flagCode": "pa",
       "emoji": "🇵🇦"
-    }
+    },
+    "crDate": "2026-06-17",
+    "crDateLabel": "17 jun 2026",
+    "crTime": "7:00 p.m.",
+    "crTimeMinutes": 1140
   },
   {
     "id": "M069",
@@ -1308,7 +1580,11 @@
       "sourceName": "ghana",
       "flagCode": "gh",
       "emoji": "🇬🇭"
-    }
+    },
+    "crDate": "2026-06-23",
+    "crDateLabel": "23 jun 2026",
+    "crTime": "4:00 p.m.",
+    "crTimeMinutes": 960
   },
   {
     "id": "M070",
@@ -1327,7 +1603,11 @@
       "sourceName": "croacia",
       "flagCode": "hr",
       "emoji": "🇭🇷"
-    }
+    },
+    "crDate": "2026-06-23",
+    "crDateLabel": "23 jun 2026",
+    "crTime": "7:00 p.m.",
+    "crTimeMinutes": 1140
   },
   {
     "id": "M071",
@@ -1346,7 +1626,11 @@
       "sourceName": "inglaterra",
       "flagCode": "gb-eng",
       "emoji": "🏳"
-    }
+    },
+    "crDate": "2026-06-27",
+    "crDateLabel": "27 jun 2026",
+    "crTime": "5:00 p.m.",
+    "crTimeMinutes": 1020
   },
   {
     "id": "M072",
@@ -1365,6 +1649,10 @@
       "sourceName": "ghana",
       "flagCode": "gh",
       "emoji": "🇬🇭"
-    }
+    },
+    "crDate": "2026-06-27",
+    "crDateLabel": "27 jun 2026",
+    "crTime": "5:00 p.m.",
+    "crTimeMinutes": 1020
   }
 ]
