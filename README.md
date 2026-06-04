@@ -6,7 +6,7 @@ Este paquete contiene un sitio estatico listo para GitHub Pages y un Google Apps
 
 - `index.html`: pagina principal con resultados, ranking y calendario.
 - `quiniela.html`: formulario de quiniela. Muestra un partido por vez, incluye banderas y resume todas las selecciones antes de enviar.
-- `predicciones.html`: matriz tipo Hoja2 para mostrar predicciones de participantes, resultados y puntos por grupo.
+- `predicciones.html`: matriz para mostrar predicciones de participantes, resultados y puntos por grupo.
 - `apps-script.gs`: backend de Google Apps Script para respuestas, resultados, ranking y football-data.org.
 
 ## Configurar Google Sheets y Apps Script

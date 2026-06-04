@@ -433,10 +433,9 @@
   </header>
 
   <main class="content">
-    <section class="panel" aria-labelledby="matrixTitle">
+    <section class="panel" aria-label="Predicciones guardadas">
       <div class="panel-head">
         <div>
-          <h2 class="panel-title" id="matrixTitle">Formato tipo Hoja2</h2>
           <p class="panel-copy" id="statusText">Cargando predicciones guardadas...</p>
         </div>
         <div class="toolbar">
@@ -461,7 +460,7 @@
           <tbody id="predictionsBody"></tbody>
         </table>
       </div>
-      <div class="note" id="tableNote">Se respeta el ancho A:W del archivo de referencia: 7 columnas base y hasta 16 participantes visibles.</div>
+      <div class="note" id="tableNote" hidden></div>
     </section>
   </main>
 
@@ -2394,16 +2393,18 @@
       participantCount.textContent = `${total} participante${total === 1 ? "" : "s"}`;
 
       if (total === 0) {
-        statusText.textContent = "Aun no hay predicciones publicadas. La matriz conserva el formato A:W mientras llegan respuestas.";
+        statusText.textContent = "Aun no hay predicciones publicadas. Cuando lleguen respuestas, apareceran en esta tabla.";
       } else {
         const when = state.generatedAt ? ` Actualizado: ${formatDateTime(state.generatedAt)}.` : "";
         statusText.textContent = `Mostrando ${visible} de ${total} participante${total === 1 ? "" : "s"}.${when}`;
       }
 
       if (state.hiddenParticipants > 0) {
-        tableNote.textContent = `Se muestran los primeros ${MAX_VISIBLE_PARTICIPANTS} participantes para conservar el formato A:W. Hay ${state.hiddenParticipants} participante${state.hiddenParticipants === 1 ? "" : "s"} adicional${state.hiddenParticipants === 1 ? "" : "es"}.`;
+        tableNote.textContent = `Se muestran los primeros ${MAX_VISIBLE_PARTICIPANTS} participantes. Hay ${state.hiddenParticipants} participante${state.hiddenParticipants === 1 ? "" : "s"} adicional${state.hiddenParticipants === 1 ? "" : "es"}.`;
+        tableNote.hidden = false;
       } else {
-        tableNote.textContent = "Se respeta el ancho A:W del archivo de referencia: 7 columnas base y hasta 16 participantes visibles.";
+        tableNote.textContent = "";
+        tableNote.hidden = true;
       }
     }
 
