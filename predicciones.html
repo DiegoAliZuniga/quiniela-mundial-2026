@@ -400,6 +400,33 @@
       line-height: 1.45;
     }
 
+    .mobile-participants {
+      display: none;
+    }
+
+    .mobile-participant-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 11px 12px;
+      background: #ffffff;
+    }
+
+    .mobile-participant-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      font-weight: 900;
+    }
+
+    .mobile-participant-meta {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
     @media (max-width: 760px) {
       .hero-inner,
       .panel-head {
@@ -414,6 +441,64 @@
 
       .table-wrap {
         max-height: 68vh;
+      }
+
+      .mobile-participants {
+        display: grid;
+        gap: 8px;
+        padding: 0 20px 16px;
+        border-bottom: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.94);
+      }
+
+      .mobile-participants[hidden] {
+        display: none;
+      }
+
+      table {
+        min-width: 1860px;
+      }
+
+      col.date-col {
+        width: 72px;
+      }
+
+      col.team-col {
+        width: 150px;
+      }
+
+      col.score-col {
+        width: 46px;
+      }
+
+      col.winner-col {
+        width: 118px;
+      }
+
+      col.player-col {
+        width: 96px;
+      }
+
+      th:nth-child(1),
+      td:nth-child(1),
+      th:nth-child(2),
+      td:nth-child(2),
+      th:nth-child(3),
+      td:nth-child(3),
+      th:nth-child(4),
+      td:nth-child(4),
+      th:nth-child(5),
+      td:nth-child(5),
+      th:nth-child(6),
+      td:nth-child(6) {
+        position: static;
+        left: auto;
+        z-index: auto;
+        width: auto;
+      }
+
+      thead th:nth-child(-n + 6) {
+        z-index: 8;
       }
     }
   </style>
@@ -443,6 +528,8 @@
           <button class="btn secondary" type="button" id="refreshBtn">Actualizar</button>
         </div>
       </div>
+
+      <div class="mobile-participants" id="mobileParticipants" hidden></div>
 
       <div class="table-wrap" aria-label="Tabla de predicciones con desplazamiento horizontal">
         <table aria-describedby="statusText">
@@ -2154,6 +2241,7 @@
     const statusText = document.getElementById("statusText");
     const participantCount = document.getElementById("participantCount");
     const tableNote = document.getElementById("tableNote");
+    const mobileParticipants = document.getElementById("mobileParticipants");
     const refreshBtn = document.getElementById("refreshBtn");
 
     refreshBtn.addEventListener("click", loadPredictionsData);
@@ -2163,6 +2251,7 @@
       const resultsById = mapByMatchId(state.results);
       predictionsHead.innerHTML = renderHead(columns);
       predictionsBody.innerHTML = renderBody(columns, resultsById);
+      renderMobileParticipants();
       renderStatus();
     }
 
@@ -2314,11 +2403,34 @@
       return `
         <tr class="footer-row">
           <td></td>
-          <td>Campeon elegido</td>
+          <td>Campeón elegido</td>
           <td></td><td></td><td></td><td></td><td></td>
           ${columns.map((participant) => `<td class="player-cell ${participant ? "" : "empty-player"}">${participant ? escapeHtml(participant.champion || "") : "."}</td>`).join("")}
         </tr>
       `;
+    }
+
+    function renderMobileParticipants() {
+      const participants = state.participants.slice(0, MAX_VISIBLE_PARTICIPANTS);
+      if (participants.length === 0) {
+        mobileParticipants.hidden = true;
+        mobileParticipants.replaceChildren();
+        return;
+      }
+
+      mobileParticipants.hidden = false;
+      mobileParticipants.innerHTML = participants.map((participant, index) => `
+        <article class="mobile-participant-card">
+          <div class="mobile-participant-top">
+            <span>${escapeHtml(index + 1)}. ${escapeHtml(participant.name)}</span>
+            <span>${escapeHtml(scoreForMatches(participant, state.matches, mapByMatchId(state.results)))} pts</span>
+          </div>
+          <div class="mobile-participant-meta">
+            ${participant.email ? `${escapeHtml(participant.email)}<br>` : ""}
+            Campeón elegido: ${escapeHtml(participant.champion || "Sin escoger")}
+          </div>
+        </article>
+      `).join("");
     }
 
     function groupedMatches() {
@@ -2393,7 +2505,7 @@
       participantCount.textContent = `${total} participante${total === 1 ? "" : "s"}`;
 
       if (total === 0) {
-        statusText.textContent = "Aun no hay predicciones publicadas. Cuando lleguen respuestas, apareceran en esta tabla.";
+        statusText.textContent = "Aun no hay predicciones publicadas. Cuando lleguen respuestas, aparecerán en esta tabla.";
       } else {
         const when = state.generatedAt ? ` Actualizado: ${formatDateTime(state.generatedAt)}.` : "";
         statusText.textContent = `Mostrando ${visible} de ${total} participante${total === 1 ? "" : "s"}.${when}`;
