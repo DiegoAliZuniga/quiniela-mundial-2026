@@ -601,6 +601,31 @@
       box-shadow: 0 28px 70px rgba(9, 19, 33, 0.28);
     }
 
+    .submit-prompt-modal {
+      width: min(540px, 100%);
+      border: 1px solid rgba(216, 224, 230, 0.92);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.98);
+      box-shadow: 0 28px 70px rgba(9, 19, 33, 0.28);
+    }
+
+    .submit-prompt-body {
+      display: grid;
+      gap: 12px;
+      padding: 26px;
+    }
+
+    .submit-prompt-body h2 {
+      font-size: 1.45rem;
+      line-height: 1.16;
+    }
+
+    .submit-prompt-copy {
+      color: var(--muted);
+      font-weight: 800;
+      line-height: 1.45;
+    }
+
     .modal-head {
       display: flex;
       justify-content: space-between;
@@ -628,6 +653,15 @@
     }
 
     .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      border-top: 1px solid var(--line);
+      padding-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .submit-prompt-actions {
       display: flex;
       justify-content: flex-end;
       gap: 10px;
@@ -674,7 +708,8 @@
 
       .nav-row,
       .nav-actions,
-      .modal-actions {
+      .modal-actions,
+      .submit-prompt-actions {
         align-items: stretch;
         flex-direction: column;
       }
@@ -864,6 +899,22 @@
         <div class="modal-actions">
           <button class="btn btn-secondary" type="button" id="editPickCancelBtn">Cancelar</button>
           <button class="btn" type="button" id="editPickSaveBtn">Guardar selección</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="summarySubmitPrompt" role="dialog" aria-modal="true" aria-labelledby="summarySubmitPromptTitle" hidden>
+    <div class="submit-prompt-modal">
+      <div class="submit-prompt-body">
+        <div>
+          <p class="modal-kicker">Resumen listo</p>
+          <h2 id="summarySubmitPromptTitle">¿Quieres enviar tu quiniela?</h2>
+        </div>
+        <p class="submit-prompt-copy">Ya completaste el campeón y los 72 partidos. Puedes revisar tus selecciones o enviarla ahora.</p>
+        <div class="submit-prompt-actions">
+          <button class="btn btn-secondary" type="button" id="summaryPromptReviewBtn">Revisar</button>
+          <button class="btn" type="button" id="summaryPromptSubmitBtn">Enviar quiniela</button>
         </div>
       </div>
     </div>
@@ -2575,8 +2626,12 @@
     const editPickCancelBtn = document.getElementById("editPickCancelBtn");
     const editPickSaveBtn = document.getElementById("editPickSaveBtn");
     const modalChoiceButtons = [...document.querySelectorAll(".choice[data-modal-pick]")];
+    const summarySubmitPrompt = document.getElementById("summarySubmitPrompt");
+    const summaryPromptReviewBtn = document.getElementById("summaryPromptReviewBtn");
+    const summaryPromptSubmitBtn = document.getElementById("summaryPromptSubmitBtn");
     let summaryEditIndex = null;
     let pendingModalPick = null;
+    let summaryPromptShown = false;
 
     playerName.value = state.name;
     playerEmail.value = state.email;
@@ -2715,6 +2770,7 @@
       state.returnAfterIdentity = null;
       state.returnAfterChampion = null;
       state.submittedAt = "";
+      summaryPromptShown = false;
       playerName.value = "";
       playerEmail.value = "";
       render();
@@ -2738,9 +2794,15 @@
     editPickModal.addEventListener("click", (event) => {
       if (event.target === editPickModal) closeSummaryEditModal();
     });
+    summaryPromptReviewBtn.addEventListener("click", closeSummarySubmitPrompt);
+    summaryPromptSubmitBtn.addEventListener("click", () => {
+      closeSummarySubmitPrompt();
+      submitEntry();
+    });
 
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape" && !editPickModal.hidden) closeSummaryEditModal();
+      if (event.key === "Escape" && !summarySubmitPrompt.hidden) closeSummarySubmitPrompt();
     });
 
     function loadState() {
@@ -3003,6 +3065,22 @@
           return row;
         })
       );
+
+      maybeShowSummarySubmitPrompt();
+    }
+
+    function maybeShowSummarySubmitPrompt() {
+      if (summaryPromptShown || state.submittedAt || state.screen !== "summary") return;
+      summaryPromptShown = true;
+      window.setTimeout(() => {
+        if (state.screen !== "summary" || state.submittedAt || !allPicked()) return;
+        summarySubmitPrompt.hidden = false;
+        summaryPromptSubmitBtn.focus();
+      }, 120);
+    }
+
+    function closeSummarySubmitPrompt() {
+      summarySubmitPrompt.hidden = true;
     }
 
     function firstOpenMatchIndex() {
