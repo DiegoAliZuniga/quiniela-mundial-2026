@@ -2160,7 +2160,6 @@ function readParticipants_(ss) {
     participants.push({
       number: participants.length + 1,
       name: name || ("Participante " + (participants.length + 1)),
-      email: maskEmail_(email),
       submittedAt: submittedIndex >= 0 ? row[submittedIndex] : "",
       champion: championIndex >= 0 ? String(row[championIndex] || "") : "",
       championFlagCode: championCodeIndex >= 0 ? String(row[championCodeIndex] || "") : "",

@@ -2241,6 +2241,7 @@
           if (script.parentNode) script.parentNode.removeChild(script);
         }
 
+        script.charset = "UTF-8";
         script.src = `${url}${separator}callback=${encodeURIComponent(callbackName)}`;
         document.body.appendChild(script);
       });

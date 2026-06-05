@@ -401,6 +401,15 @@
     }
 
     .mobile-participants {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+      padding: 0 20px 18px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.94);
+    }
+
+    .mobile-participants[hidden] {
       display: none;
     }
 
@@ -441,18 +450,6 @@
 
       .table-wrap {
         max-height: 68vh;
-      }
-
-      .mobile-participants {
-        display: grid;
-        gap: 8px;
-        padding: 0 20px 16px;
-        border-bottom: 1px solid var(--line);
-        background: rgba(255, 255, 255, 0.94);
-      }
-
-      .mobile-participants[hidden] {
-        display: none;
       }
 
       table {
@@ -2411,7 +2408,14 @@
     }
 
     function renderMobileParticipants() {
-      const participants = state.participants.slice(0, MAX_VISIBLE_PARTICIPANTS);
+      const resultsById = mapByMatchId(state.results);
+      const participants = state.participants
+        .slice(0, MAX_VISIBLE_PARTICIPANTS)
+        .map((participant) => ({
+          ...participant,
+          score: scoreForMatches(participant, state.matches, resultsById),
+        }))
+        .sort((a, b) => b.score - a.score || String(a.name || "").localeCompare(String(b.name || ""), "es"));
       if (participants.length === 0) {
         mobileParticipants.hidden = true;
         mobileParticipants.replaceChildren();
@@ -2423,10 +2427,9 @@
         <article class="mobile-participant-card">
           <div class="mobile-participant-top">
             <span>${escapeHtml(index + 1)}. ${escapeHtml(participant.name)}</span>
-            <span>${escapeHtml(scoreForMatches(participant, state.matches, mapByMatchId(state.results)))} pts</span>
+            <span>${escapeHtml(participant.score)} pts</span>
           </div>
           <div class="mobile-participant-meta">
-            ${participant.email ? `${escapeHtml(participant.email)}<br>` : ""}
             Campeón elegido: ${escapeHtml(participant.champion || "Sin escoger")}
           </div>
         </article>
@@ -2581,6 +2584,7 @@
           if (script.parentNode) script.parentNode.removeChild(script);
         }
 
+        script.charset = "UTF-8";
         script.src = `${url}${separator}callback=${encodeURIComponent(callbackName)}`;
         document.body.appendChild(script);
       });
