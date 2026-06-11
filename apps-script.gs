@@ -9,8 +9,8 @@ const FOOTBALL_DATA_API_URL = "https://api.football-data.org/v4/competitions/WC/
 const FOOTBALL_DATA_TOKEN_PROPERTY = "FOOTBALL_DATA_API_KEY";
 const SYNC_SECRET_PROPERTY = "SYNC_SECRET";
 const POINTS_PER_HIT = 1;
-const FORM_CLOSE_AT_UTC_MS = Date.UTC(2026, 5, 11, 21, 0, 0);
-const FORM_CLOSE_LABEL = "11 de junio de 2026, 3:00 p.m. hora Costa Rica";
+const FORM_CLOSE_AT_UTC_MS = Date.UTC(2026, 5, 11, 19, 0, 0);
+const FORM_CLOSE_LABEL = "11 de junio de 2026, 1:00 p.m. hora Costa Rica";
 const MATCHES = [
   {
     "id": "M001",
