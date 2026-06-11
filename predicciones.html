@@ -2544,7 +2544,9 @@
       return jsonp(`${APPS_SCRIPT_URL}?action=predictionsData`)
         .then((data) => {
           if (data && data.ok) {
-            state.results = Array.isArray(data.results) ? data.results : [];
+            state.results = Array.isArray(data.results)
+              ? data.results.filter((result) => result && (result.matchId || result.apiId || result.home || result.away || result.status || result.winner))
+              : [];
             state.participants = Array.isArray(data.participants) ? data.participants : [];
             state.totalParticipants = Number(data.totalParticipants || state.participants.length);
             state.generatedAt = data.generatedAt || "";

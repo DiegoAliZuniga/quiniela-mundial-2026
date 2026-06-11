@@ -2090,8 +2090,8 @@ function readResults_(ss) {
   const values = sheet.getDataRange().getValues();
   const headers = values[0].map(function(header) { return String(header || ""); });
 
-  return values.slice(1).map(function(row) {
-    return {
+  return values.slice(1).reduce(function(results, row) {
+    const result = {
       matchId: getCellByHeader_(row, headers, "ID"),
       apiId: getCellByHeader_(row, headers, "API ID"),
       number: getCellByHeader_(row, headers, "Numero"),
@@ -2109,7 +2109,11 @@ function readResults_(ss) {
       apiUpdatedAt: getCellByHeader_(row, headers, "Actualizado API"),
       utcDate: getCellByHeader_(row, headers, "Fecha UTC API"),
     };
-  });
+    if (result.matchId || result.apiId || result.home || result.away || result.status || result.winner) {
+      results.push(result);
+    }
+    return results;
+  }, []);
 }
 
 function readRanking_(ss) {
@@ -2118,8 +2122,8 @@ function readRanking_(ss) {
   const values = sheet.getDataRange().getValues();
   const headers = values[0].map(function(header) { return String(header || ""); });
 
-  return values.slice(1).map(function(row) {
-    return {
+  return values.slice(1).reduce(function(ranking, row) {
+    const result = {
       position: getCellByHeader_(row, headers, "Posicion"),
       name: getCellByHeader_(row, headers, "Nombre"),
       email: maskEmail_(getCellByHeader_(row, headers, "Correo")),
@@ -2128,7 +2132,11 @@ function readRanking_(ss) {
       computedMatches: getCellByHeader_(row, headers, "Partidos computados"),
       totalPredictions: getCellByHeader_(row, headers, "Predicciones"),
     };
-  });
+    if (result.name || result.email || result.points || result.hits || result.totalPredictions) {
+      ranking.push(result);
+    }
+    return ranking;
+  }, []);
 }
 
 function readParticipants_(ss) {
