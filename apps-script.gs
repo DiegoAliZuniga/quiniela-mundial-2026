@@ -33,8 +33,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-11",
     "crDateLabel": "11 jun 2026",
-    "crTime": "3:00 p.m.",
-    "crTimeMinutes": 900
+    "crTime": "1:00 p.m.",
+    "crTimeMinutes": 780
   },
   {
     "id": "M002",
@@ -56,8 +56,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-11",
     "crDateLabel": "11 jun 2026",
-    "crTime": "10:00 p.m.",
-    "crTimeMinutes": 1320
+    "crTime": "8:00 p.m.",
+    "crTimeMinutes": 1200
   },
   {
     "id": "M003",
@@ -79,8 +79,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-18",
     "crDateLabel": "18 jun 2026",
-    "crTime": "12:00 p.m.",
-    "crTimeMinutes": 720
+    "crTime": "10:00 a.m.",
+    "crTimeMinutes": 600
   },
   {
     "id": "M004",
@@ -102,8 +102,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-18",
     "crDateLabel": "18 jun 2026",
-    "crTime": "9:00 p.m.",
-    "crTimeMinutes": 1260
+    "crTime": "7:00 p.m.",
+    "crTimeMinutes": 1140
   },
   {
     "id": "M005",
@@ -125,8 +125,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-24",
     "crDateLabel": "24 jun 2026",
-    "crTime": "9:00 p.m.",
-    "crTimeMinutes": 1260
+    "crTime": "7:00 p.m.",
+    "crTimeMinutes": 1140
   },
   {
     "id": "M006",
@@ -148,8 +148,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-24",
     "crDateLabel": "24 jun 2026",
-    "crTime": "9:00 p.m.",
-    "crTimeMinutes": 1260
+    "crTime": "7:00 p.m.",
+    "crTimeMinutes": 1140
   },
   {
     "id": "M007",
@@ -171,8 +171,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-12",
     "crDateLabel": "12 jun 2026",
-    "crTime": "3:00 p.m.",
-    "crTimeMinutes": 900
+    "crTime": "1:00 p.m.",
+    "crTimeMinutes": 780
   },
   {
     "id": "M008",
@@ -194,8 +194,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-13",
     "crDateLabel": "13 jun 2026",
-    "crTime": "3:00 p.m.",
-    "crTimeMinutes": 900
+    "crTime": "1:00 p.m.",
+    "crTimeMinutes": 780
   },
   {
     "id": "M009",
@@ -217,8 +217,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-18",
     "crDateLabel": "18 jun 2026",
-    "crTime": "3:00 p.m.",
-    "crTimeMinutes": 900
+    "crTime": "1:00 p.m.",
+    "crTimeMinutes": 780
   },
   {
     "id": "M010",
@@ -240,8 +240,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-18",
     "crDateLabel": "18 jun 2026",
-    "crTime": "6:00 p.m.",
-    "crTimeMinutes": 1080
+    "crTime": "4:00 p.m.",
+    "crTimeMinutes": 960
   },
   {
     "id": "M011",
@@ -263,8 +263,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-24",
     "crDateLabel": "24 jun 2026",
-    "crTime": "3:00 p.m.",
-    "crTimeMinutes": 900
+    "crTime": "1:00 p.m.",
+    "crTimeMinutes": 780
   },
   {
     "id": "M012",
@@ -286,8 +286,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-24",
     "crDateLabel": "24 jun 2026",
-    "crTime": "3:00 p.m.",
-    "crTimeMinutes": 900
+    "crTime": "1:00 p.m.",
+    "crTimeMinutes": 780
   },
   {
     "id": "M013",
@@ -309,8 +309,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-13",
     "crDateLabel": "13 jun 2026",
-    "crTime": "6:00 p.m.",
-    "crTimeMinutes": 1080
+    "crTime": "4:00 p.m.",
+    "crTimeMinutes": 960
   },
   {
     "id": "M014",
@@ -332,8 +332,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-13",
     "crDateLabel": "13 jun 2026",
-    "crTime": "9:00 p.m.",
-    "crTimeMinutes": 1260
+    "crTime": "7:00 p.m.",
+    "crTimeMinutes": 1140
   },
   {
     "id": "M015",
@@ -355,8 +355,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-19",
     "crDateLabel": "19 jun 2026",
-    "crTime": "6:00 p.m.",
-    "crTimeMinutes": 1080
+    "crTime": "4:00 p.m.",
+    "crTimeMinutes": 960
   },
   {
     "id": "M016",
@@ -378,8 +378,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-19",
     "crDateLabel": "19 jun 2026",
-    "crTime": "8:30 p.m.",
-    "crTimeMinutes": 1230
+    "crTime": "6:30 p.m.",
+    "crTimeMinutes": 1110
   },
   {
     "id": "M017",
@@ -401,8 +401,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-24",
     "crDateLabel": "24 jun 2026",
-    "crTime": "6:00 p.m.",
-    "crTimeMinutes": 1080
+    "crTime": "4:00 p.m.",
+    "crTimeMinutes": 960
   },
   {
     "id": "M018",
@@ -424,8 +424,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-24",
     "crDateLabel": "24 jun 2026",
-    "crTime": "6:00 p.m.",
-    "crTimeMinutes": 1080
+    "crTime": "4:00 p.m.",
+    "crTimeMinutes": 960
   },
   {
     "id": "M019",
@@ -447,8 +447,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-12",
     "crDateLabel": "12 jun 2026",
-    "crTime": "9:00 p.m.",
-    "crTimeMinutes": 1260
+    "crTime": "7:00 p.m.",
+    "crTimeMinutes": 1140
   },
   {
     "id": "M020",
@@ -468,10 +468,10 @@ const MATCHES = [
       "flagCode": "tr",
       "emoji": "🇹🇷"
     },
-    "crDate": "2026-06-14",
-    "crDateLabel": "14 jun 2026",
-    "crTime": "12:00 a.m.",
-    "crTimeMinutes": 0
+    "crDate": "2026-06-13",
+    "crDateLabel": "13 jun 2026",
+    "crTime": "10:00 p.m.",
+    "crTimeMinutes": 1320
   },
   {
     "id": "M021",
@@ -493,8 +493,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-19",
     "crDateLabel": "19 jun 2026",
-    "crTime": "3:00 p.m.",
-    "crTimeMinutes": 900
+    "crTime": "1:00 p.m.",
+    "crTimeMinutes": 780
   },
   {
     "id": "M022",
@@ -516,8 +516,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-19",
     "crDateLabel": "19 jun 2026",
-    "crTime": "11:00 p.m.",
-    "crTimeMinutes": 1380
+    "crTime": "9:00 p.m.",
+    "crTimeMinutes": 1260
   },
   {
     "id": "M023",
@@ -539,8 +539,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-25",
     "crDateLabel": "25 jun 2026",
-    "crTime": "10:00 p.m.",
-    "crTimeMinutes": 1320
+    "crTime": "8:00 p.m.",
+    "crTimeMinutes": 1200
   },
   {
     "id": "M024",
@@ -562,8 +562,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-25",
     "crDateLabel": "25 jun 2026",
-    "crTime": "10:00 p.m.",
-    "crTimeMinutes": 1320
+    "crTime": "8:00 p.m.",
+    "crTimeMinutes": 1200
   },
   {
     "id": "M025",
@@ -585,8 +585,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-14",
     "crDateLabel": "14 jun 2026",
-    "crTime": "1:00 p.m.",
-    "crTimeMinutes": 780
+    "crTime": "11:00 a.m.",
+    "crTimeMinutes": 660
   },
   {
     "id": "M026",
@@ -608,8 +608,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-14",
     "crDateLabel": "14 jun 2026",
-    "crTime": "7:00 p.m.",
-    "crTimeMinutes": 1140
+    "crTime": "5:00 p.m.",
+    "crTimeMinutes": 1020
   },
   {
     "id": "M027",
@@ -631,8 +631,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-20",
     "crDateLabel": "20 jun 2026",
-    "crTime": "4:00 p.m.",
-    "crTimeMinutes": 960
+    "crTime": "2:00 p.m.",
+    "crTimeMinutes": 840
   },
   {
     "id": "M028",
@@ -654,8 +654,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-20",
     "crDateLabel": "20 jun 2026",
-    "crTime": "8:00 p.m.",
-    "crTimeMinutes": 1200
+    "crTime": "6:00 p.m.",
+    "crTimeMinutes": 1080
   },
   {
     "id": "M029",
@@ -677,8 +677,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-25",
     "crDateLabel": "25 jun 2026",
-    "crTime": "4:00 p.m.",
-    "crTimeMinutes": 960
+    "crTime": "2:00 p.m.",
+    "crTimeMinutes": 840
   },
   {
     "id": "M030",
@@ -700,8 +700,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-25",
     "crDateLabel": "25 jun 2026",
-    "crTime": "4:00 p.m.",
-    "crTimeMinutes": 960
+    "crTime": "2:00 p.m.",
+    "crTimeMinutes": 840
   },
   {
     "id": "M031",
@@ -723,8 +723,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-14",
     "crDateLabel": "14 jun 2026",
-    "crTime": "4:00 p.m.",
-    "crTimeMinutes": 960
+    "crTime": "2:00 p.m.",
+    "crTimeMinutes": 840
   },
   {
     "id": "M032",
@@ -746,8 +746,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-14",
     "crDateLabel": "14 jun 2026",
-    "crTime": "10:00 p.m.",
-    "crTimeMinutes": 1320
+    "crTime": "8:00 p.m.",
+    "crTimeMinutes": 1200
   },
   {
     "id": "M033",
@@ -769,8 +769,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-20",
     "crDateLabel": "20 jun 2026",
-    "crTime": "1:00 p.m.",
-    "crTimeMinutes": 780
+    "crTime": "11:00 a.m.",
+    "crTimeMinutes": 660
   },
   {
     "id": "M034",
@@ -790,10 +790,10 @@ const MATCHES = [
       "flagCode": "jp",
       "emoji": "🇯🇵"
     },
-    "crDate": "2026-06-21",
-    "crDateLabel": "21 jun 2026",
-    "crTime": "12:00 a.m.",
-    "crTimeMinutes": 0
+    "crDate": "2026-06-20",
+    "crDateLabel": "20 jun 2026",
+    "crTime": "10:00 p.m.",
+    "crTimeMinutes": 1320
   },
   {
     "id": "M035",
@@ -815,8 +815,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-25",
     "crDateLabel": "25 jun 2026",
-    "crTime": "7:00 p.m.",
-    "crTimeMinutes": 1140
+    "crTime": "5:00 p.m.",
+    "crTimeMinutes": 1020
   },
   {
     "id": "M036",
@@ -838,8 +838,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-25",
     "crDateLabel": "25 jun 2026",
-    "crTime": "7:00 p.m.",
-    "crTimeMinutes": 1140
+    "crTime": "5:00 p.m.",
+    "crTimeMinutes": 1020
   },
   {
     "id": "M037",
@@ -861,8 +861,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-15",
     "crDateLabel": "15 jun 2026",
-    "crTime": "3:00 p.m.",
-    "crTimeMinutes": 900
+    "crTime": "1:00 p.m.",
+    "crTimeMinutes": 780
   },
   {
     "id": "M038",
@@ -884,8 +884,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-15",
     "crDateLabel": "15 jun 2026",
-    "crTime": "9:00 p.m.",
-    "crTimeMinutes": 1260
+    "crTime": "7:00 p.m.",
+    "crTimeMinutes": 1140
   },
   {
     "id": "M039",
@@ -907,8 +907,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-21",
     "crDateLabel": "21 jun 2026",
-    "crTime": "3:00 p.m.",
-    "crTimeMinutes": 900
+    "crTime": "1:00 p.m.",
+    "crTimeMinutes": 780
   },
   {
     "id": "M040",
@@ -930,8 +930,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-21",
     "crDateLabel": "21 jun 2026",
-    "crTime": "9:00 p.m.",
-    "crTimeMinutes": 1260
+    "crTime": "7:00 p.m.",
+    "crTimeMinutes": 1140
   },
   {
     "id": "M041",
@@ -953,8 +953,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-26",
     "crDateLabel": "26 jun 2026",
-    "crTime": "11:00 p.m.",
-    "crTimeMinutes": 1380
+    "crTime": "9:00 p.m.",
+    "crTimeMinutes": 1260
   },
   {
     "id": "M042",
@@ -976,8 +976,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-26",
     "crDateLabel": "26 jun 2026",
-    "crTime": "11:00 p.m.",
-    "crTimeMinutes": 1380
+    "crTime": "9:00 p.m.",
+    "crTimeMinutes": 1260
   },
   {
     "id": "M043",
@@ -999,8 +999,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-15",
     "crDateLabel": "15 jun 2026",
-    "crTime": "12:00 p.m.",
-    "crTimeMinutes": 720
+    "crTime": "10:00 a.m.",
+    "crTimeMinutes": 600
   },
   {
     "id": "M044",
@@ -1022,8 +1022,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-15",
     "crDateLabel": "15 jun 2026",
-    "crTime": "6:00 p.m.",
-    "crTimeMinutes": 1080
+    "crTime": "4:00 p.m.",
+    "crTimeMinutes": 960
   },
   {
     "id": "M045",
@@ -1045,8 +1045,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-21",
     "crDateLabel": "21 jun 2026",
-    "crTime": "12:00 p.m.",
-    "crTimeMinutes": 720
+    "crTime": "10:00 a.m.",
+    "crTimeMinutes": 600
   },
   {
     "id": "M046",
@@ -1068,8 +1068,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-21",
     "crDateLabel": "21 jun 2026",
-    "crTime": "6:00 p.m.",
-    "crTimeMinutes": 1080
+    "crTime": "4:00 p.m.",
+    "crTimeMinutes": 960
   },
   {
     "id": "M047",
@@ -1091,8 +1091,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-26",
     "crDateLabel": "26 jun 2026",
-    "crTime": "8:00 p.m.",
-    "crTimeMinutes": 1200
+    "crTime": "6:00 p.m.",
+    "crTimeMinutes": 1080
   },
   {
     "id": "M048",
@@ -1114,8 +1114,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-26",
     "crDateLabel": "26 jun 2026",
-    "crTime": "8:00 p.m.",
-    "crTimeMinutes": 1200
+    "crTime": "6:00 p.m.",
+    "crTimeMinutes": 1080
   },
   {
     "id": "M049",
@@ -1137,8 +1137,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-16",
     "crDateLabel": "16 jun 2026",
-    "crTime": "3:00 p.m.",
-    "crTimeMinutes": 900
+    "crTime": "1:00 p.m.",
+    "crTimeMinutes": 780
   },
   {
     "id": "M050",
@@ -1160,8 +1160,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-16",
     "crDateLabel": "16 jun 2026",
-    "crTime": "6:00 p.m.",
-    "crTimeMinutes": 1080
+    "crTime": "4:00 p.m.",
+    "crTimeMinutes": 960
   },
   {
     "id": "M051",
@@ -1183,8 +1183,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-22",
     "crDateLabel": "22 jun 2026",
-    "crTime": "5:00 p.m.",
-    "crTimeMinutes": 1020
+    "crTime": "3:00 p.m.",
+    "crTimeMinutes": 900
   },
   {
     "id": "M052",
@@ -1206,8 +1206,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-22",
     "crDateLabel": "22 jun 2026",
-    "crTime": "8:00 p.m.",
-    "crTimeMinutes": 1200
+    "crTime": "6:00 p.m.",
+    "crTimeMinutes": 1080
   },
   {
     "id": "M053",
@@ -1229,8 +1229,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-26",
     "crDateLabel": "26 jun 2026",
-    "crTime": "3:00 p.m.",
-    "crTimeMinutes": 900
+    "crTime": "1:00 p.m.",
+    "crTimeMinutes": 780
   },
   {
     "id": "M054",
@@ -1252,8 +1252,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-26",
     "crDateLabel": "26 jun 2026",
-    "crTime": "3:00 p.m.",
-    "crTimeMinutes": 900
+    "crTime": "1:00 p.m.",
+    "crTimeMinutes": 780
   },
   {
     "id": "M055",
@@ -1275,8 +1275,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-16",
     "crDateLabel": "16 jun 2026",
-    "crTime": "9:00 p.m.",
-    "crTimeMinutes": 1260
+    "crTime": "7:00 p.m.",
+    "crTimeMinutes": 1140
   },
   {
     "id": "M056",
@@ -1296,10 +1296,10 @@ const MATCHES = [
       "flagCode": "jo",
       "emoji": "🇯🇴"
     },
-    "crDate": "2026-06-17",
-    "crDateLabel": "17 jun 2026",
-    "crTime": "12:00 a.m.",
-    "crTimeMinutes": 0
+    "crDate": "2026-06-16",
+    "crDateLabel": "16 jun 2026",
+    "crTime": "10:00 p.m.",
+    "crTimeMinutes": 1320
   },
   {
     "id": "M057",
@@ -1321,8 +1321,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-22",
     "crDateLabel": "22 jun 2026",
-    "crTime": "1:00 p.m.",
-    "crTimeMinutes": 780
+    "crTime": "11:00 a.m.",
+    "crTimeMinutes": 660
   },
   {
     "id": "M058",
@@ -1344,8 +1344,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-22",
     "crDateLabel": "22 jun 2026",
-    "crTime": "11:00 p.m.",
-    "crTimeMinutes": 1380
+    "crTime": "9:00 p.m.",
+    "crTimeMinutes": 1260
   },
   {
     "id": "M059",
@@ -1367,8 +1367,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-27",
     "crDateLabel": "27 jun 2026",
-    "crTime": "10:00 p.m.",
-    "crTimeMinutes": 1320
+    "crTime": "8:00 p.m.",
+    "crTimeMinutes": 1200
   },
   {
     "id": "M060",
@@ -1390,8 +1390,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-27",
     "crDateLabel": "27 jun 2026",
-    "crTime": "10:00 p.m.",
-    "crTimeMinutes": 1320
+    "crTime": "8:00 p.m.",
+    "crTimeMinutes": 1200
   },
   {
     "id": "M061",
@@ -1413,8 +1413,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-17",
     "crDateLabel": "17 jun 2026",
-    "crTime": "1:00 p.m.",
-    "crTimeMinutes": 780
+    "crTime": "11:00 a.m.",
+    "crTimeMinutes": 660
   },
   {
     "id": "M062",
@@ -1436,8 +1436,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-17",
     "crDateLabel": "17 jun 2026",
-    "crTime": "10:00 p.m.",
-    "crTimeMinutes": 1320
+    "crTime": "8:00 p.m.",
+    "crTimeMinutes": 1200
   },
   {
     "id": "M063",
@@ -1459,8 +1459,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-23",
     "crDateLabel": "23 jun 2026",
-    "crTime": "1:00 p.m.",
-    "crTimeMinutes": 780
+    "crTime": "11:00 a.m.",
+    "crTimeMinutes": 660
   },
   {
     "id": "M064",
@@ -1482,8 +1482,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-23",
     "crDateLabel": "23 jun 2026",
-    "crTime": "10:00 p.m.",
-    "crTimeMinutes": 1320
+    "crTime": "8:00 p.m.",
+    "crTimeMinutes": 1200
   },
   {
     "id": "M065",
@@ -1505,8 +1505,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-27",
     "crDateLabel": "27 jun 2026",
-    "crTime": "7:30 p.m.",
-    "crTimeMinutes": 1170
+    "crTime": "5:30 p.m.",
+    "crTimeMinutes": 1050
   },
   {
     "id": "M066",
@@ -1528,8 +1528,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-27",
     "crDateLabel": "27 jun 2026",
-    "crTime": "7:30 p.m.",
-    "crTimeMinutes": 1170
+    "crTime": "5:30 p.m.",
+    "crTimeMinutes": 1050
   },
   {
     "id": "M067",
@@ -1551,8 +1551,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-17",
     "crDateLabel": "17 jun 2026",
-    "crTime": "4:00 p.m.",
-    "crTimeMinutes": 960
+    "crTime": "2:00 p.m.",
+    "crTimeMinutes": 840
   },
   {
     "id": "M068",
@@ -1574,8 +1574,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-17",
     "crDateLabel": "17 jun 2026",
-    "crTime": "7:00 p.m.",
-    "crTimeMinutes": 1140
+    "crTime": "5:00 p.m.",
+    "crTimeMinutes": 1020
   },
   {
     "id": "M069",
@@ -1597,8 +1597,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-23",
     "crDateLabel": "23 jun 2026",
-    "crTime": "4:00 p.m.",
-    "crTimeMinutes": 960
+    "crTime": "2:00 p.m.",
+    "crTimeMinutes": 840
   },
   {
     "id": "M070",
@@ -1620,8 +1620,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-23",
     "crDateLabel": "23 jun 2026",
-    "crTime": "7:00 p.m.",
-    "crTimeMinutes": 1140
+    "crTime": "5:00 p.m.",
+    "crTimeMinutes": 1020
   },
   {
     "id": "M071",
@@ -1643,8 +1643,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-27",
     "crDateLabel": "27 jun 2026",
-    "crTime": "5:00 p.m.",
-    "crTimeMinutes": 1020
+    "crTime": "3:00 p.m.",
+    "crTimeMinutes": 900
   },
   {
     "id": "M072",
@@ -1666,8 +1666,8 @@ const MATCHES = [
     },
     "crDate": "2026-06-27",
     "crDateLabel": "27 jun 2026",
-    "crTime": "5:00 p.m.",
-    "crTimeMinutes": 1020
+    "crTime": "3:00 p.m.",
+    "crTimeMinutes": 900
   }
 ];
 
