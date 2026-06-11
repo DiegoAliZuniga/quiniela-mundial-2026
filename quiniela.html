@@ -554,6 +554,24 @@
       flex-wrap: wrap;
     }
 
+    .deadline-notice {
+      margin-bottom: 18px;
+      border: 1px solid rgba(12, 85, 128, 0.24);
+      border-left: 5px solid var(--blue);
+      background: rgba(202, 240, 248, 0.92);
+      color: var(--ink);
+      padding: 12px 14px;
+      border-radius: var(--radius);
+      font-weight: 800;
+    }
+
+    .deadline-notice.closed {
+      border-color: rgba(196, 28, 54, 0.28);
+      border-left-color: #c41c36;
+      background: rgba(196, 28, 54, 0.08);
+      color: #7f1023;
+    }
+
     .notice {
       margin-top: 16px;
       border-left: 4px solid var(--green);
@@ -733,6 +751,8 @@
       </div>
       <div class="meta-pill" id="globalProgress">72 partidos</div>
     </div>
+
+    <div class="deadline-notice" id="deadlineNotice" role="status"></div>
 
     <section class="panel" id="identityScreen">
       <div class="panel-body">
@@ -925,6 +945,8 @@
   <script>
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby-vt500y5fZEJ5QAT7z9y0Zn7WEJJTg6iAeTf2qvYp97cqa8EWhVVPcW_9psToHu-k/exec";
     const STORAGE_KEY = "quiniela-mundial-2026-v1";
+    const FORM_CLOSE_AT = "2026-06-11T15:00:00-06:00";
+    const FORM_CLOSE_LABEL = "11 de junio de 2026, 3:00 p.m. hora Costa Rica";
     const MATCHES = [
     {
         "id": "M001",
@@ -2615,6 +2637,7 @@
     const summaryChampionBtn = document.getElementById("summaryChampionBtn");
     const summaryRows = document.getElementById("summaryRows");
     const summaryPerson = document.getElementById("summaryPerson");
+    const deadlineNotice = document.getElementById("deadlineNotice");
     const resetBtn = document.getElementById("resetBtn");
     const submitBtn = document.getElementById("submitBtn");
     const successNotice = document.getElementById("successNotice");
@@ -2640,6 +2663,11 @@
 
     identityForm.addEventListener("submit", (event) => {
       event.preventDefault();
+      if (isFormClosed()) {
+        showClosedToast();
+        render();
+        return;
+      }
       if (!identityForm.reportValidity()) return;
       state.name = playerName.value.trim();
       state.email = playerEmail.value.trim();
@@ -2681,6 +2709,11 @@
     });
 
     championNextBtn.addEventListener("click", () => {
+      if (isFormClosed()) {
+        showClosedToast();
+        render();
+        return;
+      }
       if (!state.champion || !state.champion.name) {
         showToast("Escoge el país que crees que será campeón.");
         return;
@@ -2702,6 +2735,11 @@
 
     choiceButtons.forEach((button) => {
       button.addEventListener("click", () => {
+        if (isFormClosed()) {
+          showClosedToast();
+          render();
+          return;
+        }
         const match = MATCHES[state.currentIndex];
         state.picks[match.id] = button.dataset.pick;
         state.submittedAt = "";
@@ -2726,6 +2764,11 @@
     });
 
     nextBtn.addEventListener("click", () => {
+      if (isFormClosed()) {
+        showClosedToast();
+        render();
+        return;
+      }
       const match = MATCHES[state.currentIndex];
       if (!state.picks[match.id]) {
         showToast("Marca local, empate o visita para continuar.");
@@ -2841,6 +2884,7 @@
       if (state.screen === "champion") renderChampion();
       if (state.screen === "match") renderMatch();
       if (state.screen === "summary") renderSummary();
+      renderDeadlineState();
     }
 
     function renderIdentity() {
@@ -2848,6 +2892,45 @@
       submitButton.textContent = state.returnAfterIdentity ? "Guardar datos" : "Comenzar";
       playerName.value = state.name;
       playerEmail.value = state.email;
+    }
+
+    function renderDeadlineState() {
+      const closed = isFormClosed();
+      const identitySubmit = identityForm.querySelector('button[type="submit"]');
+      deadlineNotice.classList.toggle("closed", closed);
+      deadlineNotice.innerHTML = closed
+        ? `<strong>Quiniela cerrada.</strong> El formulario cerró el ${FORM_CLOSE_LABEL}. Ya no se aceptan envíos.`
+        : `<strong>Fecha límite:</strong> puedes enviar tu quiniela hasta el ${FORM_CLOSE_LABEL}.`;
+
+      playerName.disabled = closed;
+      playerEmail.disabled = closed;
+      identitySubmit.disabled = closed;
+      championNextBtn.disabled = closed;
+      nextBtn.disabled = closed;
+      submitBtn.disabled = closed || Boolean(state.submittedAt);
+      summaryPromptSubmitBtn.disabled = closed;
+      editPickSaveBtn.disabled = closed || !pendingModalPick;
+      choiceButtons.forEach((button) => {
+        button.disabled = closed;
+      });
+      modalChoiceButtons.forEach((button) => {
+        button.disabled = closed;
+      });
+      championGrid.querySelectorAll(".champion-choice").forEach((button) => {
+        button.disabled = closed;
+      });
+      summaryRows.querySelectorAll("[data-edit-index]").forEach((button) => {
+        button.disabled = closed;
+      });
+    }
+
+    function isFormClosed() {
+      const closeTime = Date.parse(FORM_CLOSE_AT);
+      return Number.isFinite(closeTime) && Date.now() >= closeTime;
+    }
+
+    function showClosedToast() {
+      showToast(`La quiniela cerró el ${FORM_CLOSE_LABEL}.`);
     }
 
     function renderChampionOptions() {
@@ -2951,6 +3034,11 @@
     }
 
     function openSummaryEditModal(index) {
+      if (isFormClosed()) {
+        showClosedToast();
+        render();
+        return;
+      }
       summaryEditIndex = index;
       const match = MATCHES[summaryEditIndex];
       if (!match) return;
@@ -2966,14 +3054,24 @@
     }
 
     function setModalPick(pick) {
+      if (isFormClosed()) {
+        showClosedToast();
+        render();
+        return;
+      }
       pendingModalPick = pick;
       modalChoiceButtons.forEach((button) => {
         button.setAttribute("aria-pressed", button.dataset.modalPick === pendingModalPick ? "true" : "false");
       });
-      editPickSaveBtn.disabled = !pendingModalPick;
+      editPickSaveBtn.disabled = isFormClosed() || !pendingModalPick;
     }
 
     function saveSummaryModalPick() {
+      if (isFormClosed()) {
+        showClosedToast();
+        render();
+        return;
+      }
       const match = MATCHES[summaryEditIndex];
       if (!match || !pendingModalPick) {
         showToast("Selecciona local, empate o visita.");
@@ -3070,6 +3168,7 @@
     }
 
     function maybeShowSummarySubmitPrompt() {
+      if (isFormClosed()) return;
       if (summaryPromptShown || state.submittedAt || state.screen !== "summary") return;
       summaryPromptShown = true;
       window.setTimeout(() => {
@@ -3135,6 +3234,12 @@
     }
 
     async function submitEntry() {
+      if (isFormClosed()) {
+        showClosedToast();
+        render();
+        return;
+      }
+
       if (!state.champion || !state.champion.name) {
         showToast("Escoge el país campeón antes de enviar.");
         state.screen = "champion";

@@ -9,6 +9,8 @@ const FOOTBALL_DATA_API_URL = "https://api.football-data.org/v4/competitions/WC/
 const FOOTBALL_DATA_TOKEN_PROPERTY = "FOOTBALL_DATA_API_KEY";
 const SYNC_SECRET_PROPERTY = "SYNC_SECRET";
 const POINTS_PER_HIT = 1;
+const FORM_CLOSE_AT_UTC_MS = Date.UTC(2026, 5, 11, 21, 0, 0);
+const FORM_CLOSE_LABEL = "11 de junio de 2026, 3:00 p.m. hora Costa Rica";
 const MATCHES = [
   {
     "id": "M001",
@@ -2223,6 +2225,9 @@ function handleSubmission_(e, useJsonp) {
 
   try {
     lock.waitLock(30000);
+    if (isFormClosed_()) {
+      throw new Error("La quiniela cerró el " + FORM_CLOSE_LABEL + ".");
+    }
     const payload = normalizePayload_(parsePayload_(e));
     validatePayload_(payload);
 
@@ -2240,6 +2245,10 @@ function handleSubmission_(e, useJsonp) {
   }
 
   return useJsonp ? javascript_(e.parameter.callback, response) : json_(response);
+}
+
+function isFormClosed_() {
+  return new Date().getTime() >= FORM_CLOSE_AT_UTC_MS;
 }
 
 function parsePayload_(e) {
