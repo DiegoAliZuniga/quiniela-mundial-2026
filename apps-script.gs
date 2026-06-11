@@ -8,6 +8,7 @@ const DIAGNOSTIC_SHEET = "Diagnostico";
 const FOOTBALL_DATA_API_URL = "https://api.football-data.org/v4/competitions/WC/matches?season=2026";
 const FOOTBALL_DATA_TOKEN_PROPERTY = "FOOTBALL_DATA_API_KEY";
 const SYNC_SECRET_PROPERTY = "SYNC_SECRET";
+const PUBLIC_SYNC_CACHE_KEY = "PUBLIC_DATA_SYNC_ATTEMPTED";
 const POINTS_PER_HIT = 1;
 const FORM_CLOSE_AT_UTC_MS = Date.UTC(2026, 5, 11, 19, 0, 0);
 const FORM_CLOSE_LABEL = "11 de junio de 2026, 1:00 p.m. hora Costa Rica";
@@ -1856,6 +1857,7 @@ function syncFootballData() {
 
 function getPublicData_() {
   const ss = getSpreadsheet_();
+  maybeSyncFootballDataForPublic_(ss);
   return {
     ok: true,
     generatedAt: new Date().toISOString(),
@@ -1863,6 +1865,28 @@ function getPublicData_() {
     ranking: readRanking_(ss),
     apiState: readApiState_(ss),
   };
+}
+
+function maybeSyncFootballDataForPublic_(ss) {
+  const results = readResults_(ss);
+  const apiState = readApiState_(ss);
+  const shouldSync = results.length === 0 || !apiState || !apiState.updatedAt || isApiStateStale_(apiState.updatedAt, 5);
+  if (!shouldSync) return;
+
+  const cache = CacheService.getScriptCache();
+  if (cache.get(PUBLIC_SYNC_CACHE_KEY)) return;
+  cache.put(PUBLIC_SYNC_CACHE_KEY, "1", 240);
+
+  try {
+    syncFootballData();
+  } catch (ignore) {}
+}
+
+function isApiStateStale_(value, maxAgeMinutes) {
+  if (!value) return true;
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return true;
+  return new Date().getTime() - date.getTime() > maxAgeMinutes * 60 * 1000;
 }
 
 function getPredictionsData_() {

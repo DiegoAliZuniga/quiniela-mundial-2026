@@ -2072,18 +2072,27 @@
         return;
       }
 
-      if (liveMatches.length === 0) {
-        liveBoard.innerHTML = '<div class="empty-state">No hay partidos en curso ahora. Cuando coincida la hora CR de un partido, aparecerá aquí.</div>';
-        return;
-      }
-
-      liveBoard.innerHTML = liveMatches.map((match) => `
+      if (liveMatches.length > 0) {
+        liveBoard.innerHTML = liveMatches.map((match) => `
         <div class="live-row">
           <span class="status-pill">En vivo</span>
           <span class="match-title">${escapeHtml(match.home.name)} vs ${escapeHtml(match.away.name)}</span>
           <span class="score">${escapeHtml(formatScore(resultByMatchId(match.id)) || "Marcador por actualizar")}</span>
         </div>
-      `).join("");
+        `).join("");
+        return;
+      }
+
+      if (publicData.results.length === 0) {
+        const apiState = publicData.apiState || {};
+        const apiMessage = String(apiState.message || "").trim();
+        liveBoard.innerHTML = apiMessage && apiMessage !== "OK"
+          ? `<div class="empty-state">No se pudieron sincronizar los resultados oficiales: ${escapeHtml(apiMessage)}.</div>`
+          : '<div class="empty-state">Resultados oficiales pendientes de sincronización. La página intentará actualizarse automáticamente.</div>';
+        return;
+      }
+
+      liveBoard.innerHTML = '<div class="empty-state">No hay partidos en curso ahora. Cuando coincida la hora CR de un partido, aparecerá aquí.</div>';
     }
 
     function renderCalendar() {
