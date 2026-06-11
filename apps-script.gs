@@ -9,6 +9,11 @@ const FOOTBALL_DATA_API_URL = "https://api.football-data.org/v4/competitions/WC/
 const FOOTBALL_DATA_TOKEN_PROPERTY = "FOOTBALL_DATA_API_KEY";
 const SYNC_SECRET_PROPERTY = "SYNC_SECRET";
 const PUBLIC_SYNC_CACHE_KEY = "PUBLIC_DATA_SYNC_ATTEMPTED";
+const CR_TIME_ZONE = "America/Costa_Rica";
+const LIVE_SYNC_MAX_AGE_MINUTES = 1;
+const STANDARD_SYNC_MAX_AGE_MINUTES = 5;
+const LIVE_SYNC_CACHE_SECONDS = 55;
+const STANDARD_SYNC_CACHE_SECONDS = 240;
 const POINTS_PER_HIT = 1;
 const FORM_CLOSE_AT_UTC_MS = Date.UTC(2026, 5, 11, 19, 0, 0);
 const FORM_CLOSE_LABEL = "11 de junio de 2026, 1:00 p.m. hora Costa Rica";
@@ -1870,16 +1875,39 @@ function getPublicData_() {
 function maybeSyncFootballDataForPublic_(ss) {
   const results = readResults_(ss);
   const apiState = readApiState_(ss);
-  const shouldSync = results.length === 0 || !apiState || !apiState.updatedAt || isApiStateStale_(apiState.updatedAt, 5);
+  const liveWindow = hasLiveMatchWindow_();
+  const maxAgeMinutes = liveWindow ? LIVE_SYNC_MAX_AGE_MINUTES : STANDARD_SYNC_MAX_AGE_MINUTES;
+  const cacheSeconds = liveWindow ? LIVE_SYNC_CACHE_SECONDS : STANDARD_SYNC_CACHE_SECONDS;
+  const shouldSync = results.length === 0 || !apiState || !apiState.updatedAt || isApiStateStale_(apiState.updatedAt, maxAgeMinutes);
   if (!shouldSync) return;
 
   const cache = CacheService.getScriptCache();
   if (cache.get(PUBLIC_SYNC_CACHE_KEY)) return;
-  cache.put(PUBLIC_SYNC_CACHE_KEY, "1", 240);
+  cache.put(PUBLIC_SYNC_CACHE_KEY, "1", cacheSeconds);
 
   try {
     syncFootballData();
   } catch (ignore) {}
+}
+
+function hasLiveMatchWindow_() {
+  const now = nowInCostaRica_();
+  return MATCHES.some(function(match) {
+    return match.crDate === now.date &&
+      now.minutes >= match.crTimeMinutes &&
+      now.minutes <= match.crTimeMinutes + 130;
+  });
+}
+
+function nowInCostaRica_() {
+  const now = new Date();
+  const date = Utilities.formatDate(now, CR_TIME_ZONE, "yyyy-MM-dd");
+  const hour = Number(Utilities.formatDate(now, CR_TIME_ZONE, "H"));
+  const minute = Number(Utilities.formatDate(now, CR_TIME_ZONE, "m"));
+  return {
+    date: date,
+    minutes: hour * 60 + minute,
+  };
 }
 
 function isApiStateStale_(value, maxAgeMinutes) {
