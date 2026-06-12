@@ -2112,6 +2112,7 @@ function rebuildRanking_(ss, results) {
   ranking.sort(function(a, b) {
     return b.points - a.points ||
       b.hits - a.hits ||
+      String(a.name || "").localeCompare(String(b.name || ""), "es") ||
       String(a.submittedAt || "").localeCompare(String(b.submittedAt || ""));
   });
   ranking.forEach(function(row, index) {
@@ -2178,13 +2179,12 @@ function readRanking_(ss) {
     const result = {
       position: getCellByHeader_(row, headers, "Posicion"),
       name: getCellByHeader_(row, headers, "Nombre"),
-      email: maskEmail_(getCellByHeader_(row, headers, "Correo")),
       points: getCellByHeader_(row, headers, "Puntos"),
       hits: getCellByHeader_(row, headers, "Aciertos"),
       computedMatches: getCellByHeader_(row, headers, "Partidos computados"),
       totalPredictions: getCellByHeader_(row, headers, "Predicciones"),
     };
-    if (result.name || result.email || result.points || result.hits || result.totalPredictions) {
+    if (result.name || result.points || result.hits || result.totalPredictions) {
       ranking.push(result);
     }
     return ranking;

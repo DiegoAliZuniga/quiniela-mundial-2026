@@ -230,14 +230,6 @@
       overflow-wrap: anywhere;
     }
 
-    .ranking-email {
-      display: block;
-      margin-top: 2px;
-      color: rgba(7, 24, 39, 0.62);
-      font-weight: 800;
-      overflow-wrap: anywhere;
-    }
-
     .sync-note {
       margin-top: 14px;
       color: rgba(7, 24, 39, 0.62);
@@ -330,7 +322,17 @@
     </div>
   </section>
 
-  <section class="section blue" aria-label="Ranking de la quiniela">
+  <section class="section blue" aria-label="Resultados de partidos pasados">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Resultados de partidos pasados</h2>
+        <p class="section-note">Finalizados</p>
+      </div>
+      <div class="live-board" id="pastResultsBoard"></div>
+    </div>
+  </section>
+
+  <section class="section ice" aria-label="Ranking de la quiniela">
     <div class="wrap ranking-card">
       <h2>Ranking de la quiniela</h2>
       <div class="ranking-board" id="rankingBoard">
@@ -341,7 +343,7 @@
     </div>
   </section>
 
-  <section class="section ice" aria-label="Calendario de próximos partidos">
+  <section class="section blue" aria-label="Calendario de próximos partidos">
     <div class="wrap">
       <div class="section-head">
         <h2>Próximos partidos</h2>
@@ -2016,6 +2018,7 @@
     const LIVE_STATUSES = new Set(["IN_PLAY", "PAUSED", "EXTRA_TIME", "PENALTY_SHOOTOUT"]);
     const FINISHED_STATUSES = new Set(["FINISHED", "AWARDED"]);
     const liveBoard = document.getElementById("liveBoard");
+    const pastResultsBoard = document.getElementById("pastResultsBoard");
     const calendarStrip = document.getElementById("calendarStrip");
     const liveClock = document.getElementById("liveClock");
     const rankingBoard = document.getElementById("rankingBoard");
@@ -2164,17 +2167,44 @@
       `).join("");
     }
 
+    function renderPastResults() {
+      const pastResults = publicData.results
+        .filter((result) => FINISHED_STATUSES.has(result.status) && formatScore(result))
+        .sort((a, b) => getMatchSortValue(b.matchId) - getMatchSortValue(a.matchId));
+
+      if (pastResults.length === 0) {
+        pastResultsBoard.innerHTML = '<div class="empty-state">Aún no hay resultados finales publicados.</div>';
+        return;
+      }
+
+      pastResultsBoard.innerHTML = pastResults.map((result) => `
+        <div class="live-row">
+          <span class="status-pill">${escapeHtml(formatStatus(result.status))}</span>
+          <span class="match-title">${escapeHtml(result.home)} vs ${escapeHtml(result.away)}</span>
+          <span class="score">${escapeHtml(formatScore(result))}</span>
+        </div>
+      `).join("");
+    }
+
     function renderRanking() {
-      const ranking = Array.isArray(publicData.ranking) ? publicData.ranking.slice(0, 10) : [];
+      const ranking = Array.isArray(publicData.ranking)
+        ? publicData.ranking
+            .slice()
+            .sort((a, b) =>
+              numberValue(b.points) - numberValue(a.points) ||
+              numberValue(b.hits) - numberValue(a.hits) ||
+              String(a.name || "").localeCompare(String(b.name || ""), "es")
+            )
+            .slice(0, 10)
+        : [];
       if (ranking.length === 0) {
         rankingBoard.innerHTML = "<p>Esta seccion se activara cuando se definan los resultados oficiales y se calcule el puntaje de cada participante.</p>";
       } else {
-        rankingBoard.innerHTML = ranking.map((row) => `
+        rankingBoard.innerHTML = ranking.map((row, index) => `
           <div class="ranking-row">
-            <span class="ranking-position">#${escapeHtml(row.position)}</span>
+            <span class="ranking-position">#${index + 1}</span>
             <span>
               <span class="ranking-name">${escapeHtml(row.name)}</span>
-              <span class="ranking-email">${escapeHtml(row.email || "")}</span>
             </span>
             <span class="ranking-points">${escapeHtml(row.points)} pts</span>
           </div>
@@ -2188,6 +2218,11 @@
           : "";
         syncNote.textContent = `Actualizado: ${formatDateTime(publicData.generatedAt || apiState.updatedAt)}${rateText}`;
       }
+    }
+
+    function numberValue(value) {
+      const number = Number(value);
+      return Number.isFinite(number) ? number : 0;
     }
 
     function resultByMatchId(matchId) {
@@ -2243,6 +2278,7 @@
       if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("PEGA_AQUI")) {
         renderLive();
         renderCalendar();
+        renderPastResults();
         renderRanking();
         return Promise.resolve();
       }
@@ -2264,6 +2300,7 @@
         .finally(() => {
           renderLive();
           renderCalendar();
+          renderPastResults();
           renderRanking();
         });
     }
@@ -2311,6 +2348,7 @@
 
     renderLive();
     renderCalendar();
+    renderPastResults();
     renderRanking();
     loadPublicData();
     window.setInterval(renderLive, 60000);

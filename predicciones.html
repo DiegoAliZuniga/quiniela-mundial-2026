@@ -125,6 +125,27 @@
       overflow: hidden;
     }
 
+    .panel:fullscreen,
+    .panel.is-fullscreen {
+      width: 100vw;
+      height: 100vh;
+      border: 0;
+      border-radius: 0;
+      background: #ffffff;
+      box-shadow: none;
+    }
+
+    .panel.is-fullscreen {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+    }
+
+    .panel:fullscreen .table-wrap,
+    .panel.is-fullscreen .table-wrap {
+      max-height: calc(100vh - 150px);
+    }
+
     .panel-head {
       display: flex;
       justify-content: space-between;
@@ -448,6 +469,10 @@
         justify-content: flex-start;
       }
 
+      .desktop-only {
+        display: none;
+      }
+
       .table-wrap {
         max-height: 68vh;
       }
@@ -515,13 +540,14 @@
   </header>
 
   <main class="content">
-    <section class="panel" aria-label="Predicciones guardadas">
+    <section class="panel" id="predictionsPanel" aria-label="Predicciones guardadas">
       <div class="panel-head">
         <div>
           <p class="panel-copy" id="statusText">Cargando predicciones guardadas...</p>
         </div>
         <div class="toolbar">
           <span class="status-pill" id="participantCount">0 participantes</span>
+          <button class="btn secondary desktop-only" type="button" id="fullscreenBtn" aria-pressed="false">Pantalla completa</button>
           <button class="btn secondary" type="button" id="refreshBtn">Actualizar</button>
         </div>
       </div>
@@ -2235,13 +2261,27 @@
 
     const predictionsHead = document.getElementById("predictionsHead");
     const predictionsBody = document.getElementById("predictionsBody");
+    const predictionsPanel = document.getElementById("predictionsPanel");
     const statusText = document.getElementById("statusText");
     const participantCount = document.getElementById("participantCount");
     const tableNote = document.getElementById("tableNote");
     const mobileParticipants = document.getElementById("mobileParticipants");
     const refreshBtn = document.getElementById("refreshBtn");
+    const fullscreenBtn = document.getElementById("fullscreenBtn");
+    const desktopMedia = window.matchMedia("(min-width: 761px)");
 
     refreshBtn.addEventListener("click", loadPredictionsData);
+    fullscreenBtn.addEventListener("click", toggleTableFullscreen);
+    document.addEventListener("fullscreenchange", updateFullscreenButton);
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && predictionsPanel.classList.contains("is-fullscreen")) {
+        predictionsPanel.classList.remove("is-fullscreen");
+        updateFullscreenButton();
+      }
+    });
+    if (desktopMedia.addEventListener) {
+      desktopMedia.addEventListener("change", updateFullscreenButton);
+    }
 
     function renderPredictions() {
       const columns = displayColumns();
@@ -2250,6 +2290,44 @@
       predictionsBody.innerHTML = renderBody(columns, resultsById);
       renderMobileParticipants();
       renderStatus();
+      updateFullscreenButton();
+    }
+
+    function isTableFullscreen() {
+      return document.fullscreenElement === predictionsPanel || predictionsPanel.classList.contains("is-fullscreen");
+    }
+
+    function toggleTableFullscreen() {
+      if (!desktopMedia.matches) return;
+      if (isTableFullscreen()) {
+        if (document.fullscreenElement === predictionsPanel && document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+        predictionsPanel.classList.remove("is-fullscreen");
+        updateFullscreenButton();
+        return;
+      }
+
+      if (predictionsPanel.requestFullscreen) {
+        predictionsPanel.requestFullscreen().catch(() => {
+          predictionsPanel.classList.add("is-fullscreen");
+          updateFullscreenButton();
+        });
+      } else {
+        predictionsPanel.classList.add("is-fullscreen");
+        updateFullscreenButton();
+      }
+    }
+
+    function updateFullscreenButton() {
+      const available = desktopMedia.matches;
+      fullscreenBtn.hidden = !available;
+      if (!available && predictionsPanel.classList.contains("is-fullscreen")) {
+        predictionsPanel.classList.remove("is-fullscreen");
+      }
+      const active = isTableFullscreen();
+      fullscreenBtn.textContent = active ? "Salir de pantalla completa" : "Pantalla completa";
+      fullscreenBtn.setAttribute("aria-pressed", active ? "true" : "false");
     }
 
     function renderHead(columns) {
