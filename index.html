@@ -2016,7 +2016,8 @@
 ];
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby-vt500y5fZEJ5QAT7z9y0Zn7WEJJTg6iAeTf2qvYp97cqa8EWhVVPcW_9psToHu-k/exec";
     const CR_TIME_ZONE = "America/Costa_Rica";
-    const DATA_REFRESH_MS = 60000;
+    const STANDARD_DATA_REFRESH_MS = 60000;
+    const LIVE_DATA_REFRESH_MS = 10000;
     const LIVE_STATUSES = new Set(["IN_PLAY", "PAUSED", "EXTRA_TIME", "PENALTY_SHOOTOUT"]);
     const FINISHED_STATUSES = new Set(["FINISHED", "AWARDED"]);
     const liveBoard = document.getElementById("liveBoard");
@@ -2026,6 +2027,7 @@
     const rankingBoard = document.getElementById("rankingBoard");
     const syncNote = document.getElementById("syncNote");
     let publicData = { results: [], ranking: [], apiState: null, generatedAt: "" };
+    let publicDataRefreshTimer = null;
 
     function nowInCostaRica() {
       const formatter = new Intl.DateTimeFormat("en-CA", {
@@ -2046,6 +2048,26 @@
         date: formatter.format(new Date()),
         minutes: hour * 60 + minute,
       };
+    }
+
+    function hasLiveWindow(now = nowInCostaRica()) {
+      return publicData.results.some((result) => LIVE_STATUSES.has(result.status)) ||
+        MATCHES.some((match) =>
+          match.crDate === now.date &&
+          now.minutes >= match.crTimeMinutes &&
+          now.minutes <= match.crTimeMinutes + 130
+        );
+    }
+
+    function currentDataRefreshMs() {
+      return hasLiveWindow() ? LIVE_DATA_REFRESH_MS : STANDARD_DATA_REFRESH_MS;
+    }
+
+    function schedulePublicDataRefresh() {
+      window.clearTimeout(publicDataRefreshTimer);
+      publicDataRefreshTimer = window.setTimeout(() => {
+        loadPublicData().finally(schedulePublicDataRefresh);
+      }, currentDataRefreshMs());
     }
 
     function renderLive() {
@@ -2366,9 +2388,8 @@
     renderCalendar();
     renderPastResults();
     renderRanking();
-    loadPublicData();
+    loadPublicData().finally(schedulePublicDataRefresh);
     window.setInterval(renderLive, 60000);
-    window.setInterval(loadPublicData, DATA_REFRESH_MS);
   </script>
 </body>
 </html>

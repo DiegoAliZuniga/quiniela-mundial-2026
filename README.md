@@ -40,7 +40,8 @@ Si haces cambios en `apps-script.gs`, vuelve a desplegar el Web App con `Deploy`
 - Los headers `X-RequestsAvailable`, `X-RequestCounter-Reset`, `X-API-Version` y `X-Authenticated-Client` se guardan en `Estado API`.
 - `Resultados` guarda marcador, estado y ganador de cada partido.
 - `Ranking` da 1 punto por cada seleccion acertada en partidos finalizados.
-- `index.html` lee `?action=publicData` desde Apps Script cada 60 segundos; no llama directamente a football-data.org.
+- `index.html` lee `?action=publicData` desde Apps Script cada 60 segundos fuera de partidos en vivo y cada 10 segundos durante una ventana en vivo; no llama directamente a football-data.org.
+- Durante una ventana en vivo, Apps Script permite sincronizar football-data.org como maximo una vez cada 10 segundos, equivalente a hasta 6 llamadas por minuto.
 - `predicciones.html` lee `?action=predictionsData` para mostrar las quinielas guardadas en formato de matriz.
 - `exportar-predicciones.html` lee `?action=predictionsExportData` para descargar todas las predicciones en XLSX.
 
