@@ -146,6 +146,7 @@
       padding: 16px 18px;
       border-bottom: 1px solid var(--line);
       background: #ffffff;
+      color: var(--ink);
     }
 
     .live-row:last-child {
@@ -257,6 +258,7 @@
       border-radius: var(--radius);
       padding: 18px;
       background: #ffffff;
+      color: var(--ink);
       box-shadow: 0 14px 34px rgba(7, 24, 39, 0.1);
     }
 
@@ -2068,7 +2070,7 @@
         liveBoard.innerHTML = liveResults.map((result) => `
           <div class="live-row">
             <span class="status-pill">${escapeHtml(formatStatus(result.status))}</span>
-            <span class="match-title">${escapeHtml(result.home)} vs ${escapeHtml(result.away)}</span>
+            <span class="match-title">${escapeHtml(resultHomeName(result))} vs ${escapeHtml(resultAwayName(result))}</span>
             <span class="score">${escapeHtml(formatScore(result) || "Esperando marcador oficial")}</span>
           </div>
         `).join("");
@@ -2180,7 +2182,7 @@
       pastResultsBoard.innerHTML = pastResults.map((result) => `
         <div class="live-row">
           <span class="status-pill">${escapeHtml(formatStatus(result.status))}</span>
-          <span class="match-title">${escapeHtml(result.home)} vs ${escapeHtml(result.away)}</span>
+          <span class="match-title">${escapeHtml(resultHomeName(result))} vs ${escapeHtml(resultAwayName(result))}</span>
           <span class="score">${escapeHtml(formatScore(result))}</span>
         </div>
       `).join("");
@@ -2229,8 +2231,22 @@
       return publicData.results.find((result) => result.matchId === matchId);
     }
 
+    function matchById(matchId) {
+      return MATCHES.find((match) => match.id === matchId);
+    }
+
+    function resultHomeName(result) {
+      const match = matchById(result && result.matchId);
+      return result && result.home ? result.home : match && match.home ? match.home.name : "";
+    }
+
+    function resultAwayName(result) {
+      const match = matchById(result && result.matchId);
+      return result && result.away ? result.away : match && match.away ? match.away.name : "";
+    }
+
     function getMatchSortValue(matchId) {
-      const match = MATCHES.find((item) => item.id === matchId);
+      const match = matchById(matchId);
       if (!match) return Number.MAX_SAFE_INTEGER;
       return Number(`${match.crDate.replaceAll("-", "")}${String(match.crTimeMinutes).padStart(4, "0")}${String(match.number).padStart(3, "0")}`);
     }
