@@ -7,6 +7,7 @@ Este paquete contiene un sitio estatico listo para GitHub Pages y un Google Apps
 - `index.html`: pagina principal con resultados, ranking y calendario.
 - `quiniela.html`: formulario de quiniela. Muestra un partido por vez, incluye banderas y resume todas las selecciones antes de enviar.
 - `predicciones.html`: matriz para mostrar predicciones de participantes, resultados y puntos por grupo.
+- `exportar-predicciones.html`: herramienta personal para descargar un XLSX completo con todas las predicciones, sin correos.
 - `apps-script.gs`: backend de Google Apps Script para respuestas, resultados, ranking y football-data.org.
 
 ## Configurar Google Sheets y Apps Script
@@ -41,11 +42,12 @@ Si haces cambios en `apps-script.gs`, vuelve a desplegar el Web App con `Deploy`
 - `Ranking` da 1 punto por cada seleccion acertada en partidos finalizados.
 - `index.html` lee `?action=publicData` desde Apps Script cada 60 segundos; no llama directamente a football-data.org.
 - `predicciones.html` lee `?action=predictionsData` para mostrar las quinielas guardadas en formato de matriz.
+- `exportar-predicciones.html` lee `?action=predictionsExportData` para descargar todas las predicciones en XLSX.
 
 ## Subir a GitHub Pages
 
 1. Crea un repositorio en GitHub.
-2. Sube todo el contenido de esta carpeta a la raiz del repositorio: `index.html`, `quiniela.html`, `predicciones.html`, `apps-script.gs`, `matches.json`, `README.md` y la carpeta `assets`.
+2. Sube todo el contenido de esta carpeta a la raiz del repositorio: `index.html`, `quiniela.html`, `predicciones.html`, `exportar-predicciones.html`, `apps-script.gs`, `matches.json`, `README.md` y la carpeta `assets`.
 3. En `Settings` > `Pages`, publica desde la rama principal y la carpeta raiz.
 
 El Apps Script creara automaticamente las pestanas `Respuestas`, `Partidos`, `Resultados`, `Ranking` y `Estado API` cuando se usen las funciones correspondientes.

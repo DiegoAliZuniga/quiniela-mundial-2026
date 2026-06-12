@@ -1,594 +1,201 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Predicciones de participantes</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Exportar predicciones completas</title>
   <style>
     :root {
+      color-scheme: light;
       --blue: #0077b6;
       --sky: #caf0f8;
-      --ink: #132033;
-      --muted: #607087;
-      --line: #cfd8dc;
-      --hit: #d9f2df;
-      --hit-text: #14532d;
-      --miss: #fde2e2;
-      --miss-text: #8a1c1c;
-      --pending: #f8fafc;
-      --shadow: 0 22px 56px rgba(7, 24, 39, 0.14);
-      --radius: 8px;
+      --ink: #001f3f;
+      --muted: #5f6f89;
+      --line: #d9e2ea;
+      --success: #047857;
+      --white: #ffffff;
     }
 
     * {
       box-sizing: border-box;
-      letter-spacing: 0;
     }
 
     body {
       margin: 0;
       min-height: 100vh;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: Arial, Helvetica, sans-serif;
       color: var(--ink);
-      background: var(--sky);
+      background:
+        linear-gradient(135deg, rgba(202, 240, 248, 0.92), rgba(255, 255, 255, 0.84)),
+        #caf0f8;
     }
 
-    button,
-    a {
-      font: inherit;
-    }
-
-    button {
-      cursor: pointer;
-    }
-
-    button:disabled {
-      cursor: not-allowed;
-      opacity: 0.58;
-    }
-
-    .hero {
-      background: var(--blue);
-      color: #ffffff;
-    }
-
-    .hero-inner,
-    .content {
-      width: min(1440px, calc(100% - 28px));
+    main {
+      width: min(920px, calc(100% - 32px));
       margin: 0 auto;
-    }
-
-    .hero-inner {
-      display: flex;
-      justify-content: space-between;
-      gap: 18px;
-      align-items: end;
-      padding: 32px 0 26px;
-    }
-
-    .eyebrow {
-      margin: 0 0 8px;
-      color: rgba(255, 255, 255, 0.78);
-      font-weight: 900;
-      text-transform: uppercase;
-      font-size: 0.78rem;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: clamp(2rem, 5vw, 4rem);
-      line-height: 1.02;
-    }
-
-    .hero-actions,
-    .toolbar {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-
-    .btn {
-      min-height: 42px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border: 1px solid rgba(255, 255, 255, 0.44);
-      border-radius: var(--radius);
-      padding: 0 14px;
-      color: #ffffff;
-      background: rgba(255, 255, 255, 0.12);
-      text-decoration: none;
-      font-weight: 900;
-    }
-
-    .btn.primary {
-      color: var(--blue);
-      background: #ffffff;
-    }
-
-    .btn.secondary {
-      border-color: #bfd7e2;
-      color: var(--blue);
-      background: #ffffff;
-    }
-
-    .content {
-      padding: 22px 0 38px;
+      padding: 56px 0;
     }
 
     .panel {
-      border: 1px solid rgba(191, 215, 226, 0.92);
-      border-radius: var(--radius);
       background: rgba(255, 255, 255, 0.94);
-      box-shadow: var(--shadow);
-      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: clamp(24px, 5vw, 44px);
+      box-shadow: 0 20px 60px rgba(0, 31, 63, 0.14);
     }
 
-    .panel:fullscreen,
-    .panel.is-fullscreen {
-      width: 100vw;
-      height: 100vh;
-      border: 0;
-      border-radius: 0;
-      display: flex;
-      flex-direction: column;
-      background: #ffffff;
-      box-shadow: none;
-      overflow: hidden;
-    }
-
-    .panel.is-fullscreen {
-      position: fixed;
-      inset: 0;
-      z-index: 100;
-    }
-
-    .panel:fullscreen .table-wrap,
-    .panel.is-fullscreen .table-wrap {
-      flex: 1 1 auto;
-      min-height: 0;
-      max-height: none;
-      padding-bottom: 16px;
-    }
-
-    .panel:fullscreen .panel-head,
-    .panel.is-fullscreen .panel-head {
-      flex: 0 0 auto;
-    }
-
-    .panel:fullscreen .mobile-participants,
-    .panel.is-fullscreen .mobile-participants,
-    .panel:fullscreen .note,
-    .panel.is-fullscreen .note {
-      display: none;
-    }
-
-    .panel-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      padding: 18px 20px;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .panel-title {
-      margin: 0;
-      font-size: clamp(1.2rem, 3vw, 1.8rem);
-      line-height: 1.15;
-    }
-
-    .panel-copy {
-      margin: 7px 0 0;
-      color: var(--muted);
+    .eyebrow {
+      margin: 0 0 12px;
+      color: var(--blue);
+      font-size: 0.88rem;
       font-weight: 800;
-      line-height: 1.42;
+      letter-spacing: 0;
+      text-transform: uppercase;
     }
 
-    .status-pill {
+    h1 {
+      margin: 0 0 14px;
+      font-size: clamp(2rem, 5vw, 3.4rem);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    p {
+      max-width: 720px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 1.05rem;
+      line-height: 1.55;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    button,
+    a.button {
+      min-height: 48px;
+      border: 0;
+      border-radius: 8px;
+      padding: 0 20px;
       display: inline-flex;
       align-items: center;
-      min-height: 36px;
-      border: 1px solid #cbd5e1;
-      border-radius: 999px;
-      padding: 0 13px;
-      color: #475569;
-      background: #ffffff;
-      font-weight: 900;
-      white-space: nowrap;
+      justify-content: center;
+      font: inherit;
+      font-weight: 800;
+      text-decoration: none;
+      cursor: pointer;
     }
 
-    .table-wrap {
-      width: 100%;
-      max-height: 72vh;
-      overflow: auto;
-      background: #ffffff;
+    button {
+      color: var(--white);
+      background: var(--success);
     }
 
-    table {
-      min-width: 2520px;
-      width: max-content;
-      border-collapse: collapse;
-      table-layout: fixed;
-      font-size: 0.88rem;
+    button:disabled {
+      cursor: wait;
+      opacity: 0.65;
     }
 
-    col.date-col {
-      width: 78px;
+    a.button {
+      color: var(--ink);
+      background: #eef4f8;
     }
 
-    col.team-col {
-      width: 200px;
-    }
-
-    col.score-col {
-      width: 54px;
-    }
-
-    col.winner-col {
-      width: 160px;
-    }
-
-    col.spacer-col {
-      width: 20px;
-    }
-
-    col.player-col {
-      width: 112px;
-    }
-
-    th,
-    td {
-      height: 42px;
+    .status {
+      margin-top: 22px;
+      padding: 14px 16px;
       border: 1px solid var(--line);
-      padding: 7px 8px;
-      vertical-align: middle;
-      overflow-wrap: anywhere;
-      background: #ffffff;
+      border-radius: 8px;
+      background: #f8fbfd;
+      color: var(--ink);
+      font-weight: 700;
     }
 
-    thead th {
-      position: sticky;
-      top: 0;
-      z-index: 8;
-      background: #f8fafc;
-      color: #1f2937;
-      font-weight: 900;
-      text-align: center;
-    }
-
-    thead tr:first-child th {
-      top: 0;
-      height: 30px;
-      background: #eef6fa;
-      color: #52657b;
-      font-size: 0.78rem;
-    }
-
-    thead tr:nth-child(2) th {
-      top: 30px;
-    }
-
-    th:nth-child(1),
-    td:nth-child(1) {
-      position: sticky;
-      left: 0;
-      z-index: 6;
-      width: 78px;
-    }
-
-    th:nth-child(2),
-    td:nth-child(2) {
-      position: sticky;
-      left: 78px;
-      z-index: 6;
-      width: 200px;
-    }
-
-    th:nth-child(3),
-    td:nth-child(3) {
-      position: sticky;
-      left: 278px;
-      z-index: 6;
-      width: 54px;
-    }
-
-    th:nth-child(4),
-    td:nth-child(4) {
-      position: sticky;
-      left: 332px;
-      z-index: 6;
-      width: 200px;
-    }
-
-    th:nth-child(5),
-    td:nth-child(5) {
-      position: sticky;
-      left: 532px;
-      z-index: 6;
-      width: 54px;
-    }
-
-    th:nth-child(6),
-    td:nth-child(6) {
-      position: sticky;
-      left: 586px;
-      z-index: 6;
-      width: 160px;
-    }
-
-    thead th:nth-child(-n + 6) {
-      z-index: 12;
-    }
-
-    tbody td:nth-child(-n + 6) {
-      background: #ffffff;
-    }
-
-    .date-cell,
-    .score-cell,
-    .winner-cell,
-    .player-cell,
-    .points-cell {
-      text-align: center;
-      font-weight: 800;
-    }
-
-    .team-cell {
-      font-weight: 900;
-    }
-
-    .team-line {
-      display: flex;
-      gap: 9px;
-      align-items: center;
-      min-width: 0;
-    }
-
-    .flag-wrap {
-      width: 28px;
-      height: 19px;
-      display: inline-grid;
-      place-items: center;
-      flex: 0 0 auto;
-    }
-
-    .flag,
-    .flag-emoji {
-      grid-area: 1 / 1;
-    }
-
-    .flag {
-      width: 28px;
-      height: 19px;
-      border: 1px solid #e2e8f0;
-      border-radius: 2px;
-      object-fit: cover;
-      background: #ffffff;
-    }
-
-    .flag-emoji {
-      font-size: 1.08rem;
-      line-height: 1;
-    }
-
-    .group-row td {
-      height: 34px;
-      background: #f1d294;
-      font-weight: 900;
-      text-align: center;
-    }
-
-    .group-row td:nth-child(-n + 6) {
-      background: var(--group-color, #f1d294);
-    }
-
-    .group-spacer td {
-      height: 18px;
-      padding: 0;
-      color: transparent;
-      background: #fbfdff;
-    }
-
-    .points-row td {
-      background: #f8fafc;
-      font-weight: 900;
-    }
-
-    .points-label {
-      text-align: left;
-      color: #475569;
-    }
-
-    .pick-hit {
-      color: var(--hit-text);
-      background: var(--hit);
-    }
-
-    .pick-miss {
-      color: var(--miss-text);
-      background: var(--miss);
-    }
-
-    .pick-pending {
-      color: #475569;
-      background: var(--pending);
-    }
-
-    .empty-player {
-      color: transparent;
-      background: #fcfdff;
-    }
-
-    .footer-row td {
-      height: 46px;
-      background: #eef6fa;
-      font-weight: 900;
-    }
-
-    .total-row td {
-      color: #ffffff;
-      background: #0077b6;
-    }
-
-    .note {
-      padding: 12px 20px 18px;
-      color: var(--muted);
-      font-weight: 800;
-      line-height: 1.45;
-    }
-
-    .mobile-participants {
+    .details {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 10px;
-      padding: 0 20px 18px;
-      border-bottom: 1px solid var(--line);
-      background: rgba(255, 255, 255, 0.94);
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 22px;
     }
 
-    .mobile-participants[hidden] {
-      display: none;
-    }
-
-    .mobile-participant-card {
+    .metric {
       border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 11px 12px;
+      border-radius: 8px;
+      padding: 14px;
       background: #ffffff;
     }
 
-    .mobile-participant-top {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      align-items: center;
-      font-weight: 900;
-    }
-
-    .mobile-participant-meta {
-      margin-top: 5px;
+    .metric span {
+      display: block;
       color: var(--muted);
-      font-size: 0.88rem;
-      font-weight: 800;
-      line-height: 1.35;
+      font-size: 0.85rem;
+      font-weight: 700;
     }
 
-    @media (max-width: 760px) {
-      .hero-inner,
-      .panel-head {
-        align-items: stretch;
-        flex-direction: column;
+    .metric strong {
+      display: block;
+      margin-top: 6px;
+      font-size: 1.35rem;
+    }
+
+    @media (max-width: 680px) {
+      main {
+        width: min(100% - 24px, 920px);
+        padding: 28px 0;
       }
 
-      .hero-actions,
-      .toolbar {
-        justify-content: flex-start;
+      .actions {
+        display: grid;
       }
 
-      .desktop-only {
-        display: none;
+      button,
+      a.button {
+        width: 100%;
       }
 
-      .table-wrap {
-        max-height: 68vh;
-      }
-
-      table {
-        min-width: 1860px;
-      }
-
-      col.date-col {
-        width: 72px;
-      }
-
-      col.team-col {
-        width: 150px;
-      }
-
-      col.score-col {
-        width: 46px;
-      }
-
-      col.winner-col {
-        width: 118px;
-      }
-
-      col.player-col {
-        width: 96px;
-      }
-
-      th:nth-child(1),
-      td:nth-child(1),
-      th:nth-child(2),
-      td:nth-child(2),
-      th:nth-child(3),
-      td:nth-child(3),
-      th:nth-child(4),
-      td:nth-child(4),
-      th:nth-child(5),
-      td:nth-child(5),
-      th:nth-child(6),
-      td:nth-child(6) {
-        position: static;
-        left: auto;
-        z-index: auto;
-        width: auto;
-      }
-
-      thead th:nth-child(-n + 6) {
-        z-index: 8;
+      .details {
+        grid-template-columns: 1fr;
       }
     }
   </style>
 </head>
 <body>
-  <header class="hero">
-    <div class="hero-inner">
-      <div>
-        <p class="eyebrow">Quiniela Mundial 2026</p>
-        <h1>Predicciones de participantes</h1>
-      </div>
-      <nav class="hero-actions" aria-label="Navegacion principal">
-        <a class="btn primary" href="quiniela.html">Llenar quiniela</a>
-        <a class="btn" href="index.html">Inicio</a>
-      </nav>
-    </div>
-  </header>
+  <main>
+    <section class="panel" aria-labelledby="title">
+      <p class="eyebrow">Herramienta personal</p>
+      <h1 id="title">Descargar predicciones completas</h1>
+      <p>
+        Esta pagina genera un XLSX con toda la matriz de predicciones: partidos,
+        resultados oficiales disponibles, ganador, seleccion de cada participante,
+        puntos por grupo, total de puntos y campeon elegido. No incluye correos.
+      </p>
 
-  <main class="content">
-    <section class="panel" id="predictionsPanel" aria-label="Predicciones guardadas">
-      <div class="panel-head">
-        <div>
-          <p class="panel-copy" id="statusText">Cargando predicciones guardadas...</p>
+      <div class="actions">
+        <button id="downloadBtn" type="button" disabled>Preparando datos...</button>
+        <a class="button" href="predicciones.html">Ver predicciones</a>
+        <a class="button" href="index.html">Inicio</a>
+      </div>
+
+      <div class="status" id="status" role="status">Conectando con la hoja de calculo...</div>
+
+      <div class="details" aria-label="Resumen del archivo">
+        <div class="metric">
+          <span>Participantes</span>
+          <strong id="participantCount">-</strong>
         </div>
-        <div class="toolbar">
-          <span class="status-pill" id="participantCount">0 participantes</span>
-          <button class="btn secondary desktop-only" type="button" id="fullscreenBtn" aria-pressed="false">Pantalla completa</button>
-          <button class="btn secondary" type="button" id="refreshBtn">Actualizar</button>
+        <div class="metric">
+          <span>Partidos</span>
+          <strong id="matchCount">-</strong>
+        </div>
+        <div class="metric">
+          <span>Ultima carga</span>
+          <strong id="loadedAt">-</strong>
         </div>
       </div>
-
-      <div class="mobile-participants" id="mobileParticipants" hidden></div>
-
-      <div class="table-wrap" aria-label="Tabla de predicciones con desplazamiento horizontal">
-        <table aria-describedby="statusText">
-          <colgroup>
-            <col class="date-col">
-            <col class="team-col">
-            <col class="score-col">
-            <col class="team-col">
-            <col class="score-col">
-            <col class="winner-col">
-            <col class="spacer-col">
-            <col class="player-col" span="16">
-          </colgroup>
-          <thead id="predictionsHead"></thead>
-          <tbody id="predictionsBody"></tbody>
-        </table>
-      </div>
-      <div class="note" id="tableNote" hidden></div>
     </section>
   </main>
 
@@ -2252,419 +1859,410 @@
     }
 ];
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby-vt500y5fZEJ5QAT7z9y0Zn7WEJJTg6iAeTf2qvYp97cqa8EWhVVPcW_9psToHu-k/exec";
-    const MAX_VISIBLE_PARTICIPANTS = 16;
-    const GROUP_COLORS = {
-      A: "#f1d294",
-      B: "#e1deb9",
-      C: "#e3ddeb",
-      D: "#d9ead3",
-      E: "#cfe2f3",
-      F: "#f4cccc",
-      G: "#d9d2e9",
-      H: "#fff2cc",
-      I: "#d0e0e3",
-      J: "#ead1dc",
-      K: "#d9ead3",
-      L: "#c9daf8",
-    };
     const FINISHED_STATUSES = new Set(["FINISHED", "AWARDED"]);
-    const state = {
-      matches: MATCHES,
-      results: [],
-      participants: [],
-      totalParticipants: 0,
-      generatedAt: "",
-      hiddenParticipants: 0,
-    };
+    const MONTHS = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+    const state = { data: null };
 
-    const predictionsHead = document.getElementById("predictionsHead");
-    const predictionsBody = document.getElementById("predictionsBody");
-    const predictionsPanel = document.getElementById("predictionsPanel");
-    const statusText = document.getElementById("statusText");
-    const participantCount = document.getElementById("participantCount");
-    const tableNote = document.getElementById("tableNote");
-    const mobileParticipants = document.getElementById("mobileParticipants");
-    const refreshBtn = document.getElementById("refreshBtn");
-    const fullscreenBtn = document.getElementById("fullscreenBtn");
-    const desktopMedia = window.matchMedia("(min-width: 761px)");
+    const downloadBtn = document.getElementById("downloadBtn");
+    const statusEl = document.getElementById("status");
+    const participantCountEl = document.getElementById("participantCount");
+    const matchCountEl = document.getElementById("matchCount");
+    const loadedAtEl = document.getElementById("loadedAt");
 
-    refreshBtn.addEventListener("click", loadPredictionsData);
-    fullscreenBtn.addEventListener("click", toggleTableFullscreen);
-    document.addEventListener("fullscreenchange", updateFullscreenButton);
-    document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape" && predictionsPanel.classList.contains("is-fullscreen")) {
-        predictionsPanel.classList.remove("is-fullscreen");
-        updateFullscreenButton();
-      }
-    });
-    if (desktopMedia.addEventListener) {
-      desktopMedia.addEventListener("change", updateFullscreenButton);
-    }
+    downloadBtn.addEventListener("click", downloadXlsx);
+    loadExportData();
 
-    function renderPredictions() {
-      const columns = displayColumns();
-      const resultsById = mapByMatchId(state.results);
-      predictionsHead.innerHTML = renderHead(columns);
-      predictionsBody.innerHTML = renderBody(columns, resultsById);
-      renderMobileParticipants();
-      renderStatus();
-      updateFullscreenButton();
-    }
-
-    function isTableFullscreen() {
-      return document.fullscreenElement === predictionsPanel || predictionsPanel.classList.contains("is-fullscreen");
-    }
-
-    function toggleTableFullscreen() {
-      if (!desktopMedia.matches) return;
-      if (isTableFullscreen()) {
-        if (document.fullscreenElement === predictionsPanel && document.exitFullscreen) {
-          document.exitFullscreen();
-        }
-        predictionsPanel.classList.remove("is-fullscreen");
-        updateFullscreenButton();
+    function loadExportData() {
+      if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("PEGA_AQUI")) {
+        setStatus("Falta configurar la URL de Apps Script.", true);
         return;
       }
 
-      if (predictionsPanel.requestFullscreen) {
-        predictionsPanel.requestFullscreen().catch(() => {
-          predictionsPanel.classList.add("is-fullscreen");
-          updateFullscreenButton();
+      jsonp(`${APPS_SCRIPT_URL}?action=predictionsExportData`)
+        .then((data) => {
+          if (!data || data.ok === false) {
+            throw new Error(data && data.error ? data.error : "No se recibieron datos validos.");
+          }
+
+          state.data = data;
+          const participants = Array.isArray(data.participants) ? data.participants : [];
+          const matches = Array.isArray(data.matches) && data.matches.length ? data.matches : MATCHES;
+          participantCountEl.textContent = participants.length;
+          matchCountEl.textContent = matches.length;
+          loadedAtEl.textContent = new Date().toLocaleTimeString("es-CR", { hour: "numeric", minute: "2-digit" });
+          downloadBtn.disabled = false;
+          downloadBtn.textContent = "Descargar XLSX completo";
+          setStatus("Listo. El archivo se descargara con todos los participantes disponibles.");
+        })
+        .catch((error) => {
+          downloadBtn.disabled = true;
+          downloadBtn.textContent = "No disponible";
+          setStatus(error.message || "No se pudo preparar el archivo.", true);
         });
-      } else {
-        predictionsPanel.classList.add("is-fullscreen");
-        updateFullscreenButton();
-      }
     }
 
-    function updateFullscreenButton() {
-      const available = desktopMedia.matches;
-      fullscreenBtn.hidden = !available;
-      if (!available && predictionsPanel.classList.contains("is-fullscreen")) {
-        predictionsPanel.classList.remove("is-fullscreen");
-      }
-      const active = isTableFullscreen();
-      fullscreenBtn.textContent = active ? "Salir de pantalla completa" : "Pantalla completa";
-      fullscreenBtn.setAttribute("aria-pressed", active ? "true" : "false");
+    function downloadXlsx() {
+      if (!state.data) return;
+      const workbook = buildXlsx(state.data);
+      const blob = new Blob([workbook], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `predicciones-completas-${fileDate(new Date())}.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      setStatus("XLSX descargado. Puedes abrirlo directamente en Excel o subirlo a Google Sheets.");
     }
 
-    function renderHead(columns) {
-      const numberCells = columns.map((participant, index) =>
-        `<th class="${participant ? "" : "empty-player"}">${escapeHtml(index + 1)}</th>`
-      ).join("");
-      const nameCells = columns.map((participant) =>
-        `<th class="${participant ? "" : "empty-player"}">${participant ? escapeHtml(participant.name) : "."}</th>`
-      ).join("");
-
-      return `
-        <tr>
-          <th></th><th></th><th></th><th></th><th></th><th></th><th></th>
-          ${numberCells}
-        </tr>
-        <tr>
-          <th>Fecha</th>
-          <th>Local</th>
-          <th>GL</th>
-          <th>Visita</th>
-          <th>GV</th>
-          <th>Ganador</th>
-          <th></th>
-          ${nameCells}
-        </tr>
-      `;
-    }
-
-    function renderBody(columns, resultsById) {
-      const groups = groupedMatches();
+    function buildRows(data) {
+      const matches = Array.isArray(data.matches) && data.matches.length ? data.matches : MATCHES;
+      const participants = Array.isArray(data.participants) ? data.participants : [];
+      const resultsById = new Map((data.results || []).map((result) => [String(result.matchId || ""), result]));
       const rows = [];
+      const groups = groupMatches(matches);
 
-      groups.forEach(([group, matches]) => {
-        rows.push(renderGroupHeader(group, columns));
-        matches.forEach((match) => rows.push(renderMatchRow(match, columns, resultsById.get(match.id))));
-        rows.push(renderPointsRow(group, matches, columns, resultsById));
-        rows.push(renderSpacerRow(columns));
+      rows.push(["", "", "", "", "", ""].concat(participants.map((_, index) => String(index + 1))));
+      rows.push(["Fecha", "Local", "GL", "Visita", "GV", "Ganador"].concat(participants.map((participant, index) => participant.name || `Participante ${index + 1}`)));
+
+      groups.forEach((group) => {
+        const label = `Grupo ${group.name}`;
+        rows.push(["", label, "", label, "", ""].concat(participants.map(() => "")));
+
+        group.matches.forEach((match) => {
+          const result = resultsById.get(String(match.id || "")) || {};
+          rows.push([
+            shortDate(match.crDate || match.date),
+            teamName(match.home),
+            goalValue(result.homeGoals),
+            teamName(match.away),
+            goalValue(result.awayGoals),
+            winnerLabel(match, result),
+          ].concat(participants.map((participant) => pickForMatch(participant, match))));
+        });
+
+        rows.push(["", `Puntos grupo ${group.name}`, "", "", "", ""].concat(participants.map((participant) => scoreParticipant(participant, group.matches, resultsById))));
+        rows.push([]);
       });
 
-      rows.push(renderFooterNames(columns));
-      rows.push(renderTotalRow(columns, resultsById));
-      rows.push(renderChampionRow(columns));
-      return rows.join("");
+      rows.push(["", "Total puntos", "", "", "", ""].concat(participants.map((participant) => scoreParticipant(participant, matches, resultsById))));
+      rows.push(["", "Campeon elegido", "", "", "", ""].concat(participants.map((participant) => participant.champion || "")));
+
+      return rows;
     }
 
-    function renderGroupHeader(group, columns) {
-      const color = GROUP_COLORS[group] || "#f1d294";
-      return `
-        <tr class="group-row" style="--group-color: ${color};">
-          <td></td>
-          <td>Grupo ${escapeHtml(group)}</td>
-          <td></td>
-          <td>Grupo ${escapeHtml(group)}</td>
-          <td></td>
-          <td></td>
-          <td></td>
-          ${columns.map(() => "<td></td>").join("")}
-        </tr>
-      `;
+    function buildXlsx(data) {
+      const rows = buildRows(data);
+      return makeZip({
+        "[Content_Types].xml": contentTypesXml(),
+        "_rels/.rels": rootRelsXml(),
+        "docProps/app.xml": appPropsXml(),
+        "docProps/core.xml": corePropsXml(),
+        "xl/workbook.xml": workbookXml(),
+        "xl/_rels/workbook.xml.rels": workbookRelsXml(),
+        "xl/worksheets/sheet1.xml": worksheetXml(rows),
+      });
     }
 
-    function renderMatchRow(match, columns, result) {
-      const computed = isComputed(result);
-      const winnerLabel = computed ? result.winnerLabel || getPickLabel(match, result.winner) : "";
-      const homeGoals = computed && result.homeGoals !== "" && result.homeGoals !== null ? result.homeGoals : "";
-      const awayGoals = computed && result.awayGoals !== "" && result.awayGoals !== null ? result.awayGoals : "";
-      const predictionCells = columns.map((participant) => renderPredictionCell(participant, match, result)).join("");
-
-      return `
-        <tr>
-          <td class="date-cell">${escapeHtml(shortDate(match.crDate))}</td>
-          <td class="team-cell">${teamLine(match.home)}</td>
-          <td class="score-cell">${escapeHtml(homeGoals)}</td>
-          <td class="team-cell">${teamLine(match.away)}</td>
-          <td class="score-cell">${escapeHtml(awayGoals)}</td>
-          <td class="winner-cell">${escapeHtml(winnerLabel)}</td>
-          <td></td>
-          ${predictionCells}
-        </tr>
-      `;
-    }
-
-    function renderPredictionCell(participant, match, result) {
-      if (!participant) return '<td class="player-cell empty-player">.</td>';
-      const pick = participant.picksByMatchId ? participant.picksByMatchId[match.id] : null;
-      const label = pick ? pick.pickLabel || getPickLabel(match, pick.pick) : "";
-      const computed = isComputed(result);
-      const stateClass = computed && pick
-        ? (pick.pick === result.winner ? "pick-hit" : "pick-miss")
-        : "pick-pending";
-      return `<td class="player-cell ${stateClass}">${escapeHtml(label)}</td>`;
-    }
-
-    function renderPointsRow(group, matches, columns, resultsById) {
-      const hasComputed = matches.some((match) => isComputed(resultsById.get(match.id)));
-      const cells = columns.map((participant) => {
-        if (!participant) return '<td class="points-cell empty-player">.</td>';
-        return `<td class="points-cell">${hasComputed ? escapeHtml(scoreForMatches(participant, matches, resultsById)) : ""}</td>`;
-      }).join("");
-
-      return `
-        <tr class="points-row">
-          <td></td>
-          <td class="points-label">Puntos grupo ${escapeHtml(group)}</td>
-          <td></td><td></td><td></td><td></td><td></td>
-          ${cells}
-        </tr>
-      `;
-    }
-
-    function renderSpacerRow(columns) {
-      return `
-        <tr class="group-spacer">
-          <td>.</td><td>.</td><td>.</td><td>.</td><td>.</td><td>.</td><td>.</td>
-          ${columns.map(() => "<td>.</td>").join("")}
-        </tr>
-      `;
-    }
-
-    function renderFooterNames(columns) {
-      return `
-        <tr class="footer-row">
-          <td></td>
-          <td>Participantes</td>
-          <td></td><td></td><td></td><td></td><td></td>
-          ${columns.map((participant) => `<td class="player-cell ${participant ? "" : "empty-player"}">${participant ? escapeHtml(participant.name) : "."}</td>`).join("")}
-        </tr>
-      `;
-    }
-
-    function renderTotalRow(columns, resultsById) {
-      const cells = columns.map((participant) => {
-        if (!participant) return '<td class="points-cell empty-player">.</td>';
-        return `<td class="points-cell">${escapeHtml(scoreForMatches(participant, state.matches, resultsById))}</td>`;
-      }).join("");
-
-      return `
-        <tr class="footer-row total-row">
-          <td></td>
-          <td>Total puntos</td>
-          <td></td><td></td><td></td><td></td><td></td>
-          ${cells}
-        </tr>
-      `;
-    }
-
-    function renderChampionRow(columns) {
-      return `
-        <tr class="footer-row">
-          <td></td>
-          <td>Campeón elegido</td>
-          <td></td><td></td><td></td><td></td><td></td>
-          ${columns.map((participant) => `<td class="player-cell ${participant ? "" : "empty-player"}">${participant ? escapeHtml(participant.champion || "") : "."}</td>`).join("")}
-        </tr>
-      `;
-    }
-
-    function renderMobileParticipants() {
-      const resultsById = mapByMatchId(state.results);
-      const participants = state.participants
-        .slice(0, MAX_VISIBLE_PARTICIPANTS)
-        .map((participant) => ({
-          ...participant,
-          score: scoreForMatches(participant, state.matches, resultsById),
-        }))
-        .sort((a, b) => b.score - a.score || String(a.name || "").localeCompare(String(b.name || ""), "es"));
-      if (participants.length === 0) {
-        mobileParticipants.hidden = true;
-        mobileParticipants.replaceChildren();
-        return;
-      }
-
-      mobileParticipants.hidden = false;
-      mobileParticipants.innerHTML = participants.map((participant, index) => `
-        <article class="mobile-participant-card">
-          <div class="mobile-participant-top">
-            <span>${escapeHtml(index + 1)}. ${escapeHtml(participant.name)}</span>
-            <span>${escapeHtml(participant.score)} pts</span>
-          </div>
-          <div class="mobile-participant-meta">
-            Campeón elegido: ${escapeHtml(participant.champion || "Sin escoger")}
-          </div>
-        </article>
-      `).join("");
-    }
-
-    function groupedMatches() {
+    function groupMatches(matches) {
       const order = [];
       const groups = new Map();
-      state.matches
-        .slice()
-        .sort((a, b) => String(a.group).localeCompare(String(b.group)) || a.number - b.number)
-        .forEach((match) => {
-          if (!groups.has(match.group)) {
-            groups.set(match.group, []);
-            order.push(match.group);
-          }
-          groups.get(match.group).push(match);
-        });
-      return order.map((group) => [group, groups.get(group)]);
+      matches.forEach((match) => {
+        const name = String(match.group || "");
+        if (!groups.has(name)) {
+          groups.set(name, []);
+          order.push(name);
+        }
+        groups.get(name).push(match);
+      });
+      return order.map((name) => ({ name, matches: groups.get(name) }));
     }
 
-    function displayColumns() {
-      const columns = state.participants.slice(0, MAX_VISIBLE_PARTICIPANTS);
-      while (columns.length < MAX_VISIBLE_PARTICIPANTS) columns.push(null);
-      return columns;
-    }
-
-    function mapByMatchId(results) {
-      const map = new Map();
-      (Array.isArray(results) ? results : []).forEach((result) => map.set(result.matchId, result));
-      return map;
-    }
-
-    function isComputed(result) {
-      return result && FINISHED_STATUSES.has(result.status) && result.winner;
-    }
-
-    function scoreForMatches(participant, matches, resultsById) {
+    function scoreParticipant(participant, matches, resultsById) {
       return matches.reduce((total, match) => {
-        const result = resultsById.get(match.id);
-        const pick = participant.picksByMatchId ? participant.picksByMatchId[match.id] : null;
-        return total + (isComputed(result) && pick && pick.pick === result.winner ? 1 : 0);
+        const result = resultsById.get(String(match.id || ""));
+        const pick = participant && participant.picksByMatchId ? participant.picksByMatchId[match.id] : null;
+        if (!result || !FINISHED_STATUSES.has(String(result.status || "")) || !result.winner || !pick) return total;
+        return pick.pick === result.winner ? total + 1 : total;
       }, 0);
     }
 
-    function teamLine(team) {
-      return `<span class="team-line">${flagImg(team)}<span>${escapeHtml(team.name)}</span></span>`;
+    function pickForMatch(participant, match) {
+      const picks = participant && participant.picksByMatchId ? participant.picksByMatchId : {};
+      const pick = picks[match.id];
+      if (!pick) return "";
+      return pick.pickLabel || pickLabel(match, pick.pick);
     }
 
-    function flagImg(team) {
-      if (!team) return "";
-      if (!team.flagCode) return '<span class="flag-wrap"></span>';
-      const code = String(team.flagCode).toLowerCase();
-      return `<span class="flag-wrap"><img class="flag" src="https://flagcdn.com/w40/${escapeHtml(code)}.png" srcset="https://flagcdn.com/w80/${escapeHtml(code)}.png 2x" onerror="this.hidden=true" alt=""></span>`;
+    function winnerLabel(match, result) {
+      if (result && result.winnerLabel) return result.winnerLabel;
+      if (result && result.winner) return pickLabel(match, result.winner);
+      return "";
     }
 
-    function getPickLabel(match, pick) {
-      if (pick === "home") return match.home.name;
-      if (pick === "away") return match.away.name;
+    function pickLabel(match, pick) {
+      if (pick === "home") return teamName(match.home);
+      if (pick === "away") return teamName(match.away);
       if (pick === "draw") return "Empate";
       return "";
     }
 
+    function teamName(team) {
+      if (team && typeof team === "object") return team.name || "";
+      return String(team || "");
+    }
+
+    function goalValue(value) {
+      return value === 0 || value ? value : "";
+    }
+
     function shortDate(value) {
-      if (!value) return "";
-      const date = new Date(`${value}T00:00:00-06:00`);
-      if (Number.isNaN(date.getTime())) return value;
-      const month = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"][date.getMonth()];
-      return `${date.getDate()}-${month}`;
+      const parts = String(value || "").split("-");
+      if (parts.length !== 3) return String(value || "");
+      const month = MONTHS[Number(parts[1]) - 1] || parts[1];
+      return `${Number(parts[2])}-${month}`;
     }
 
-    function renderStatus() {
-      const total = state.totalParticipants || state.participants.length;
-      const visible = Math.min(state.participants.length, MAX_VISIBLE_PARTICIPANTS);
-      participantCount.textContent = `${total} participante${total === 1 ? "" : "s"}`;
+    function worksheetXml(rows) {
+      const rowCount = Math.max(rows.length, 1);
+      const columnCount = Math.max(1, ...rows.map((row) => row.length));
+      const dimension = `A1:${columnName(columnCount)}${rowCount}`;
+      const columns = Array.from({ length: columnCount }, (_, index) => {
+        const width = index === 0 ? 11 : index === 2 || index === 4 ? 7 : index === 5 ? 18 : index >= 6 ? 18 : 24;
+        return `<col min="${index + 1}" max="${index + 1}" width="${width}" customWidth="1"/>`;
+      }).join("");
+      const rowsXml = rows.map((row, rowIndex) => {
+        const rowNumber = rowIndex + 1;
+        const cells = row.map((value, columnIndex) => cellXml(value, rowNumber, columnIndex + 1)).join("");
+        return `<row r="${rowNumber}">${cells}</row>`;
+      }).join("");
 
-      if (total === 0) {
-        statusText.textContent = "Aun no hay predicciones publicadas. Cuando lleguen respuestas, aparecerán en esta tabla.";
-      } else {
-        const when = state.generatedAt ? ` Actualizado: ${formatDateTime(state.generatedAt)}.` : "";
-        statusText.textContent = `Mostrando ${visible} de ${total} participante${total === 1 ? "" : "s"}.${when}`;
-      }
-
-      if (state.hiddenParticipants > 0) {
-        tableNote.textContent = `Se muestran los primeros ${MAX_VISIBLE_PARTICIPANTS} participantes. Hay ${state.hiddenParticipants} participante${state.hiddenParticipants === 1 ? "" : "s"} adicional${state.hiddenParticipants === 1 ? "" : "es"}.`;
-        tableNote.hidden = false;
-      } else {
-        tableNote.textContent = "";
-        tableNote.hidden = true;
-      }
+      return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+  <dimension ref="${dimension}"/>
+  <sheetViews>
+    <sheetView workbookViewId="0">
+      <pane ySplit="2" topLeftCell="A3" activePane="bottomLeft" state="frozen"/>
+    </sheetView>
+  </sheetViews>
+  <sheetFormatPr defaultRowHeight="18"/>
+  <cols>${columns}</cols>
+  <sheetData>${rowsXml}</sheetData>
+  <pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/>
+</worksheet>`;
     }
 
-    function formatDateTime(value) {
-      const date = new Date(value);
-      if (Number.isNaN(date.getTime())) return value;
-      return new Intl.DateTimeFormat("es-CR", {
-        timeZone: "America/Costa_Rica",
-        dateStyle: "medium",
-        timeStyle: "short",
-      }).format(date);
+    function cellXml(value, rowNumber, columnNumber) {
+      if (value === undefined || value === null || value === "") return "";
+      const reference = `${columnName(columnNumber)}${rowNumber}`;
+      if (typeof value === "number" && Number.isFinite(value)) {
+        return `<c r="${reference}"><v>${value}</v></c>`;
+      }
+      return `<c r="${reference}" t="inlineStr"><is><t>${xmlEscape(value)}</t></is></c>`;
     }
 
-    function loadPredictionsData() {
-      renderPredictions();
-
-      if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("PEGA_AQUI")) {
-        return Promise.resolve();
+    function columnName(index) {
+      let name = "";
+      let current = index;
+      while (current > 0) {
+        current -= 1;
+        name = String.fromCharCode(65 + (current % 26)) + name;
+        current = Math.floor(current / 26);
       }
+      return name;
+    }
 
-      refreshBtn.disabled = true;
-      return jsonp(`${APPS_SCRIPT_URL}?action=predictionsData`)
-        .then((data) => {
-          if (data && data.ok) {
-            state.results = Array.isArray(data.results)
-              ? data.results.filter((result) => result && (result.matchId || result.apiId || result.home || result.away || result.status || result.winner))
-              : [];
-            state.participants = Array.isArray(data.participants) ? data.participants : [];
-            state.totalParticipants = Number(data.totalParticipants || state.participants.length);
-            state.generatedAt = data.generatedAt || "";
-            state.hiddenParticipants = Number(data.hiddenParticipants || 0);
-          }
-        })
-        .catch(() => {})
-        .finally(() => {
-          refreshBtn.disabled = false;
-          renderPredictions();
-        });
+    function contentTypesXml() {
+      return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Default Extension="xml" ContentType="application/xml"/>
+  <Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/>
+  <Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/>
+  <Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>
+  <Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>
+</Types>`;
+    }
+
+    function rootRelsXml() {
+      return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>
+  <Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/>
+  <Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/>
+</Relationships>`;
+    }
+
+    function workbookXml() {
+      return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+  <sheets>
+    <sheet name="Predicciones" sheetId="1" r:id="rId1"/>
+  </sheets>
+</workbook>`;
+    }
+
+    function workbookRelsXml() {
+      return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>
+</Relationships>`;
+    }
+
+    function appPropsXml() {
+      return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">
+  <Application>Quiniela Mundial 2026</Application>
+</Properties>`;
+    }
+
+    function corePropsXml() {
+      const now = new Date().toISOString();
+      return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <dc:title>Predicciones completas</dc:title>
+  <dc:creator>Quiniela Mundial 2026</dc:creator>
+  <cp:lastModifiedBy>Quiniela Mundial 2026</cp:lastModifiedBy>
+  <dcterms:created xsi:type="dcterms:W3CDTF">${now}</dcterms:created>
+  <dcterms:modified xsi:type="dcterms:W3CDTF">${now}</dcterms:modified>
+</cp:coreProperties>`;
+    }
+
+    function makeZip(files) {
+      const encoder = new TextEncoder();
+      const localParts = [];
+      const centralParts = [];
+      let offset = 0;
+      const stamp = dosTimestamp(new Date());
+
+      Object.entries(files).forEach(([name, content]) => {
+        const nameBytes = encoder.encode(name);
+        const data = content instanceof Uint8Array ? content : encoder.encode(content);
+        const crc = crc32(data);
+
+        const local = new Uint8Array(30 + nameBytes.length + data.length);
+        const localView = new DataView(local.buffer);
+        localView.setUint32(0, 0x04034b50, true);
+        localView.setUint16(4, 20, true);
+        localView.setUint16(6, 0x0800, true);
+        localView.setUint16(8, 0, true);
+        localView.setUint16(10, stamp.time, true);
+        localView.setUint16(12, stamp.date, true);
+        localView.setUint32(14, crc, true);
+        localView.setUint32(18, data.length, true);
+        localView.setUint32(22, data.length, true);
+        localView.setUint16(26, nameBytes.length, true);
+        localView.setUint16(28, 0, true);
+        local.set(nameBytes, 30);
+        local.set(data, 30 + nameBytes.length);
+        localParts.push(local);
+
+        const central = new Uint8Array(46 + nameBytes.length);
+        const centralView = new DataView(central.buffer);
+        centralView.setUint32(0, 0x02014b50, true);
+        centralView.setUint16(4, 20, true);
+        centralView.setUint16(6, 20, true);
+        centralView.setUint16(8, 0x0800, true);
+        centralView.setUint16(10, 0, true);
+        centralView.setUint16(12, stamp.time, true);
+        centralView.setUint16(14, stamp.date, true);
+        centralView.setUint32(16, crc, true);
+        centralView.setUint32(20, data.length, true);
+        centralView.setUint32(24, data.length, true);
+        centralView.setUint16(28, nameBytes.length, true);
+        centralView.setUint16(30, 0, true);
+        centralView.setUint16(32, 0, true);
+        centralView.setUint16(34, 0, true);
+        centralView.setUint16(36, 0, true);
+        centralView.setUint32(38, 0, true);
+        centralView.setUint32(42, offset, true);
+        central.set(nameBytes, 46);
+        centralParts.push(central);
+
+        offset += local.length;
+      });
+
+      const centralSize = centralParts.reduce((sum, part) => sum + part.length, 0);
+      const end = new Uint8Array(22);
+      const endView = new DataView(end.buffer);
+      endView.setUint32(0, 0x06054b50, true);
+      endView.setUint16(8, centralParts.length, true);
+      endView.setUint16(10, centralParts.length, true);
+      endView.setUint32(12, centralSize, true);
+      endView.setUint32(16, offset, true);
+
+      return concatBytes(localParts.concat(centralParts, [end]));
+    }
+
+    function dosTimestamp(date) {
+      const year = Math.max(1980, date.getFullYear());
+      return {
+        time: (date.getHours() << 11) | (date.getMinutes() << 5) | Math.floor(date.getSeconds() / 2),
+        date: ((year - 1980) << 9) | ((date.getMonth() + 1) << 5) | date.getDate(),
+      };
+    }
+
+    function concatBytes(parts) {
+      const total = parts.reduce((sum, part) => sum + part.length, 0);
+      const result = new Uint8Array(total);
+      let cursor = 0;
+      parts.forEach((part) => {
+        result.set(part, cursor);
+        cursor += part.length;
+      });
+      return result;
+    }
+
+    const CRC_TABLE = (() => {
+      const table = new Uint32Array(256);
+      for (let i = 0; i < 256; i += 1) {
+        let value = i;
+        for (let bit = 0; bit < 8; bit += 1) {
+          value = value & 1 ? 0xedb88320 ^ (value >>> 1) : value >>> 1;
+        }
+        table[i] = value >>> 0;
+      }
+      return table;
+    })();
+
+    function crc32(data) {
+      let crc = 0xffffffff;
+      for (let i = 0; i < data.length; i += 1) {
+        crc = CRC_TABLE[(crc ^ data[i]) & 0xff] ^ (crc >>> 8);
+      }
+      return (crc ^ 0xffffffff) >>> 0;
+    }
+
+    function xmlEscape(value) {
+      return String(value === undefined || value === null ? "" : value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&apos;");
+    }
+
+    function fileDate(date) {
+      const pad = (value) => String(value).padStart(2, "0");
+      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}-${pad(date.getHours())}${pad(date.getMinutes())}`;
+    }
+
+    function setStatus(message, isError = false) {
+      statusEl.textContent = message;
+      statusEl.style.borderColor = isError ? "#fca5a5" : "#d9e2ea";
+      statusEl.style.background = isError ? "#fff1f2" : "#f8fbfd";
     }
 
     function jsonp(url) {
       return new Promise((resolve, reject) => {
-        const callbackName = `quinielaPredicciones_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+        const callbackName = `quinielaExport_${Date.now()}_${Math.random().toString(36).slice(2)}`;
         const separator = url.includes("?") ? "&" : "?";
         const script = document.createElement("script");
         const timeout = window.setTimeout(() => {
           cleanup();
           reject(new Error("Tiempo de espera agotado."));
-        }, 12000);
+        }, 20000);
 
         window[callbackName] = (data) => {
           cleanup();
@@ -2673,7 +2271,7 @@
 
         script.onerror = () => {
           cleanup();
-          reject(new Error("No se pudo cargar la informacion."));
+          reject(new Error("No se pudo cargar la informacion desde Apps Script."));
         };
 
         function cleanup() {
@@ -2687,19 +2285,6 @@
         document.body.appendChild(script);
       });
     }
-
-    function escapeHtml(value) {
-      return String(value ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-    }
-
-    renderPredictions();
-    loadPredictionsData();
-    window.setInterval(loadPredictionsData, 60000);
   </script>
 </body>
 </html>

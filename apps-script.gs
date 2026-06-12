@@ -1686,6 +1686,10 @@ function doGet(e) {
     return respond_(e, getPredictionsData_());
   }
 
+  if (action === "predictionsExportData") {
+    return respond_(e, getPredictionsExportData_());
+  }
+
   if (action === "syncResults") {
     return respond_(e, syncFootballDataFromWeb_(e));
   }
@@ -1930,6 +1934,19 @@ function getPredictionsData_() {
     totalParticipants: participants.length,
     hiddenParticipants: Math.max(participants.length - maxVisibleParticipants, 0),
     maxVisibleParticipants: maxVisibleParticipants,
+  };
+}
+
+function getPredictionsExportData_() {
+  const ss = getSpreadsheet_();
+  const participants = readParticipants_(ss);
+  return {
+    ok: true,
+    generatedAt: new Date().toISOString(),
+    matches: MATCHES,
+    results: readResults_(ss),
+    participants: participants,
+    totalParticipants: participants.length,
   };
 }
 
