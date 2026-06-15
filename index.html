@@ -2093,7 +2093,7 @@
           <div class="live-row">
             <span class="status-pill">${escapeHtml(formatStatus(result.status))}</span>
             <span class="match-title">${escapeHtml(resultHomeName(result))} vs ${escapeHtml(resultAwayName(result))}</span>
-            <span class="score">${escapeHtml(formatScore(result) || "Esperando marcador oficial")}</span>
+            <span class="score">${escapeHtml(formatLiveScore(result))}</span>
           </div>
         `).join("");
         return;
@@ -2104,7 +2104,7 @@
         <div class="live-row">
           <span class="status-pill">En vivo</span>
           <span class="match-title">${escapeHtml(match.home.name)} vs ${escapeHtml(match.away.name)}</span>
-          <span class="score">${escapeHtml(formatScore(resultByMatchId(match.id)) || "Esperando marcador oficial")}</span>
+          <span class="score">${escapeHtml(formatLiveScore(resultByMatchId(match.id)))}</span>
         </div>
         `).join("");
         return;
@@ -2194,7 +2194,8 @@
     function renderPastResults() {
       const pastResults = publicData.results
         .filter((result) => FINISHED_STATUSES.has(result.status) && formatScore(result))
-        .sort((a, b) => getMatchSortValue(b.matchId) - getMatchSortValue(a.matchId));
+        .sort((a, b) => getMatchSortValue(b.matchId) - getMatchSortValue(a.matchId))
+        .slice(0, 4);
 
       if (pastResults.length === 0) {
         pastResultsBoard.innerHTML = '<div class="empty-state">Aún no hay resultados finales publicados.</div>';
@@ -2292,6 +2293,10 @@
     function formatScore(result) {
       if (!result || result.homeGoals === "" || result.awayGoals === "" || result.homeGoals === null || result.awayGoals === null) return "";
       return `${result.homeGoals} - ${result.awayGoals}`;
+    }
+
+    function formatLiveScore(result) {
+      return formatScore(result) || "0 - 0";
     }
 
     function fixtureStatus(match) {
