@@ -2253,6 +2253,9 @@
 ];
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby-vt500y5fZEJ5QAT7z9y0Zn7WEJJTg6iAeTf2qvYp97cqa8EWhVVPcW_9psToHu-k/exec";
     const MAX_VISIBLE_PARTICIPANTS = 16;
+    const CR_TIME_ZONE = "America/Costa_Rica";
+    const STANDARD_PREDICTIONS_REFRESH_MS = 60000;
+    const LIVE_PREDICTIONS_REFRESH_MS = 10000;
     const GROUP_COLORS = {
       A: "#f1d294",
       B: "#e1deb9",
@@ -2267,6 +2270,7 @@
       K: "#d9ead3",
       L: "#c9daf8",
     };
+    const LIVE_STATUSES = new Set(["IN_PLAY", "PAUSED", "EXTRA_TIME", "PENALTY_SHOOTOUT"]);
     const FINISHED_STATUSES = new Set(["FINISHED", "AWARDED"]);
     const state = {
       matches: MATCHES,
@@ -2276,6 +2280,8 @@
       generatedAt: "",
       hiddenParticipants: 0,
     };
+    let predictionsRefreshTimer = null;
+    let predictionsRequestInFlight = null;
 
     const predictionsHead = document.getElementById("predictionsHead");
     const predictionsBody = document.getElementById("predictionsBody");
@@ -2288,7 +2294,7 @@
     const fullscreenBtn = document.getElementById("fullscreenBtn");
     const desktopMedia = window.matchMedia("(min-width: 761px)");
 
-    refreshBtn.addEventListener("click", loadPredictionsData);
+    refreshBtn.addEventListener("click", refreshPredictionsNow);
     fullscreenBtn.addEventListener("click", toggleTableFullscreen);
     document.addEventListener("fullscreenchange", updateFullscreenButton);
     document.addEventListener("keydown", (event) => {
@@ -2300,6 +2306,11 @@
     if (desktopMedia.addEventListener) {
       desktopMedia.addEventListener("change", updateFullscreenButton);
     }
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) refreshPredictionsNow();
+    });
+    window.addEventListener("focus", refreshPredictionsNow);
+    window.addEventListener("pageshow", refreshPredictionsNow);
 
     function renderPredictions() {
       const columns = displayColumns();
@@ -2629,7 +2640,54 @@
       }).format(date);
     }
 
-    function loadPredictionsData() {
+    function nowInCostaRica() {
+      const formatter = new Intl.DateTimeFormat("en-CA", {
+        timeZone: CR_TIME_ZONE,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      });
+      const parts = new Intl.DateTimeFormat("en-US", {
+        timeZone: CR_TIME_ZONE,
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      }).formatToParts(new Date());
+      const hour = Number(parts.find((part) => part.type === "hour").value);
+      const minute = Number(parts.find((part) => part.type === "minute").value);
+      return {
+        date: formatter.format(new Date()),
+        minutes: hour * 60 + minute,
+      };
+    }
+
+    function hasLiveWindow(now = nowInCostaRica()) {
+      return state.results.some((result) => LIVE_STATUSES.has(result.status)) ||
+        state.matches.some((match) =>
+          match.crDate === now.date &&
+          now.minutes >= match.crTimeMinutes &&
+          now.minutes <= match.crTimeMinutes + 130
+        );
+    }
+
+    function currentPredictionsRefreshMs() {
+      return hasLiveWindow() ? LIVE_PREDICTIONS_REFRESH_MS : STANDARD_PREDICTIONS_REFRESH_MS;
+    }
+
+    function schedulePredictionsRefresh() {
+      window.clearTimeout(predictionsRefreshTimer);
+      predictionsRefreshTimer = window.setTimeout(() => {
+        loadPredictionsData().finally(schedulePredictionsRefresh);
+      }, currentPredictionsRefreshMs());
+    }
+
+    function refreshPredictionsNow() {
+      window.clearTimeout(predictionsRefreshTimer);
+      loadPredictionsData(true).finally(schedulePredictionsRefresh);
+    }
+
+    function loadPredictionsData(force = false) {
+      if (predictionsRequestInFlight && !force) return predictionsRequestInFlight;
       renderPredictions();
 
       if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("PEGA_AQUI")) {
@@ -2637,7 +2695,8 @@
       }
 
       refreshBtn.disabled = true;
-      return jsonp(`${APPS_SCRIPT_URL}?action=predictionsData`)
+      const separator = APPS_SCRIPT_URL.includes("?") ? "&" : "?";
+      predictionsRequestInFlight = jsonp(`${APPS_SCRIPT_URL}${separator}action=predictionsData&_=${Date.now()}`)
         .then((data) => {
           if (data && data.ok) {
             state.results = Array.isArray(data.results)
@@ -2651,9 +2710,11 @@
         })
         .catch(() => {})
         .finally(() => {
+          predictionsRequestInFlight = null;
           refreshBtn.disabled = false;
           renderPredictions();
         });
+      return predictionsRequestInFlight;
     }
 
     function jsonp(url) {
@@ -2698,8 +2759,7 @@
     }
 
     renderPredictions();
-    loadPredictionsData();
-    window.setInterval(loadPredictionsData, 60000);
+    loadPredictionsData().finally(schedulePredictionsRefresh);
   </script>
 </body>
 </html>

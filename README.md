@@ -42,7 +42,8 @@ Si haces cambios en `apps-script.gs`, vuelve a desplegar el Web App con `Deploy`
 - `Ranking` da 1 punto por cada seleccion acertada en partidos finalizados.
 - `index.html` lee `?action=publicData` desde Apps Script cada 60 segundos fuera de partidos en vivo y cada 10 segundos durante una ventana en vivo; no llama directamente a football-data.org.
 - Durante una ventana en vivo, Apps Script permite sincronizar football-data.org como maximo una vez cada 10 segundos, equivalente a hasta 6 llamadas por minuto.
-- `predicciones.html` lee `?action=predictionsData` para mostrar las quinielas guardadas en formato de matriz.
+- `predicciones.html` lee `?action=predictionsData` cada 60 segundos fuera de partidos en vivo y cada 10 segundos durante una ventana en vivo. Tambien refresca al volver a enfocar la pestana.
+- `?action=predictionsData` tambien intenta sincronizar football-data.org antes de devolver resultados, usando el mismo cache global de Apps Script.
 - `exportar-predicciones.html` lee `?action=predictionsExportData` para descargar todas las predicciones en XLSX.
 
 ## Subir a GitHub Pages

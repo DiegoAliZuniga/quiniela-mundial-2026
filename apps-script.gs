@@ -1923,6 +1923,7 @@ function isApiStateStale_(value, maxAgeMinutes) {
 
 function getPredictionsData_() {
   const ss = getSpreadsheet_();
+  maybeSyncFootballDataForPublic_(ss);
   const participants = readParticipants_(ss);
   const maxVisibleParticipants = 16;
   return {
