@@ -1829,7 +1829,9 @@ function syncFootballData() {
     setupMatchesSheet_(ss, normalizePayload_({ name: "Sistema", email: "sistema@quiniela.local", picks: {} }).matches);
 
     const apiResponse = fetchFootballData_();
-    const results = buildResults_(apiResponse.matches);
+    const previousResults = readResults_(ss);
+    const freshResults = buildResults_(apiResponse.matches);
+    const results = mergeResults_(freshResults, previousResults);
     writeResults_(ss, results);
     const ranking = rebuildRanking_(ss, results);
     writeApiState_(ss, apiResponse.apiState);
@@ -1838,6 +1840,7 @@ function syncFootballData() {
       ok: true,
       syncedAt: apiResponse.apiState.updatedAt,
       results: results.length,
+      preservedResults: countPreservedResults_(freshResults, results),
       ranking: ranking.length,
       apiState: apiResponse.apiState,
     };
@@ -1988,6 +1991,101 @@ function buildResults_(apiMatches) {
     const apiMatchInfo = findApiMatch_(localMatch, apiMatches || [], usedApiIds);
     return buildResult_(localMatch, apiMatchInfo ? apiMatchInfo.match : null, apiMatchInfo ? apiMatchInfo.reversed : false);
   });
+}
+
+function mergeResults_(freshResults, previousResults) {
+  const previousById = {};
+  (previousResults || []).forEach(function(result) {
+    if (result && result.matchId) previousById[result.matchId] = result;
+  });
+
+  return (freshResults || []).map(function(fresh) {
+    return mergeResult_(fresh, previousById[fresh.matchId]);
+  });
+}
+
+function mergeResult_(fresh, previous) {
+  if (!previous || !previous.matchId) return fresh;
+  if (!shouldKeepPreviousResult_(fresh, previous)) return fresh;
+
+  return {
+    matchId: fresh.matchId,
+    apiId: previous.apiId || fresh.apiId || "",
+    number: fresh.number,
+    group: fresh.group,
+    crDate: fresh.crDate,
+    crDateLabel: fresh.crDateLabel,
+    crTime: fresh.crTime,
+    home: fresh.home,
+    away: fresh.away,
+    status: previous.status || fresh.status,
+    homeGoals: previous.homeGoals,
+    awayGoals: previous.awayGoals,
+    score: previous.score,
+    winner: previous.winner,
+    winnerLabel: previous.winnerLabel,
+    apiUpdatedAt: previous.apiUpdatedAt || fresh.apiUpdatedAt || "",
+    utcDate: previous.utcDate || fresh.utcDate || "",
+  };
+}
+
+function shouldKeepPreviousResult_(fresh, previous) {
+  if (!hasMeaningfulResult_(previous)) return false;
+  if (!fresh || !fresh.matchId) return true;
+
+  const previousFinal = isFinalResult_(previous);
+  const freshFinal = isFinalResult_(fresh);
+  if (previousFinal && !freshFinal) return true;
+
+  if (!fresh.apiId && hasMeaningfulResult_(previous)) return true;
+
+  if (hasScoreOrWinner_(previous) && !hasScoreOrWinner_(fresh) && isWeakResultStatus_(fresh.status)) {
+    return true;
+  }
+
+  return false;
+}
+
+function isFinalResult_(result) {
+  return result && (result.status === "FINISHED" || result.status === "AWARDED") && result.winner;
+}
+
+function hasMeaningfulResult_(result) {
+  return Boolean(result && (
+    result.apiId ||
+    hasScoreOrWinner_(result) ||
+    (result.status && result.status !== "SCHEDULED" && result.status !== "TIMED")
+  ));
+}
+
+function hasScoreOrWinner_(result) {
+  return Boolean(result && (
+    result.score ||
+    result.winner ||
+    isGoalValue_(result.homeGoals) ||
+    isGoalValue_(result.awayGoals)
+  ));
+}
+
+function isGoalValue_(value) {
+  return value === 0 || value === "0" || Boolean(value);
+}
+
+function isWeakResultStatus_(status) {
+  return !status || ["SCHEDULED", "TIMED", "POSTPONED", "SUSPENDED"].indexOf(String(status)) !== -1;
+}
+
+function countPreservedResults_(freshResults, mergedResults) {
+  const freshById = {};
+  (freshResults || []).forEach(function(result) {
+    if (result && result.matchId) freshById[result.matchId] = result;
+  });
+  return (mergedResults || []).reduce(function(count, result) {
+    const fresh = freshById[result.matchId] || {};
+    return count + (String(fresh.status || "") !== String(result.status || "") ||
+      String(fresh.score || "") !== String(result.score || "") ||
+      String(fresh.winner || "") !== String(result.winner || "") ? 1 : 0);
+  }, 0);
 }
 
 function findApiMatch_(localMatch, apiMatches, usedApiIds) {
