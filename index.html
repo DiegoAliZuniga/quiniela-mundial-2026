@@ -2018,6 +2018,8 @@
     const CR_TIME_ZONE = "America/Costa_Rica";
     const STANDARD_DATA_REFRESH_MS = 60000;
     const LIVE_DATA_REFRESH_MS = 10000;
+    const PUBLIC_DATA_STORAGE_KEY = "quinielaPublicData:v4";
+    const PUBLIC_DATA_STORAGE_MAX_AGE_MS = 10 * 60 * 1000;
     const LIVE_STATUSES = new Set(["IN_PLAY", "PAUSED", "EXTRA_TIME", "PENALTY_SHOOTOUT"]);
     const FINISHED_STATUSES = new Set(["FINISHED", "AWARDED"]);
     const liveBoard = document.getElementById("liveBoard");
@@ -2027,7 +2029,10 @@
     const rankingBoard = document.getElementById("rankingBoard");
     const syncNote = document.getElementById("syncNote");
     let publicData = { results: [], ranking: [], apiState: null, generatedAt: "" };
+    let publicResultsById = new Map();
+    let publicDataSignature = "";
     let publicDataRefreshTimer = null;
+    let publicDataRequestInFlight = null;
 
     function nowInCostaRica() {
       const formatter = new Intl.DateTimeFormat("en-CA", {
@@ -2251,7 +2256,7 @@
     }
 
     function resultByMatchId(matchId) {
-      return publicData.results.find((result) => result.matchId === matchId);
+      return publicResultsById.get(matchId);
     }
 
     function matchById(matchId) {
@@ -2317,35 +2322,117 @@
       }).format(date);
     }
 
-    function loadPublicData() {
-      if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("PEGA_AQUI")) {
+    function renderPublicSections() {
+      renderLive();
+      renderCalendar();
+      renderPastResults();
+      renderRanking();
+    }
+
+    function normalizePublicDataPayload(data) {
+      return {
+        results: Array.isArray(data && data.results)
+          ? data.results.filter((result) => result && (result.matchId || result.apiId || result.home || result.away || result.status || result.winner))
+          : [],
+        ranking: Array.isArray(data && data.ranking) ? data.ranking : [],
+        apiState: data && data.apiState ? data.apiState : null,
+        generatedAt: data && data.generatedAt ? data.generatedAt : "",
+      };
+    }
+
+    function stablePublicDataSignature(payload) {
+      return JSON.stringify({
+        results: payload.results.map((result) => [
+          result.matchId,
+          result.status,
+          result.score,
+          result.homeGoals,
+          result.awayGoals,
+          result.winner,
+          result.apiUpdatedAt,
+        ]),
+        ranking: payload.ranking.map((row) => [
+          row.name,
+          row.points,
+          row.hits,
+          row.computedMatches,
+        ]),
+        apiUpdatedAt: payload.apiState && payload.apiState.updatedAt,
+      });
+    }
+
+    function applyPublicDataPayload(data, options = {}) {
+      const nextData = normalizePublicDataPayload(data);
+      const nextSignature = stablePublicDataSignature(nextData);
+      const changed = nextSignature !== publicDataSignature;
+      publicData = nextData;
+      publicResultsById = mapByMatchId(publicData.results);
+      publicDataSignature = nextSignature;
+
+      if (!options.fromStorage) {
+        savePublicDataToStorage(publicData);
+      }
+
+      if (changed || options.forceRender) {
+        renderPublicSections();
+      } else {
         renderLive();
         renderCalendar();
-        renderPastResults();
         renderRanking();
+      }
+    }
+
+    function loadPublicDataFromStorage() {
+      try {
+        const cached = JSON.parse(localStorage.getItem(PUBLIC_DATA_STORAGE_KEY) || "null");
+        if (!cached || !cached.savedAt || !cached.data) return false;
+        if (Date.now() - cached.savedAt > PUBLIC_DATA_STORAGE_MAX_AGE_MS) return false;
+        applyPublicDataPayload(cached.data, { fromStorage: true, forceRender: true });
+        return true;
+      } catch (ignore) {
+        return false;
+      }
+    }
+
+    function savePublicDataToStorage(data) {
+      try {
+        localStorage.setItem(PUBLIC_DATA_STORAGE_KEY, JSON.stringify({
+          savedAt: Date.now(),
+          data,
+        }));
+      } catch (ignore) {}
+    }
+
+    function mapByMatchId(results) {
+      const map = new Map();
+      (Array.isArray(results) ? results : []).forEach((result) => {
+        if (result && result.matchId) map.set(result.matchId, result);
+      });
+      return map;
+    }
+
+    function loadPublicData() {
+      if (publicDataRequestInFlight) return publicDataRequestInFlight;
+
+      if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("PEGA_AQUI")) {
+        renderPublicSections();
         return Promise.resolve();
       }
 
-      return jsonp(`${APPS_SCRIPT_URL}?action=publicData`)
+      let dataApplied = false;
+      publicDataRequestInFlight = jsonp(`${APPS_SCRIPT_URL}?action=publicData&_=${Date.now()}`)
         .then((data) => {
           if (data && data.ok) {
-            publicData = {
-              results: Array.isArray(data.results)
-                ? data.results.filter((result) => result && (result.matchId || result.apiId || result.home || result.away || result.status || result.winner))
-                : [],
-              ranking: Array.isArray(data.ranking) ? data.ranking : [],
-              apiState: data.apiState || null,
-              generatedAt: data.generatedAt || "",
-            };
+            applyPublicDataPayload(data);
+            dataApplied = true;
           }
         })
         .catch(() => {})
         .finally(() => {
-          renderLive();
-          renderCalendar();
-          renderPastResults();
-          renderRanking();
+          publicDataRequestInFlight = null;
+          if (!dataApplied) renderPublicSections();
         });
+      return publicDataRequestInFlight;
     }
 
     function jsonp(url) {
@@ -2389,10 +2476,9 @@
         .replaceAll("'", "&#039;");
     }
 
-    renderLive();
-    renderCalendar();
-    renderPastResults();
-    renderRanking();
+    if (!loadPublicDataFromStorage()) {
+      renderPublicSections();
+    }
     loadPublicData().finally(schedulePublicDataRefresh);
     window.setInterval(renderLive, 60000);
   </script>

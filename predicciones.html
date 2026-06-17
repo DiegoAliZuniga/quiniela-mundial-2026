@@ -2256,6 +2256,8 @@
     const CR_TIME_ZONE = "America/Costa_Rica";
     const STANDARD_PREDICTIONS_REFRESH_MS = 60000;
     const LIVE_PREDICTIONS_REFRESH_MS = 10000;
+    const PREDICTIONS_STORAGE_KEY = "quinielaPredictionsData:v4";
+    const PREDICTIONS_STORAGE_MAX_AGE_MS = 10 * 60 * 1000;
     const GROUP_COLORS = {
       A: "#f1d294",
       B: "#e1deb9",
@@ -2282,6 +2284,7 @@
     };
     let predictionsRefreshTimer = null;
     let predictionsRequestInFlight = null;
+    let predictionsDataSignature = "";
 
     const predictionsHead = document.getElementById("predictionsHead");
     const predictionsBody = document.getElementById("predictionsBody");
@@ -2311,6 +2314,84 @@
     });
     window.addEventListener("focus", refreshPredictionsNow);
     window.addEventListener("pageshow", refreshPredictionsNow);
+
+    function normalizePredictionsPayload(data) {
+      return {
+        results: Array.isArray(data && data.results)
+          ? data.results.filter((result) => result && (result.matchId || result.apiId || result.home || result.away || result.status || result.winner))
+          : [],
+        participants: Array.isArray(data && data.participants) ? data.participants : [],
+        totalParticipants: Number(data && data.totalParticipants ? data.totalParticipants : 0),
+        generatedAt: data && data.generatedAt ? data.generatedAt : "",
+        hiddenParticipants: Number(data && data.hiddenParticipants ? data.hiddenParticipants : 0),
+      };
+    }
+
+    function stablePredictionsSignature(payload) {
+      return JSON.stringify({
+        results: payload.results.map((result) => [
+          result.matchId,
+          result.status,
+          result.score,
+          result.homeGoals,
+          result.awayGoals,
+          result.winner,
+          result.apiUpdatedAt,
+        ]),
+        participants: payload.participants.map((participant) => [
+          participant.name,
+          participant.champion,
+          participant.totalPredictions,
+          participant.picksByMatchId,
+        ]),
+        totalParticipants: payload.totalParticipants,
+        hiddenParticipants: payload.hiddenParticipants,
+      });
+    }
+
+    function applyPredictionsPayload(data, options = {}) {
+      const nextData = normalizePredictionsPayload(data);
+      const nextSignature = stablePredictionsSignature(nextData);
+      const changed = nextSignature !== predictionsDataSignature;
+
+      state.results = nextData.results;
+      state.participants = nextData.participants;
+      state.totalParticipants = nextData.totalParticipants || state.participants.length;
+      state.generatedAt = nextData.generatedAt;
+      state.hiddenParticipants = nextData.hiddenParticipants;
+      predictionsDataSignature = nextSignature;
+
+      if (!options.fromStorage) {
+        savePredictionsToStorage(nextData);
+      }
+
+      if (changed || options.forceRender) {
+        renderPredictions();
+      } else {
+        renderStatus();
+      }
+    }
+
+    function loadPredictionsFromStorage() {
+      try {
+        const cached = JSON.parse(localStorage.getItem(PREDICTIONS_STORAGE_KEY) || "null");
+        if (!cached || !cached.savedAt || !cached.data) return false;
+        if (Date.now() - cached.savedAt > PREDICTIONS_STORAGE_MAX_AGE_MS) return false;
+        applyPredictionsPayload(cached.data, { fromStorage: true, forceRender: true });
+        return true;
+      } catch (ignore) {
+        return false;
+      }
+    }
+
+    function savePredictionsToStorage(data) {
+      try {
+        localStorage.setItem(PREDICTIONS_STORAGE_KEY, JSON.stringify({
+          savedAt: Date.now(),
+          data,
+        }));
+      } catch (ignore) {}
+    }
 
     function renderPredictions() {
       const columns = displayColumns();
@@ -2687,8 +2768,7 @@
     }
 
     function loadPredictionsData(force = false) {
-      if (predictionsRequestInFlight && !force) return predictionsRequestInFlight;
-      renderPredictions();
+      if (predictionsRequestInFlight) return predictionsRequestInFlight;
 
       if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("PEGA_AQUI")) {
         return Promise.resolve();
@@ -2699,20 +2779,13 @@
       predictionsRequestInFlight = jsonp(`${APPS_SCRIPT_URL}${separator}action=predictionsData&_=${Date.now()}`)
         .then((data) => {
           if (data && data.ok) {
-            state.results = Array.isArray(data.results)
-              ? data.results.filter((result) => result && (result.matchId || result.apiId || result.home || result.away || result.status || result.winner))
-              : [];
-            state.participants = Array.isArray(data.participants) ? data.participants : [];
-            state.totalParticipants = Number(data.totalParticipants || state.participants.length);
-            state.generatedAt = data.generatedAt || "";
-            state.hiddenParticipants = Number(data.hiddenParticipants || 0);
+            applyPredictionsPayload(data);
           }
         })
         .catch(() => {})
         .finally(() => {
           predictionsRequestInFlight = null;
           refreshBtn.disabled = false;
-          renderPredictions();
         });
       return predictionsRequestInFlight;
     }
@@ -2758,7 +2831,9 @@
         .replaceAll("'", "&#039;");
     }
 
-    renderPredictions();
+    if (!loadPredictionsFromStorage()) {
+      renderPredictions();
+    }
     loadPredictionsData().finally(schedulePredictionsRefresh);
   </script>
 </body>

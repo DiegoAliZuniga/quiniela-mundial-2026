@@ -9,11 +9,17 @@ const FOOTBALL_DATA_API_URL = "https://api.football-data.org/v4/competitions/WC/
 const FOOTBALL_DATA_TOKEN_PROPERTY = "FOOTBALL_DATA_API_KEY";
 const SYNC_SECRET_PROPERTY = "SYNC_SECRET";
 const PUBLIC_SYNC_CACHE_KEY = "PUBLIC_DATA_SYNC_ATTEMPTED";
+const PUBLIC_DATA_CACHE_KEY = "PUBLIC_DATA_PAYLOAD";
+const PREDICTIONS_DATA_CACHE_KEY = "PREDICTIONS_DATA_PAYLOAD";
 const CR_TIME_ZONE = "America/Costa_Rica";
 const LIVE_SYNC_MAX_AGE_MINUTES = 10 / 60;
 const STANDARD_SYNC_MAX_AGE_MINUTES = 5;
 const LIVE_SYNC_CACHE_SECONDS = 10;
 const STANDARD_SYNC_CACHE_SECONDS = 240;
+const LIVE_PAYLOAD_CACHE_SECONDS = 8;
+const STANDARD_PAYLOAD_CACHE_SECONDS = 30;
+const CACHE_CHUNK_SIZE = 90000;
+const CACHE_MAX_CHUNKS = 20;
 const POINTS_PER_HIT = 1;
 const FORM_CLOSE_AT_UTC_MS = Date.UTC(2026, 5, 11, 19, 0, 0);
 const FORM_CLOSE_LABEL = "11 de junio de 2026, 1:00 p.m. hora Costa Rica";
@@ -1835,6 +1841,7 @@ function syncFootballData() {
     writeResults_(ss, results);
     const ranking = rebuildRanking_(ss, results);
     writeApiState_(ss, apiResponse.apiState);
+    clearDataCaches_();
 
     return {
       ok: true,
@@ -1868,15 +1875,20 @@ function syncFootballData() {
 }
 
 function getPublicData_() {
+  const cached = readCachedPayload_(PUBLIC_DATA_CACHE_KEY);
+  if (cached) return cached;
+
   const ss = getSpreadsheet_();
   maybeSyncFootballDataForPublic_(ss);
-  return {
+  const payload = {
     ok: true,
     generatedAt: new Date().toISOString(),
     results: readResults_(ss),
     ranking: readRanking_(ss),
     apiState: readApiState_(ss),
   };
+  writeCachedPayload_(PUBLIC_DATA_CACHE_KEY, payload, currentPayloadCacheSeconds_());
+  return payload;
 }
 
 function maybeSyncFootballDataForPublic_(ss) {
@@ -1924,12 +1936,88 @@ function isApiStateStale_(value, maxAgeMinutes) {
   return new Date().getTime() - date.getTime() > maxAgeMinutes * 60 * 1000;
 }
 
+function currentPayloadCacheSeconds_() {
+  return hasLiveMatchWindow_() ? LIVE_PAYLOAD_CACHE_SECONDS : STANDARD_PAYLOAD_CACHE_SECONDS;
+}
+
+function readCachedPayload_(key) {
+  try {
+    const cache = CacheService.getScriptCache();
+    const direct = cache.get(key);
+    if (direct) return JSON.parse(direct);
+
+    const metaText = cache.get(key + ":meta");
+    if (!metaText) return null;
+
+    const meta = JSON.parse(metaText);
+    const chunkCount = Number(meta.chunks || 0);
+    if (!chunkCount || chunkCount > CACHE_MAX_CHUNKS) return null;
+
+    const chunkKeys = [];
+    for (let i = 0; i < chunkCount; i += 1) {
+      chunkKeys.push(key + ":chunk:" + i);
+    }
+    const chunks = cache.getAll(chunkKeys);
+    let text = "";
+    for (let j = 0; j < chunkKeys.length; j += 1) {
+      const chunk = chunks[chunkKeys[j]];
+      if (chunk === undefined || chunk === null) return null;
+      text += chunk;
+    }
+    return JSON.parse(text);
+  } catch (ignore) {
+    return null;
+  }
+}
+
+function writeCachedPayload_(key, value, seconds) {
+  try {
+    const text = JSON.stringify(value);
+    const cache = CacheService.getScriptCache();
+    clearCachedPayload_(key);
+
+    if (text.length <= CACHE_CHUNK_SIZE) {
+      cache.put(key, text, seconds);
+      return;
+    }
+
+    const chunkCount = Math.ceil(text.length / CACHE_CHUNK_SIZE);
+    if (chunkCount > CACHE_MAX_CHUNKS) return;
+
+    const payload = {};
+    for (let i = 0; i < chunkCount; i += 1) {
+      payload[key + ":chunk:" + i] = text.slice(i * CACHE_CHUNK_SIZE, (i + 1) * CACHE_CHUNK_SIZE);
+    }
+    payload[key + ":meta"] = JSON.stringify({ chunks: chunkCount });
+    cache.putAll(payload, seconds);
+  } catch (ignore) {}
+}
+
+function clearDataCaches_() {
+  clearCachedPayload_(PUBLIC_DATA_CACHE_KEY);
+  clearCachedPayload_(PREDICTIONS_DATA_CACHE_KEY);
+}
+
+function clearCachedPayload_(key) {
+  try {
+    const cache = CacheService.getScriptCache();
+    const keys = [key, key + ":meta"];
+    for (let i = 0; i < CACHE_MAX_CHUNKS; i += 1) {
+      keys.push(key + ":chunk:" + i);
+    }
+    cache.removeAll(keys);
+  } catch (ignore) {}
+}
+
 function getPredictionsData_() {
+  const cached = readCachedPayload_(PREDICTIONS_DATA_CACHE_KEY);
+  if (cached) return cached;
+
   const ss = getSpreadsheet_();
   maybeSyncFootballDataForPublic_(ss);
   const participants = readParticipants_(ss);
   const maxVisibleParticipants = 16;
-  return {
+  const payload = {
     ok: true,
     generatedAt: new Date().toISOString(),
     matches: MATCHES,
@@ -1939,6 +2027,8 @@ function getPredictionsData_() {
     hiddenParticipants: Math.max(participants.length - maxVisibleParticipants, 0),
     maxVisibleParticipants: maxVisibleParticipants,
   };
+  writeCachedPayload_(PREDICTIONS_DATA_CACHE_KEY, payload, currentPayloadCacheSeconds_());
+  return payload;
 }
 
 function getPredictionsExportData_() {
@@ -2410,6 +2500,7 @@ function handleSubmission_(e, useJsonp) {
     const ss = getSpreadsheet_();
     setupMatchesSheet_(ss, payload.matches);
     appendResponse_(ss, payload);
+    clearDataCaches_();
 
     response = { ok: true, savedAt: new Date().toISOString() };
   } catch (error) {

@@ -45,6 +45,8 @@ Si haces cambios en `apps-script.gs`, vuelve a desplegar el Web App con `Deploy`
 - Durante una ventana en vivo, Apps Script permite sincronizar football-data.org como maximo una vez cada 10 segundos, equivalente a hasta 6 llamadas por minuto.
 - `predicciones.html` lee `?action=predictionsData` cada 60 segundos fuera de partidos en vivo y cada 10 segundos durante una ventana en vivo. Tambien refresca al volver a enfocar la pestana.
 - `?action=predictionsData` tambien intenta sincronizar football-data.org antes de devolver resultados, usando el mismo cache global de Apps Script.
+- `publicData` y `predictionsData` usan cache corta en Apps Script para evitar leer toda la hoja en cada visita. La cache dura 8 segundos durante ventanas en vivo y 30 segundos fuera de ellas.
+- `index.html` y `predicciones.html` guardan la ultima respuesta valida en el navegador por hasta 10 minutos para pintar rapido y luego actualizar en segundo plano.
 - `exportar-predicciones.html` lee `?action=predictionsExportData` para descargar todas las predicciones en XLSX.
 
 ## Subir a GitHub Pages
