@@ -2282,7 +2282,7 @@
     const CR_TIME_ZONE = "America/Costa_Rica";
     const STANDARD_PREDICTIONS_REFRESH_MS = 60000;
     const LIVE_PREDICTIONS_REFRESH_MS = 10000;
-    const PREDICTIONS_STORAGE_KEY = "quinielaPredictionsData:v6";
+    const PREDICTIONS_STORAGE_KEY = "quinielaPredictionsData:v7";
     const PREDICTIONS_STORAGE_MAX_AGE_MS = 10 * 60 * 1000;
     const GROUP_COLORS = {
       A: "#f1d294",
@@ -2358,13 +2358,52 @@
         generatedAt: data && data.generatedAt ? data.generatedAt : "",
         hiddenParticipants: Number(data && data.hiddenParticipants ? data.hiddenParticipants : 0),
         roundOf32: data && data.roundOf32 ? {
-          matches: Array.isArray(data.roundOf32.matches) ? data.roundOf32.matches : [],
+          matches: sortMatchesChronologically(Array.isArray(data.roundOf32.matches) ? data.roundOf32.matches : []),
           results: Array.isArray(data.roundOf32.results) ? data.roundOf32.results : [],
           participants: Array.isArray(data.roundOf32.participants) ? data.roundOf32.participants : [],
           totalParticipants: Number(data.roundOf32.totalParticipants || 0),
           hiddenParticipants: Number(data.roundOf32.hiddenParticipants || 0),
         } : { matches: [], results: [], participants: [], totalParticipants: 0, hiddenParticipants: 0 },
       };
+    }
+
+    function normalizeClientCrDate(value) {
+      const text = String(value || "").trim();
+      if (!text) return "";
+      const iso = text.match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (iso) return `${iso[1]}-${iso[2]}-${iso[3]}`;
+      const parsed = new Date(text);
+      if (Number.isNaN(parsed.getTime())) return text;
+      const parts = new Intl.DateTimeFormat("en-CA", {
+        timeZone: CR_TIME_ZONE,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }).formatToParts(parsed);
+      const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+      return `${values.year}-${values.month}-${values.day}`;
+    }
+
+    function clientTimeMinutes(match) {
+      const stored = Number(match && match.crTimeMinutes);
+      if (Number.isFinite(stored) && stored >= 0) return stored;
+      const text = String(match && match.crTime || "").toLowerCase();
+      const parts = text.match(/(\d{1,2}):(\d{2})\s*([ap])\.?\s*m\.?/);
+      if (!parts) return 0;
+      let hour = Number(parts[1]) % 12;
+      if (parts[3] === "p") hour += 12;
+      return hour * 60 + Number(parts[2]);
+    }
+
+    function sortMatchesChronologically(matches) {
+      return (matches || []).map((match) => ({
+        ...match,
+        crDate: normalizeClientCrDate(match && (match.crDate || match.date)),
+      })).sort((a, b) =>
+        String(a.crDate || "").localeCompare(String(b.crDate || "")) ||
+        clientTimeMinutes(a) - clientTimeMinutes(b) ||
+        Number(a.number || 0) - Number(b.number || 0)
+      );
     }
 
     function stablePredictionsSignature(payload) {
@@ -2836,11 +2875,12 @@
     }
 
     function shortDate(value) {
-      if (!value) return "";
-      const date = new Date(`${value}T00:00:00-06:00`);
-      if (Number.isNaN(date.getTime())) return value;
-      const month = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"][date.getMonth()];
-      return `${String(date.getDate()).padStart(2, "0")}-${month}`;
+      const normalized = normalizeClientCrDate(value);
+      const parts = normalized.split("-");
+      if (parts.length !== 3) return normalized;
+      const month = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"][Number(parts[1]) - 1];
+      if (!month) return normalized;
+      return `${String(Number(parts[2])).padStart(2, "0")}-${month}`;
     }
 
     function renderStatus() {

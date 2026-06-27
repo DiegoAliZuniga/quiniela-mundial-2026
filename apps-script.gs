@@ -14,8 +14,8 @@ const FOOTBALL_DATA_API_URL = "https://api.football-data.org/v4/competitions/WC/
 const FOOTBALL_DATA_TOKEN_PROPERTY = "FOOTBALL_DATA_API_KEY";
 const SYNC_SECRET_PROPERTY = "SYNC_SECRET";
 const PUBLIC_SYNC_CACHE_KEY = "PUBLIC_DATA_SYNC_ATTEMPTED";
-const PUBLIC_DATA_CACHE_KEY = "PUBLIC_DATA_PAYLOAD_V3";
-const PREDICTIONS_DATA_CACHE_KEY = "PREDICTIONS_DATA_PAYLOAD_V3";
+const PUBLIC_DATA_CACHE_KEY = "PUBLIC_DATA_PAYLOAD_V4";
+const PREDICTIONS_DATA_CACHE_KEY = "PREDICTIONS_DATA_PAYLOAD_V4";
 const ROUND_OF_32_FORM_CACHE_KEY = "ROUND_OF_32_FORM_DATA_V1";
 const ROUND_OF_32_MATCHES_CACHE_KEY = "ROUND_OF_32_MATCHES_V1";
 const CR_TIME_ZONE = "America/Costa_Rica";
@@ -2595,12 +2595,38 @@ function formatRoundOf32TimeLabel_(hour24, minute) {
   return hour12 + ":" + String(minute).padStart(2, "0") + " " + period;
 }
 
+function normalizeRoundOf32Date_(value) {
+  if (!value) return "";
+  if (Object.prototype.toString.call(value) === "[object Date]" && !Number.isNaN(value.getTime())) {
+    return Utilities.formatDate(value, CR_TIME_ZONE, "yyyy-MM-dd");
+  }
+  const text = String(value || "").trim();
+  const iso = text.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (iso) return iso[1] + "-" + iso[2] + "-" + iso[3];
+  const parsed = new Date(text);
+  if (!Number.isNaN(parsed.getTime())) return Utilities.formatDate(parsed, CR_TIME_ZONE, "yyyy-MM-dd");
+  return text;
+}
+
+function roundOf32TimeMinutes_(value, fallback) {
+  if (Object.prototype.toString.call(value) === "[object Date]" && !Number.isNaN(value.getTime())) {
+    return Number(Utilities.formatDate(value, CR_TIME_ZONE, "H")) * 60 + Number(Utilities.formatDate(value, CR_TIME_ZONE, "m"));
+  }
+  const text = String(value || "").toLowerCase();
+  const parts = text.match(/(\d{1,2}):(\d{2})\s*([ap])\.?\s*m\.?/);
+  if (!parts) return Number(fallback || 0);
+  let hour = Number(parts[1]) % 12;
+  if (parts[3] === "p") hour += 12;
+  return hour * 60 + Number(parts[2]);
+}
+
 function setupRoundOf32MatchesSheet_(ss, matches) {
   const sheet = ss.getSheetByName(ROUND_OF_32_MATCHES_SHEET) || ss.insertSheet(ROUND_OF_32_MATCHES_SHEET);
   const rows = [["ID", "API ID", "Numero", "Fecha CR", "Hora CR", "Local", "Visita"]].concat((matches || []).map(function(match) {
     return [match.id, match.apiId || "", match.number, match.crDate, match.crTime, match.home.name, match.away.name];
   }));
   sheet.clearContents();
+  if (rows.length > 1) sheet.getRange(2, 4, rows.length - 1, 2).setNumberFormat("@");
   sheet.getRange(1, 1, rows.length, rows[0].length).setValues(rows);
   sheet.setFrozenRows(1);
 }
@@ -2615,8 +2641,12 @@ function readRoundOf32MatchesSheet_(ss) {
     if (!id) return matches;
     const homeName = String(getCellByHeader_(row, headers, "Local") || "A definir");
     const awayName = String(getCellByHeader_(row, headers, "Visita") || "A definir");
-    const crDate = String(getCellByHeader_(row, headers, "Fecha CR") || "");
-    const crTime = String(getCellByHeader_(row, headers, "Hora CR") || "");
+    const rawCrDate = getCellByHeader_(row, headers, "Fecha CR");
+    const rawCrTime = getCellByHeader_(row, headers, "Hora CR");
+    const crDate = normalizeRoundOf32Date_(rawCrDate);
+    const crTime = Object.prototype.toString.call(rawCrTime) === "[object Date]" && !Number.isNaN(rawCrTime.getTime())
+      ? formatRoundOf32TimeLabel_(Number(Utilities.formatDate(rawCrTime, CR_TIME_ZONE, "H")), Number(Utilities.formatDate(rawCrTime, CR_TIME_ZONE, "m")))
+      : String(rawCrTime || "");
     const fallback = ROUND_OF_32_FALLBACK_MATCHES.find(function(match) { return match.id === id; }) || {};
     matches.push({
       id: id,
@@ -2626,7 +2656,7 @@ function readRoundOf32MatchesSheet_(ss) {
       crDate: crDate,
       crDateLabel: formatRoundOf32DateLabel_(crDate),
       crTime: crTime,
-      crTimeMinutes: fallback.crTimeMinutes || 0,
+      crTimeMinutes: roundOf32TimeMinutes_(rawCrTime, fallback.crTimeMinutes),
       home: { name: homeName, flagCode: flagCodeForTeamName_(homeName) },
       away: { name: awayName, flagCode: flagCodeForTeamName_(awayName) },
     });
