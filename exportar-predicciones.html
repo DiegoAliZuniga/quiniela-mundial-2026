@@ -1937,9 +1937,9 @@
           rows.push([
             shortDate(match.crDate || match.date),
             teamName(match.home),
-            goalValue(result.homeGoals),
+            goalValue(regularTimeGoal(result, "home")),
             teamName(match.away),
-            goalValue(result.awayGoals),
+            goalValue(regularTimeGoal(result, "away")),
             winnerLabel(match, result),
           ].concat(participants.map((participant) => pickForMatch(participant, match))));
         });
@@ -1985,9 +1985,28 @@
       return matches.reduce((total, match) => {
         const result = resultsById.get(String(match.id || ""));
         const pick = participant && participant.picksByMatchId ? participant.picksByMatchId[match.id] : null;
-        if (!result || !FINISHED_STATUSES.has(String(result.status || "")) || !result.winner || !pick) return total;
+        if (!isComputed(result) || !pick) return total;
         return pick.pick === result.winner ? total + 1 : total;
       }, 0);
+    }
+
+    function isComputed(result) {
+      if (!result || !result.winner) return false;
+      const hasExplicitFlag = result.regularTimeComplete !== "" &&
+        result.regularTimeComplete !== null &&
+        result.regularTimeComplete !== undefined;
+      if (hasExplicitFlag) {
+        return result.regularTimeComplete === true || String(result.regularTimeComplete).toLowerCase() === "true";
+      }
+      return FINISHED_STATUSES.has(String(result.status || ""));
+    }
+
+    function regularTimeGoal(result, side) {
+      if (!result) return "";
+      const regularValue = side === "home" ? result.regularHomeGoals : result.regularAwayGoals;
+      if (regularValue !== "" && regularValue !== null && regularValue !== undefined) return regularValue;
+      const legacyValue = side === "home" ? result.homeGoals : result.awayGoals;
+      return legacyValue !== null && legacyValue !== undefined ? legacyValue : "";
     }
 
     function pickForMatch(participant, match) {

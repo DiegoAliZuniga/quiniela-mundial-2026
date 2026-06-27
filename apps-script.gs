@@ -3,14 +3,21 @@ const RESPONSES_SHEET = "Respuestas";
 const MATCHES_SHEET = "Partidos";
 const RESULTS_SHEET = "Resultados";
 const RANKING_SHEET = "Ranking";
+const ROUND_OF_32_RESPONSES_SHEET = "Dieciseisavos";
+const ROUND_OF_32_MATCHES_SHEET = "Partidos Dieciseisavos";
+const ROUND_OF_32_RESULTS_SHEET = "Resultados Dieciseisavos";
+const ROUND_OF_32_RANKING_SHEET = "Ranking Dieciseisavos";
+const CUMULATIVE_RANKING_SHEET = "Ranking Acumulado";
 const API_STATE_SHEET = "Estado API";
 const DIAGNOSTIC_SHEET = "Diagnostico";
 const FOOTBALL_DATA_API_URL = "https://api.football-data.org/v4/competitions/WC/matches?season=2026";
 const FOOTBALL_DATA_TOKEN_PROPERTY = "FOOTBALL_DATA_API_KEY";
 const SYNC_SECRET_PROPERTY = "SYNC_SECRET";
 const PUBLIC_SYNC_CACHE_KEY = "PUBLIC_DATA_SYNC_ATTEMPTED";
-const PUBLIC_DATA_CACHE_KEY = "PUBLIC_DATA_PAYLOAD";
-const PREDICTIONS_DATA_CACHE_KEY = "PREDICTIONS_DATA_PAYLOAD";
+const PUBLIC_DATA_CACHE_KEY = "PUBLIC_DATA_PAYLOAD_V3";
+const PREDICTIONS_DATA_CACHE_KEY = "PREDICTIONS_DATA_PAYLOAD_V3";
+const ROUND_OF_32_FORM_CACHE_KEY = "ROUND_OF_32_FORM_DATA_V1";
+const ROUND_OF_32_MATCHES_CACHE_KEY = "ROUND_OF_32_MATCHES_V1";
 const CR_TIME_ZONE = "America/Costa_Rica";
 const LIVE_SYNC_MAX_AGE_MINUTES = 10 / 60;
 const STANDARD_SYNC_MAX_AGE_MINUTES = 5;
@@ -23,6 +30,8 @@ const CACHE_MAX_CHUNKS = 20;
 const POINTS_PER_HIT = 1;
 const FORM_CLOSE_AT_UTC_MS = Date.UTC(2026, 5, 11, 19, 0, 0);
 const FORM_CLOSE_LABEL = "11 de junio de 2026, 1:00 p.m. hora Costa Rica";
+const ROUND_OF_32_CLOSE_AT_UTC_MS = Date.UTC(2026, 5, 28, 21, 0, 0);
+const ROUND_OF_32_CLOSE_LABEL = "28 de junio de 2026, 3:00 p.m. hora Costa Rica";
 const MATCHES = [
   {
     "id": "M001",
@@ -1681,6 +1690,280 @@ const MATCHES = [
     "crTimeMinutes": 900
   }
 ];
+const ROUND_OF_32_FALLBACK_MATCHES = [
+  {
+    "id": "R32-01",
+    "number": 1,
+    "stage": "LAST_32",
+    "crDate": "2026-06-28",
+    "crDateLabel": "28 jun 2026",
+    "crTime": "3:00 p.m.",
+    "crTimeMinutes": 900,
+    "home": {
+      "name": "Sudáfrica",
+      "flagCode": "za"
+    },
+    "away": {
+      "name": "Canadá",
+      "flagCode": "ca"
+    }
+  },
+  {
+    "id": "R32-02",
+    "number": 2,
+    "stage": "LAST_32",
+    "crDate": "2026-06-29",
+    "crDateLabel": "29 jun 2026",
+    "crTime": "1:00 p.m.",
+    "crTimeMinutes": 780,
+    "home": {
+      "name": "Brasil",
+      "flagCode": "br"
+    },
+    "away": {
+      "name": "Japón",
+      "flagCode": "jp"
+    }
+  },
+  {
+    "id": "R32-03",
+    "number": 3,
+    "stage": "LAST_32",
+    "crDate": "2026-06-29",
+    "crDateLabel": "29 jun 2026",
+    "crTime": "4:30 p.m.",
+    "crTimeMinutes": 990,
+    "home": {
+      "name": "Alemania",
+      "flagCode": "de"
+    },
+    "away": {
+      "name": "Paraguay",
+      "flagCode": "py"
+    }
+  },
+  {
+    "id": "R32-04",
+    "number": 4,
+    "stage": "LAST_32",
+    "crDate": "2026-06-29",
+    "crDateLabel": "29 jun 2026",
+    "crTime": "9:00 p.m.",
+    "crTimeMinutes": 1260,
+    "home": {
+      "name": "Países Bajos",
+      "flagCode": "nl"
+    },
+    "away": {
+      "name": "Marruecos",
+      "flagCode": "ma"
+    }
+  },
+  {
+    "id": "R32-05",
+    "number": 5,
+    "stage": "LAST_32",
+    "crDate": "2026-06-30",
+    "crDateLabel": "30 jun 2026",
+    "crTime": "1:00 p.m.",
+    "crTimeMinutes": 780,
+    "home": {
+      "name": "Costa de Marfil",
+      "flagCode": "ci"
+    },
+    "away": {
+      "name": "Noruega",
+      "flagCode": "no"
+    }
+  },
+  {
+    "id": "R32-06",
+    "number": 6,
+    "stage": "LAST_32",
+    "crDate": "2026-06-30",
+    "crDateLabel": "30 jun 2026",
+    "crTime": "5:00 p.m.",
+    "crTimeMinutes": 1020,
+    "home": {
+      "name": "Francia",
+      "flagCode": "fr"
+    },
+    "away": {
+      "name": "Suecia",
+      "flagCode": "se"
+    }
+  },
+  {
+    "id": "R32-07",
+    "number": 7,
+    "stage": "LAST_32",
+    "crDate": "2026-06-30",
+    "crDateLabel": "30 jun 2026",
+    "crTime": "9:00 p.m.",
+    "crTimeMinutes": 1260,
+    "home": {
+      "name": "México",
+      "flagCode": "mx"
+    },
+    "away": {
+      "name": "A definir",
+      "flagCode": ""
+    }
+  },
+  {
+    "id": "R32-08",
+    "number": 8,
+    "stage": "LAST_32",
+    "crDate": "2026-07-01",
+    "crDateLabel": "1 jul 2026",
+    "crTime": "12:00 p.m.",
+    "crTimeMinutes": 720,
+    "home": {
+      "name": "A definir",
+      "flagCode": ""
+    },
+    "away": {
+      "name": "A definir",
+      "flagCode": ""
+    }
+  },
+  {
+    "id": "R32-09",
+    "number": 9,
+    "stage": "LAST_32",
+    "crDate": "2026-07-01",
+    "crDateLabel": "1 jul 2026",
+    "crTime": "4:00 p.m.",
+    "crTimeMinutes": 960,
+    "home": {
+      "name": "Bélgica",
+      "flagCode": "be"
+    },
+    "away": {
+      "name": "A definir",
+      "flagCode": ""
+    }
+  },
+  {
+    "id": "R32-10",
+    "number": 10,
+    "stage": "LAST_32",
+    "crDate": "2026-07-01",
+    "crDateLabel": "1 jul 2026",
+    "crTime": "8:00 p.m.",
+    "crTimeMinutes": 1200,
+    "home": {
+      "name": "Estados Unidos",
+      "flagCode": "us"
+    },
+    "away": {
+      "name": "Bosnia y Herzegovina",
+      "flagCode": "ba"
+    }
+  },
+  {
+    "id": "R32-11",
+    "number": 11,
+    "stage": "LAST_32",
+    "crDate": "2026-07-02",
+    "crDateLabel": "2 jul 2026",
+    "crTime": "3:00 p.m.",
+    "crTimeMinutes": 900,
+    "home": {
+      "name": "España",
+      "flagCode": "es"
+    },
+    "away": {
+      "name": "A definir",
+      "flagCode": ""
+    }
+  },
+  {
+    "id": "R32-12",
+    "number": 12,
+    "stage": "LAST_32",
+    "crDate": "2026-07-02",
+    "crDateLabel": "2 jul 2026",
+    "crTime": "7:00 p.m.",
+    "crTimeMinutes": 1140,
+    "home": {
+      "name": "A definir",
+      "flagCode": ""
+    },
+    "away": {
+      "name": "A definir",
+      "flagCode": ""
+    }
+  },
+  {
+    "id": "R32-13",
+    "number": 13,
+    "stage": "LAST_32",
+    "crDate": "2026-07-02",
+    "crDateLabel": "2 jul 2026",
+    "crTime": "11:00 p.m.",
+    "crTimeMinutes": 1380,
+    "home": {
+      "name": "Suiza",
+      "flagCode": "ch"
+    },
+    "away": {
+      "name": "A definir",
+      "flagCode": ""
+    }
+  },
+  {
+    "id": "R32-14",
+    "number": 14,
+    "stage": "LAST_32",
+    "crDate": "2026-07-03",
+    "crDateLabel": "3 jul 2026",
+    "crTime": "2:00 p.m.",
+    "crTimeMinutes": 840,
+    "home": {
+      "name": "Australia",
+      "flagCode": "au"
+    },
+    "away": {
+      "name": "Egipto",
+      "flagCode": "eg"
+    }
+  },
+  {
+    "id": "R32-15",
+    "number": 15,
+    "stage": "LAST_32",
+    "crDate": "2026-07-03",
+    "crDateLabel": "3 jul 2026",
+    "crTime": "6:00 p.m.",
+    "crTimeMinutes": 1080,
+    "home": {
+      "name": "Argentina",
+      "flagCode": "ar"
+    },
+    "away": {
+      "name": "Cabo Verde",
+      "flagCode": "cv"
+    }
+  },
+  {
+    "id": "R32-16",
+    "number": 16,
+    "stage": "LAST_32",
+    "crDate": "2026-07-03",
+    "crDateLabel": "3 jul 2026",
+    "crTime": "9:30 p.m.",
+    "crTimeMinutes": 1290,
+    "home": {
+      "name": "A definir",
+      "flagCode": ""
+    },
+    "away": {
+      "name": "A definir",
+      "flagCode": ""
+    }
+  }
+];
 
 function doGet(e) {
   const action = e && e.parameter ? e.parameter.action : "";
@@ -1694,6 +1977,14 @@ function doGet(e) {
 
   if (action === "predictionsExportData") {
     return respond_(e, getPredictionsExportData_());
+  }
+
+  if (action === "roundOf32FormData") {
+    return respond_(e, getRoundOf32FormData_());
+  }
+
+  if (action === "submitRoundOf32") {
+    return handleRoundOf32Submission_(e);
   }
 
   if (action === "syncResults") {
@@ -1779,6 +2070,15 @@ function setupQuinielaSheets() {
     writeRanking_(ss, []);
   }
 
+  setupRoundOf32MatchesSheet_(ss, cloneRoundOf32FallbackMatches_());
+  setupRoundOf32ResponsesSheet_(ss);
+  const roundResultsSheet = ss.getSheetByName(ROUND_OF_32_RESULTS_SHEET);
+  if (!roundResultsSheet || roundResultsSheet.getLastRow() === 0) {
+    writeRoundOf32Results_(ss, buildRoundOf32Results_(cloneRoundOf32FallbackMatches_(), []));
+  }
+  if (!ss.getSheetByName(ROUND_OF_32_RANKING_SHEET)) writeExtendedRanking_(ss, ROUND_OF_32_RANKING_SHEET, []);
+  if (!ss.getSheetByName(CUMULATIVE_RANKING_SHEET)) writeExtendedRanking_(ss, CUMULATIVE_RANKING_SHEET, []);
+
   const apiStateSheet = ss.getSheetByName(API_STATE_SHEET);
   if (!apiStateSheet || apiStateSheet.getLastRow() === 0) {
     writeApiState_(ss, {
@@ -1801,7 +2101,7 @@ function setupQuinielaSheets() {
     existingSheets: ss.getSheets().map(function(sheet) {
       return sheet.getName();
     }),
-    sheets: [MATCHES_SHEET, RESULTS_SHEET, RANKING_SHEET, API_STATE_SHEET],
+    sheets: [MATCHES_SHEET, RESULTS_SHEET, RANKING_SHEET, ROUND_OF_32_RESPONSES_SHEET, ROUND_OF_32_MATCHES_SHEET, ROUND_OF_32_RESULTS_SHEET, ROUND_OF_32_RANKING_SHEET, CUMULATIVE_RANKING_SHEET, API_STATE_SHEET],
   };
   writeDiagnosticSheet_(ss, result);
 
@@ -1840,6 +2140,15 @@ function syncFootballData() {
     const results = mergeResults_(freshResults, previousResults);
     writeResults_(ss, results);
     const ranking = rebuildRanking_(ss, results);
+
+    const roundMatches = buildRoundOf32Matches_(apiResponse.matches);
+    setupRoundOf32MatchesSheet_(ss, roundMatches);
+    const previousRoundResults = readRoundOf32Results_(ss);
+    const freshRoundResults = buildRoundOf32Results_(roundMatches, apiResponse.matches);
+    const roundResults = mergeResults_(freshRoundResults, previousRoundResults);
+    writeRoundOf32Results_(ss, roundResults);
+    const roundRankings = rebuildRoundOf32Rankings_(ss, roundResults);
+    writeCachedPayload_(ROUND_OF_32_MATCHES_CACHE_KEY, { matches: roundMatches }, 300);
     writeApiState_(ss, apiResponse.apiState);
     clearDataCaches_();
 
@@ -1849,6 +2158,9 @@ function syncFootballData() {
       results: results.length,
       preservedResults: countPreservedResults_(freshResults, results),
       ranking: ranking.length,
+      roundOf32Results: roundResults.length,
+      roundOf32Ranking: roundRankings.phase.length,
+      cumulativeRanking: roundRankings.cumulative.length,
       apiState: apiResponse.apiState,
     };
   } catch (error) {
@@ -1880,11 +2192,20 @@ function getPublicData_() {
 
   const ss = getSpreadsheet_();
   maybeSyncFootballDataForPublic_(ss);
+  const groupStageRanking = readRanking_(ss);
+  const cumulativeRanking = readExtendedRanking_(ss, CUMULATIVE_RANKING_SHEET);
+  const roundOf32Ranking = readExtendedRanking_(ss, ROUND_OF_32_RANKING_SHEET);
   const payload = {
     ok: true,
     generatedAt: new Date().toISOString(),
     results: readResults_(ss),
-    ranking: readRanking_(ss),
+    ranking: cumulativeRanking.length ? cumulativeRanking : groupStageRanking,
+    groupStageRanking: groupStageRanking,
+    roundOf32Ranking: roundOf32Ranking,
+    roundOf32: {
+      matches: readRoundOf32MatchesSheet_(ss),
+      results: readRoundOf32Results_(ss),
+    },
     apiState: readApiState_(ss),
   };
   writeCachedPayload_(PUBLIC_DATA_CACHE_KEY, payload, currentPayloadCacheSeconds_());
@@ -1911,7 +2232,7 @@ function maybeSyncFootballDataForPublic_(ss) {
 
 function hasLiveMatchWindow_() {
   const now = nowInCostaRica_();
-  return MATCHES.some(function(match) {
+  return MATCHES.concat(ROUND_OF_32_FALLBACK_MATCHES).some(function(match) {
     return match.crDate === now.date &&
       now.minutes >= match.crTimeMinutes &&
       now.minutes <= match.crTimeMinutes + 130;
@@ -2016,6 +2337,9 @@ function getPredictionsData_() {
   const ss = getSpreadsheet_();
   maybeSyncFootballDataForPublic_(ss);
   const participants = readParticipants_(ss);
+  const roundParticipants = readRoundOf32Participants_(ss);
+  const roundMatches = readRoundOf32MatchesSheet_(ss);
+  const roundResults = readRoundOf32Results_(ss);
   const maxVisibleParticipants = 16;
   const payload = {
     ok: true,
@@ -2026,6 +2350,15 @@ function getPredictionsData_() {
     totalParticipants: participants.length,
     hiddenParticipants: Math.max(participants.length - maxVisibleParticipants, 0),
     maxVisibleParticipants: maxVisibleParticipants,
+    roundOf32: {
+      matches: roundMatches,
+      results: roundResults,
+      participants: roundParticipants.slice(0, maxVisibleParticipants),
+      totalParticipants: roundParticipants.length,
+      hiddenParticipants: Math.max(roundParticipants.length - maxVisibleParticipants, 0),
+      ranking: readExtendedRanking_(ss, ROUND_OF_32_RANKING_SHEET),
+      cumulativeRanking: readExtendedRanking_(ss, CUMULATIVE_RANKING_SHEET),
+    },
   };
   writeCachedPayload_(PREDICTIONS_DATA_CACHE_KEY, payload, currentPayloadCacheSeconds_());
   return payload;
@@ -2042,6 +2375,313 @@ function getPredictionsExportData_() {
     participants: participants,
     totalParticipants: participants.length,
   };
+}
+
+function getRoundOf32FormData_() {
+  const ss = getSpreadsheet_();
+  const participants = readExistingParticipantNames_(ss);
+  let matches = cloneRoundOf32FallbackMatches_();
+  let source = "fallback";
+  let message = "";
+
+  try {
+    matches = getRoundOf32Matches_();
+    source = "football-data.org";
+  } catch (error) {
+    message = String(error && error.message ? error.message : error);
+  }
+
+  return {
+    ok: true,
+    generatedAt: new Date().toISOString(),
+    participants: participants,
+    matches: matches,
+    totalMatches: matches.length,
+    closed: isRoundOf32FormClosed_(),
+    closesAt: new Date(ROUND_OF_32_CLOSE_AT_UTC_MS).toISOString(),
+    closeLabel: ROUND_OF_32_CLOSE_LABEL,
+    source: source,
+    message: message,
+  };
+}
+
+function handleRoundOf32Submission_(e) {
+  const lock = LockService.getScriptLock();
+  let response;
+
+  try {
+    lock.waitLock(30000);
+    if (isRoundOf32FormClosed_()) {
+      throw new Error("La quiniela de dieciseisavos cerro el " + ROUND_OF_32_CLOSE_LABEL + ".");
+    }
+
+    const payload = parsePayload_(e);
+    const ss = getSpreadsheet_();
+    const participant = validateRoundOf32Participant_(ss, payload && payload.name);
+    const matches = getRoundOf32Matches_();
+    const picks = payload && payload.picks ? payload.picks : {};
+    const selections = matches.map(function(match) {
+      const pick = picks[match.id];
+      if (["home", "draw", "away"].indexOf(pick) === -1) {
+        throw new Error("Hay selecciones incompletas.");
+      }
+      return {
+        id: match.id,
+        apiId: match.apiId || "",
+        number: match.number,
+        stage: "LAST_32",
+        crDate: match.crDate,
+        crDateLabel: match.crDateLabel,
+        crTime: match.crTime,
+        crTimeMinutes: match.crTimeMinutes,
+        home: match.home.name,
+        away: match.away.name,
+        pick: pick,
+        pickLabel: getPickLabel_(match, pick),
+      };
+    });
+
+    setupRoundOf32MatchesSheet_(ss, matches);
+    upsertRoundOf32Response_(ss, participant.name, selections);
+    rebuildRoundOf32Rankings_(ss, readRoundOf32Results_(ss));
+    clearDataCaches_();
+    clearCachedPayload_(ROUND_OF_32_FORM_CACHE_KEY);
+
+    response = {
+      ok: true,
+      savedAt: new Date().toISOString(),
+      updated: true,
+      participant: participant.name,
+    };
+  } catch (error) {
+    response = { ok: false, error: String(error && error.message ? error.message : error) };
+  } finally {
+    try {
+      lock.releaseLock();
+    } catch (ignore) {}
+  }
+
+  return respond_(e, response);
+}
+
+function isRoundOf32FormClosed_() {
+  return new Date().getTime() >= ROUND_OF_32_CLOSE_AT_UTC_MS;
+}
+
+function readExistingParticipantNames_(ss) {
+  const participants = readParticipants_(ss);
+  const seen = {};
+  const names = [];
+  participants.forEach(function(participant) {
+    const name = String(participant.name || "").trim();
+    const key = normalizeParticipantName_(name);
+    if (!name || !key || seen[key]) return;
+    seen[key] = true;
+    names.push(name);
+  });
+  names.sort(function(a, b) { return a.localeCompare(b, "es"); });
+  return names;
+}
+
+function validateRoundOf32Participant_(ss, requestedName) {
+  const wanted = normalizeParticipantName_(requestedName);
+  const names = readExistingParticipantNames_(ss);
+  for (let i = 0; i < names.length; i += 1) {
+    if (normalizeParticipantName_(names[i]) === wanted) return { name: names[i] };
+  }
+  throw new Error("Debes escoger un participante existente.");
+}
+
+function normalizeParticipantName_(value) {
+  return normalizeTeamName_(value);
+}
+
+function getRoundOf32Matches_() {
+  const cached = readCachedPayload_(ROUND_OF_32_MATCHES_CACHE_KEY);
+  if (cached && Array.isArray(cached.matches) && cached.matches.length === 16) return cached.matches;
+
+  const apiResponse = fetchFootballData_();
+  const matches = buildRoundOf32Matches_(apiResponse.matches || []);
+  if (matches.length !== 16) throw new Error("football-data.org aun no devolvio los 16 cruces de dieciseisavos.");
+  writeCachedPayload_(ROUND_OF_32_MATCHES_CACHE_KEY, { matches: matches }, 300);
+  return matches;
+}
+
+function buildRoundOf32Matches_(apiMatches) {
+  const fallback = cloneRoundOf32FallbackMatches_();
+  const roundApiMatches = (apiMatches || [])
+    .filter(function(match) { return String(match.stage || "") === "LAST_32"; })
+    .sort(function(a, b) { return String(a.utcDate || "").localeCompare(String(b.utcDate || "")); });
+
+  roundApiMatches.forEach(function(apiMatch) {
+    const mapped = roundOf32MatchFromApi_(apiMatch);
+    let slot = fallback.findIndex(function(match) {
+      return match.crDate === mapped.crDate && Number(match.crTimeMinutes) === Number(mapped.crTimeMinutes);
+    });
+    if (slot < 0) {
+      slot = fallback.findIndex(function(match) { return !match.apiId; });
+    }
+    if (slot >= 0) fallback[slot] = Object.assign({}, fallback[slot], mapped);
+  });
+
+  return fallback
+    .sort(compareRoundOf32Matches_)
+    .map(function(match, index) {
+      return Object.assign({}, match, { id: "R32-" + String(index + 1).padStart(2, "0"), number: index + 1 });
+    });
+}
+
+function roundOf32MatchFromApi_(apiMatch) {
+  const utcDate = apiMatch && apiMatch.utcDate ? new Date(apiMatch.utcDate) : null;
+  const validDate = utcDate && !Number.isNaN(utcDate.getTime());
+  const crDate = validDate ? Utilities.formatDate(utcDate, CR_TIME_ZONE, "yyyy-MM-dd") : "";
+  const hour = validDate ? Number(Utilities.formatDate(utcDate, CR_TIME_ZONE, "H")) : 0;
+  const minute = validDate ? Number(Utilities.formatDate(utcDate, CR_TIME_ZONE, "m")) : 0;
+  return {
+    apiId: apiMatch ? apiMatch.id || "" : "",
+    stage: "LAST_32",
+    crDate: crDate,
+    crDateLabel: formatRoundOf32DateLabel_(crDate),
+    crTime: formatRoundOf32TimeLabel_(hour, minute),
+    crTimeMinutes: hour * 60 + minute,
+    home: localTeamFromApi_(apiMatch ? apiMatch.homeTeam : null),
+    away: localTeamFromApi_(apiMatch ? apiMatch.awayTeam : null),
+    utcDate: apiMatch ? apiMatch.utcDate || "" : "",
+  };
+}
+
+function localTeamFromApi_(apiTeam) {
+  const variants = teamNameVariants_(apiTeam || {});
+  const localTeams = [];
+  const seen = {};
+  MATCHES.forEach(function(match) {
+    [match.home, match.away].forEach(function(team) {
+      const key = normalizeTeamName_(team && team.name);
+      if (!key || seen[key]) return;
+      seen[key] = true;
+      localTeams.push(team);
+    });
+  });
+  for (let i = 0; i < localTeams.length; i += 1) {
+    const aliases = teamAliases_(localTeams[i].name);
+    if (hasAnyAlias_(aliases, variants)) {
+      return { name: localTeams[i].name, flagCode: localTeams[i].flagCode || "" };
+    }
+  }
+  const name = String((apiTeam && (apiTeam.name || apiTeam.shortName || apiTeam.tla)) || "").trim();
+  return { name: name || "A definir", flagCode: "" };
+}
+
+function cloneRoundOf32FallbackMatches_() {
+  return JSON.parse(JSON.stringify(ROUND_OF_32_FALLBACK_MATCHES));
+}
+
+function compareRoundOf32Matches_(a, b) {
+  return String(a.crDate || "").localeCompare(String(b.crDate || "")) ||
+    Number(a.crTimeMinutes || 0) - Number(b.crTimeMinutes || 0) ||
+    Number(a.number || 0) - Number(b.number || 0);
+}
+
+function formatRoundOf32DateLabel_(value) {
+  if (!value) return "";
+  const parts = String(value).split("-");
+  const months = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+  return Number(parts[2]) + " " + months[Number(parts[1]) - 1] + " " + parts[0];
+}
+
+function formatRoundOf32TimeLabel_(hour24, minute) {
+  const period = hour24 >= 12 ? "p.m." : "a.m.";
+  const hour12 = hour24 % 12 || 12;
+  return hour12 + ":" + String(minute).padStart(2, "0") + " " + period;
+}
+
+function setupRoundOf32MatchesSheet_(ss, matches) {
+  const sheet = ss.getSheetByName(ROUND_OF_32_MATCHES_SHEET) || ss.insertSheet(ROUND_OF_32_MATCHES_SHEET);
+  const rows = [["ID", "API ID", "Numero", "Fecha CR", "Hora CR", "Local", "Visita"]].concat((matches || []).map(function(match) {
+    return [match.id, match.apiId || "", match.number, match.crDate, match.crTime, match.home.name, match.away.name];
+  }));
+  sheet.clearContents();
+  sheet.getRange(1, 1, rows.length, rows[0].length).setValues(rows);
+  sheet.setFrozenRows(1);
+}
+
+function readRoundOf32MatchesSheet_(ss) {
+  const sheet = ss.getSheetByName(ROUND_OF_32_MATCHES_SHEET);
+  if (!sheet || sheet.getLastRow() < 2) return cloneRoundOf32FallbackMatches_();
+  const values = sheet.getDataRange().getValues();
+  const headers = values[0].map(function(header) { return String(header || ""); });
+  return values.slice(1).reduce(function(matches, row) {
+    const id = getCellByHeader_(row, headers, "ID");
+    if (!id) return matches;
+    const homeName = String(getCellByHeader_(row, headers, "Local") || "A definir");
+    const awayName = String(getCellByHeader_(row, headers, "Visita") || "A definir");
+    const crDate = String(getCellByHeader_(row, headers, "Fecha CR") || "");
+    const crTime = String(getCellByHeader_(row, headers, "Hora CR") || "");
+    const fallback = ROUND_OF_32_FALLBACK_MATCHES.find(function(match) { return match.id === id; }) || {};
+    matches.push({
+      id: id,
+      apiId: getCellByHeader_(row, headers, "API ID"),
+      number: getCellByHeader_(row, headers, "Numero"),
+      stage: "LAST_32",
+      crDate: crDate,
+      crDateLabel: formatRoundOf32DateLabel_(crDate),
+      crTime: crTime,
+      crTimeMinutes: fallback.crTimeMinutes || 0,
+      home: { name: homeName, flagCode: flagCodeForTeamName_(homeName) },
+      away: { name: awayName, flagCode: flagCodeForTeamName_(awayName) },
+    });
+    return matches;
+  }, []).sort(compareRoundOf32Matches_);
+}
+
+function flagCodeForTeamName_(name) {
+  const wanted = normalizeTeamName_(name);
+  let flagCode = "";
+  MATCHES.some(function(match) {
+    return [match.home, match.away].some(function(team) {
+      if (normalizeTeamName_(team && team.name) !== wanted) return false;
+      flagCode = team.flagCode || "";
+      return true;
+    });
+  });
+  return flagCode;
+}
+
+function upsertRoundOf32Response_(ss, participantName, selections) {
+  const sheet = ss.getSheetByName(ROUND_OF_32_RESPONSES_SHEET) || ss.insertSheet(ROUND_OF_32_RESPONSES_SHEET);
+  const requiredHeaders = ["Actualizado", "Nombre", "Clave participante", "Total partidos", "Completados", "Selecciones JSON"]
+    .concat((selections || []).map(function(selection) { return selection.id; }));
+  const headers = ensureHeaders_(sheet, requiredHeaders);
+  const row = headers.map(function() { return ""; });
+  setCell_(row, headers, "Actualizado", new Date());
+  setCell_(row, headers, "Nombre", participantName);
+  setCell_(row, headers, "Clave participante", normalizeParticipantName_(participantName));
+  setCell_(row, headers, "Total partidos", selections.length);
+  setCell_(row, headers, "Completados", selections.length);
+  setCell_(row, headers, "Selecciones JSON", JSON.stringify(selections));
+  selections.forEach(function(selection) { setCell_(row, headers, selection.id, selection.pickLabel); });
+
+  let targetRow = sheet.getLastRow() + 1;
+  if (sheet.getLastRow() > 1) {
+    const nameIndex = headers.indexOf("Nombre");
+    const values = sheet.getRange(2, 1, sheet.getLastRow() - 1, headers.length).getValues();
+    for (let i = 0; i < values.length; i += 1) {
+      if (normalizeParticipantName_(values[i][nameIndex]) === normalizeParticipantName_(participantName)) {
+        targetRow = i + 2;
+        break;
+      }
+    }
+  }
+  sheet.getRange(targetRow, 1, 1, headers.length).setValues([row]);
+  sheet.setFrozenRows(1);
+}
+
+function setupRoundOf32ResponsesSheet_(ss) {
+  const sheet = ss.getSheetByName(ROUND_OF_32_RESPONSES_SHEET) || ss.insertSheet(ROUND_OF_32_RESPONSES_SHEET);
+  const headers = ["Actualizado", "Nombre", "Clave participante", "Total partidos", "Completados", "Selecciones JSON"]
+    .concat(ROUND_OF_32_FALLBACK_MATCHES.map(function(match) { return match.id; }));
+  ensureHeaders_(sheet, headers);
+  sheet.setFrozenRows(1);
 }
 
 function fetchFootballData_() {
@@ -2083,6 +2723,17 @@ function buildResults_(apiMatches) {
   });
 }
 
+function buildRoundOf32Results_(roundMatches, apiMatches) {
+  const apiById = {};
+  (apiMatches || []).forEach(function(match) {
+    if (match && match.id !== undefined && match.id !== null) apiById[String(match.id)] = match;
+  });
+  return (roundMatches || []).map(function(match) {
+    const apiMatch = match.apiId ? apiById[String(match.apiId)] : null;
+    return buildResult_(match, apiMatch, false);
+  });
+}
+
 function mergeResults_(freshResults, previousResults) {
   const previousById = {};
   (previousResults || []).forEach(function(result) {
@@ -2109,11 +2760,19 @@ function mergeResult_(fresh, previous) {
     home: fresh.home,
     away: fresh.away,
     status: previous.status || fresh.status,
+    duration: previous.duration || fresh.duration || "",
+    minute: previous.minute !== "" && previous.minute !== undefined ? previous.minute : fresh.minute,
+    injuryTime: previous.injuryTime !== "" && previous.injuryTime !== undefined ? previous.injuryTime : fresh.injuryTime,
     homeGoals: previous.homeGoals,
     awayGoals: previous.awayGoals,
     score: previous.score,
+    regularHomeGoals: previous.regularHomeGoals,
+    regularAwayGoals: previous.regularAwayGoals,
+    regularScore: previous.regularScore,
+    regularTimeComplete: previous.regularTimeComplete,
     winner: previous.winner,
     winnerLabel: previous.winnerLabel,
+    matchWinner: previous.matchWinner || fresh.matchWinner || "",
     apiUpdatedAt: previous.apiUpdatedAt || fresh.apiUpdatedAt || "",
     utcDate: previous.utcDate || fresh.utcDate || "",
   };
@@ -2127,6 +2786,8 @@ function shouldKeepPreviousResult_(fresh, previous) {
   const freshFinal = isFinalResult_(fresh);
   if (previousFinal && !freshFinal) return true;
 
+  if (isQuinielaResultComplete_(previous) && !isQuinielaResultComplete_(fresh)) return true;
+
   if (!fresh.apiId && hasMeaningfulResult_(previous)) return true;
 
   if (hasScoreOrWinner_(previous) && !hasScoreOrWinner_(fresh) && isWeakResultStatus_(fresh.status)) {
@@ -2137,7 +2798,20 @@ function shouldKeepPreviousResult_(fresh, previous) {
 }
 
 function isFinalResult_(result) {
-  return result && (result.status === "FINISHED" || result.status === "AWARDED") && result.winner;
+  return result && (result.status === "FINISHED" || result.status === "AWARDED") && hasScoreOrWinner_(result);
+}
+
+function isQuinielaResultComplete_(result) {
+  if (!result || !result.winner) return false;
+  const hasExplicitFlag = result.regularTimeComplete !== "" &&
+    result.regularTimeComplete !== null &&
+    result.regularTimeComplete !== undefined;
+  if (hasExplicitFlag) return isTrueValue_(result.regularTimeComplete);
+  return result.status === "FINISHED" || result.status === "AWARDED";
+}
+
+function isTrueValue_(value) {
+  return value === true || String(value || "").toLowerCase() === "true";
 }
 
 function hasMeaningfulResult_(result) {
@@ -2151,9 +2825,12 @@ function hasMeaningfulResult_(result) {
 function hasScoreOrWinner_(result) {
   return Boolean(result && (
     result.score ||
+    result.regularScore ||
     result.winner ||
     isGoalValue_(result.homeGoals) ||
-    isGoalValue_(result.awayGoals)
+    isGoalValue_(result.awayGoals) ||
+    isGoalValue_(result.regularHomeGoals) ||
+    isGoalValue_(result.regularAwayGoals)
   ));
 }
 
@@ -2174,6 +2851,8 @@ function countPreservedResults_(freshResults, mergedResults) {
     const fresh = freshById[result.matchId] || {};
     return count + (String(fresh.status || "") !== String(result.status || "") ||
       String(fresh.score || "") !== String(result.score || "") ||
+      String(fresh.regularScore || "") !== String(result.regularScore || "") ||
+      String(fresh.regularTimeComplete || "") !== String(result.regularTimeComplete || "") ||
       String(fresh.winner || "") !== String(result.winner || "") ? 1 : 0);
   }, 0);
 }
@@ -2202,12 +2881,18 @@ function findApiMatch_(localMatch, apiMatches, usedApiIds) {
 
 function buildResult_(localMatch, apiMatch, reversed) {
   const score = apiMatch && apiMatch.score ? apiMatch.score : {};
-  const fullTime = score.fullTime || score.regularTime || {};
-  const apiHomeGoals = numberOrBlank_(fullTime.home);
-  const apiAwayGoals = numberOrBlank_(fullTime.away);
+  const status = apiMatch ? apiMatch.status || "SCHEDULED" : "SCHEDULED";
+  const duration = score.duration || "REGULAR";
+  const fullTime = scorePair_(score.fullTime || score.regularTime || {});
+  const regularTime = regularTimeScore_(score, status);
+  const apiHomeGoals = fullTime.home;
+  const apiAwayGoals = fullTime.away;
   const homeGoals = reversed ? apiAwayGoals : apiHomeGoals;
   const awayGoals = reversed ? apiHomeGoals : apiAwayGoals;
-  const winner = mapWinner_(score.winner, reversed);
+  const regularHomeGoals = reversed ? regularTime.away : regularTime.home;
+  const regularAwayGoals = reversed ? regularTime.home : regularTime.away;
+  const regularTimeComplete = isRegularTimeComplete_(apiMatch, score, regularTime);
+  const winner = regularTimeComplete ? winnerFromGoals_(regularHomeGoals, regularAwayGoals) : "";
   const updatedAt = apiMatch && apiMatch.lastUpdated ? apiMatch.lastUpdated : "";
 
   return {
@@ -2220,19 +2905,92 @@ function buildResult_(localMatch, apiMatch, reversed) {
     crTime: localMatch.crTime,
     home: localMatch.home.name,
     away: localMatch.away.name,
-    status: apiMatch ? apiMatch.status || "SCHEDULED" : "SCHEDULED",
+    status: status,
+    duration: duration,
+    minute: apiMatch ? numberOrBlank_(apiMatch.minute) : "",
+    injuryTime: apiMatch ? numberOrBlank_(apiMatch.injuryTime) : "",
     homeGoals: homeGoals,
     awayGoals: awayGoals,
     score: homeGoals === "" || awayGoals === "" ? "" : homeGoals + " - " + awayGoals,
+    regularHomeGoals: regularHomeGoals,
+    regularAwayGoals: regularAwayGoals,
+    regularScore: regularHomeGoals === "" || regularAwayGoals === "" ? "" : regularHomeGoals + " - " + regularAwayGoals,
+    regularTimeComplete: regularTimeComplete,
     winner: winner,
     winnerLabel: getPickLabel_(localMatch, winner),
+    matchWinner: mapWinner_(score.winner, reversed),
     apiUpdatedAt: updatedAt,
     utcDate: apiMatch ? apiMatch.utcDate || "" : "",
   };
 }
 
+function scorePair_(node) {
+  const score = node || {};
+  return {
+    home: numberOrBlank_(score.home !== undefined ? score.home : score.homeTeam),
+    away: numberOrBlank_(score.away !== undefined ? score.away : score.awayTeam),
+  };
+}
+
+function hasCompleteScorePair_(pair) {
+  return pair && pair.home !== "" && pair.away !== "";
+}
+
+function regularTimeScore_(score, status) {
+  const regularTime = scorePair_(score.regularTime || {});
+  if (hasCompleteScorePair_(regularTime)) return regularTime;
+
+  const fullTime = scorePair_(score.fullTime || {});
+  const duration = String(score.duration || "REGULAR");
+  const extended = duration === "EXTRA_TIME" || duration === "PENALTY_SHOOTOUT" ||
+    status === "EXTRA_TIME" || status === "PENALTY_SHOOTOUT";
+  if (!extended) return fullTime;
+
+  const extraTime = scorePair_(score.extraTime || {});
+  const penalties = scorePair_(score.penalties || {});
+  if (!hasCompleteScorePair_(fullTime)) return regularTime;
+
+  const extraHome = hasCompleteScorePair_(extraTime) ? extraTime.home : 0;
+  const extraAway = hasCompleteScorePair_(extraTime) ? extraTime.away : 0;
+  const penaltyHome = hasCompleteScorePair_(penalties) ? penalties.home : 0;
+  const penaltyAway = hasCompleteScorePair_(penalties) ? penalties.away : 0;
+  if (!hasCompleteScorePair_(extraTime) && !hasCompleteScorePair_(penalties)) return regularTime;
+
+  return {
+    home: Math.max(fullTime.home - extraHome - penaltyHome, 0),
+    away: Math.max(fullTime.away - extraAway - penaltyAway, 0),
+  };
+}
+
+function isRegularTimeComplete_(apiMatch, score, regularTime) {
+  if (!apiMatch || !hasCompleteScorePair_(regularTime)) return false;
+  const status = String(apiMatch.status || "");
+  const duration = String(score.duration || "REGULAR");
+  if (["FINISHED", "AWARDED", "EXTRA_TIME", "PENALTY_SHOOTOUT"].indexOf(status) !== -1) return true;
+  if (["EXTRA_TIME", "PENALTY_SHOOTOUT"].indexOf(duration) !== -1) return true;
+
+  const explicitRegularTime = scorePair_(score.regularTime || {});
+  const minute = numberOrBlank_(apiMatch.minute);
+  return status === "PAUSED" && minute !== "" && minute >= 90 && hasCompleteScorePair_(explicitRegularTime);
+}
+
+function winnerFromGoals_(homeGoals, awayGoals) {
+  if (homeGoals === "" || awayGoals === "") return "";
+  if (homeGoals > awayGoals) return "home";
+  if (awayGoals > homeGoals) return "away";
+  return "draw";
+}
+
 function writeResults_(ss, results) {
-  const sheet = ss.getSheetByName(RESULTS_SHEET) || ss.insertSheet(RESULTS_SHEET);
+  return writeResultsToSheet_(ss, RESULTS_SHEET, results);
+}
+
+function writeRoundOf32Results_(ss, results) {
+  return writeResultsToSheet_(ss, ROUND_OF_32_RESULTS_SHEET, results);
+}
+
+function writeResultsToSheet_(ss, sheetName, results) {
+  const sheet = ss.getSheetByName(sheetName) || ss.insertSheet(sheetName);
   const headers = [
     "ID",
     "API ID",
@@ -2243,11 +3001,19 @@ function writeResults_(ss, results) {
     "Local",
     "Visita",
     "Estado",
+    "Duracion",
+    "Minuto",
+    "Reposicion",
     "Marcador",
     "Goles Local",
     "Goles Visita",
+    "Marcador 90 min",
+    "Goles Local 90",
+    "Goles Visita 90",
+    "Tiempo reglamentario completo",
     "Ganador",
     "Ganador etiqueta",
+    "Ganador partido",
     "Actualizado API",
     "Fecha UTC API",
   ];
@@ -2262,11 +3028,19 @@ function writeResults_(ss, results) {
       result.home,
       result.away,
       result.status,
+      result.duration,
+      result.minute,
+      result.injuryTime,
       result.score,
       result.homeGoals,
       result.awayGoals,
+      result.regularScore,
+      result.regularHomeGoals,
+      result.regularAwayGoals,
+      result.regularTimeComplete,
       result.winner,
       result.winnerLabel,
+      result.matchWinner,
       result.apiUpdatedAt,
       result.utcDate,
     ];
@@ -2282,7 +3056,7 @@ function rebuildRanking_(ss, results) {
   const responsesSheet = ss.getSheetByName(RESPONSES_SHEET);
   const finishedResults = {};
   (results || []).forEach(function(result) {
-    if ((result.status === "FINISHED" || result.status === "AWARDED") && result.winner) {
+    if (isQuinielaResultComplete_(result)) {
       finishedResults[result.matchId] = result.winner;
     }
   });
@@ -2329,6 +3103,152 @@ function rebuildRanking_(ss, results) {
   return ranking;
 }
 
+function rebuildRoundOf32Rankings_(ss, results) {
+  const existingNames = readExistingParticipantNames_(ss);
+  const submittedParticipants = readRoundOf32Participants_(ss);
+  const submittedByName = {};
+  submittedParticipants.forEach(function(participant) {
+    submittedByName[normalizeParticipantName_(participant.name)] = participant;
+  });
+
+  const finishedResults = {};
+  (results || []).forEach(function(result) {
+    if (isQuinielaResultComplete_(result)) finishedResults[result.matchId] = result.winner;
+  });
+  const computedMatches = Object.keys(finishedResults).length;
+
+  const phase = existingNames.map(function(name) {
+    const participant = submittedByName[normalizeParticipantName_(name)] || { selections: [] };
+    let hits = 0;
+    (participant.selections || []).forEach(function(selection) {
+      if (finishedResults[selection.id] && finishedResults[selection.id] === selection.pick) hits += 1;
+    });
+    return {
+      name: name,
+      points: hits * POINTS_PER_HIT,
+      hits: hits,
+      computedMatches: computedMatches,
+      totalPredictions: (participant.selections || []).length,
+    };
+  });
+  sortRankingRows_(phase);
+  applyRankingMovement_(ss, ROUND_OF_32_RANKING_SHEET, phase, computedMatches);
+  writeExtendedRanking_(ss, ROUND_OF_32_RANKING_SHEET, phase);
+
+  const groupRanking = readRanking_(ss);
+  const groupByName = {};
+  groupRanking.forEach(function(row) {
+    const key = normalizeParticipantName_(row.name);
+    if (!key || groupByName[key]) return;
+    groupByName[key] = row;
+  });
+  const phaseByName = {};
+  phase.forEach(function(row) { phaseByName[normalizeParticipantName_(row.name)] = row; });
+  const cumulative = existingNames.map(function(name) {
+    const key = normalizeParticipantName_(name);
+    const groupRow = groupByName[key] || {};
+    const phaseRow = phaseByName[key] || {};
+    return {
+      name: name,
+      points: Number(groupRow.points || 0) + Number(phaseRow.points || 0),
+      hits: Number(groupRow.hits || 0) + Number(phaseRow.hits || 0),
+      computedMatches: Number(groupRow.computedMatches || 0) + computedMatches,
+      totalPredictions: Number(groupRow.totalPredictions || 0) + Number(phaseRow.totalPredictions || 0),
+    };
+  });
+  sortRankingRows_(cumulative);
+  const cumulativeComputed = cumulative.length ? Number(cumulative[0].computedMatches || 0) : computedMatches;
+  applyRankingMovement_(ss, CUMULATIVE_RANKING_SHEET, cumulative, cumulativeComputed);
+  writeExtendedRanking_(ss, CUMULATIVE_RANKING_SHEET, cumulative);
+
+  return { phase: phase, cumulative: cumulative };
+}
+
+function readRoundOf32Participants_(ss) {
+  const sheet = ss.getSheetByName(ROUND_OF_32_RESPONSES_SHEET);
+  if (!sheet || sheet.getLastRow() < 2) return [];
+  const values = sheet.getDataRange().getValues();
+  const headers = values[0].map(function(header) { return String(header || ""); });
+  const nameIndex = headers.indexOf("Nombre");
+  const jsonIndex = headers.indexOf("Selecciones JSON");
+  return values.slice(1).reduce(function(participants, row) {
+    const name = nameIndex >= 0 ? String(row[nameIndex] || "").trim() : "";
+    if (!name) return participants;
+    const selections = jsonIndex >= 0 ? parseSelectionsJson_(row[jsonIndex]) : [];
+    const picksByMatchId = {};
+    selections.forEach(function(selection) {
+      if (!selection || !selection.id) return;
+      picksByMatchId[selection.id] = { pick: selection.pick || "", pickLabel: selection.pickLabel || "" };
+    });
+    participants.push({
+      number: participants.length + 1,
+      name: name,
+      selections: selections,
+      totalPredictions: selections.length,
+      picksByMatchId: picksByMatchId,
+    });
+    return participants;
+  }, []);
+}
+
+function sortRankingRows_(rows) {
+  rows.sort(function(a, b) {
+    return Number(b.points || 0) - Number(a.points || 0) ||
+      Number(b.hits || 0) - Number(a.hits || 0) ||
+      String(a.name || "").localeCompare(String(b.name || ""), "es");
+  });
+  rows.forEach(function(row, index) { row.position = index + 1; });
+}
+
+function applyRankingMovement_(ss, sheetName, rows, computedMatches) {
+  const previous = readExtendedRanking_(ss, sheetName);
+  const previousByName = {};
+  previous.forEach(function(row) { previousByName[normalizeParticipantName_(row.name)] = row; });
+  const previousComputed = previous.length ? Number(previous[0].computedMatches || 0) : -1;
+  rows.forEach(function(row) {
+    const old = previousByName[normalizeParticipantName_(row.name)];
+    if (old && previousComputed === Number(computedMatches || 0)) {
+      row.movement = Number(old.movement || 0);
+    } else if (old) {
+      row.movement = Number(old.position || row.position) - Number(row.position || 0);
+    } else {
+      row.movement = 0;
+    }
+  });
+}
+
+function writeExtendedRanking_(ss, sheetName, ranking) {
+  const sheet = ss.getSheetByName(sheetName) || ss.insertSheet(sheetName);
+  const headers = ["Posicion", "Nombre", "Puntos", "Aciertos", "Partidos computados", "Predicciones", "Movimiento", "Actualizado"];
+  const updatedAt = new Date();
+  const rows = [headers].concat((ranking || []).map(function(row) {
+    return [row.position, row.name, row.points, row.hits, row.computedMatches, row.totalPredictions, row.movement || 0, updatedAt];
+  }));
+  sheet.clearContents();
+  sheet.getRange(1, 1, Math.max(rows.length, 1), headers.length).setValues(rows);
+  sheet.setFrozenRows(1);
+}
+
+function readExtendedRanking_(ss, sheetName) {
+  const sheet = ss.getSheetByName(sheetName);
+  if (!sheet || sheet.getLastRow() < 2) return [];
+  const values = sheet.getDataRange().getValues();
+  const headers = values[0].map(function(header) { return String(header || ""); });
+  return values.slice(1).reduce(function(rows, row) {
+    const result = {
+      position: getCellByHeader_(row, headers, "Posicion"),
+      name: getCellByHeader_(row, headers, "Nombre"),
+      points: getCellByHeader_(row, headers, "Puntos"),
+      hits: getCellByHeader_(row, headers, "Aciertos"),
+      computedMatches: getCellByHeader_(row, headers, "Partidos computados"),
+      totalPredictions: getCellByHeader_(row, headers, "Predicciones"),
+      movement: getCellByHeader_(row, headers, "Movimiento"),
+    };
+    if (result.name) rows.push(result);
+    return rows;
+  }, []);
+}
+
 function writeRanking_(ss, ranking) {
   const sheet = ss.getSheetByName(RANKING_SHEET) || ss.insertSheet(RANKING_SHEET);
   const headers = ["Posicion", "Nombre", "Correo", "Puntos", "Aciertos", "Partidos computados", "Predicciones", "Actualizado"];
@@ -2344,7 +3264,15 @@ function writeRanking_(ss, ranking) {
 }
 
 function readResults_(ss) {
-  const sheet = ss.getSheetByName(RESULTS_SHEET);
+  return readResultsFromSheet_(ss, RESULTS_SHEET);
+}
+
+function readRoundOf32Results_(ss) {
+  return readResultsFromSheet_(ss, ROUND_OF_32_RESULTS_SHEET);
+}
+
+function readResultsFromSheet_(ss, sheetName) {
+  const sheet = ss.getSheetByName(sheetName);
   if (!sheet || sheet.getLastRow() < 2) return [];
   const values = sheet.getDataRange().getValues();
   const headers = values[0].map(function(header) { return String(header || ""); });
@@ -2360,11 +3288,19 @@ function readResults_(ss) {
       home: getCellByHeader_(row, headers, "Local"),
       away: getCellByHeader_(row, headers, "Visita"),
       status: getCellByHeader_(row, headers, "Estado"),
+      duration: getCellByHeader_(row, headers, "Duracion"),
+      minute: getCellByHeader_(row, headers, "Minuto"),
+      injuryTime: getCellByHeader_(row, headers, "Reposicion"),
       score: getCellByHeader_(row, headers, "Marcador"),
       homeGoals: getCellByHeader_(row, headers, "Goles Local"),
       awayGoals: getCellByHeader_(row, headers, "Goles Visita"),
+      regularScore: getCellByHeader_(row, headers, "Marcador 90 min"),
+      regularHomeGoals: getCellByHeader_(row, headers, "Goles Local 90"),
+      regularAwayGoals: getCellByHeader_(row, headers, "Goles Visita 90"),
+      regularTimeComplete: getCellByHeader_(row, headers, "Tiempo reglamentario completo"),
       winner: getCellByHeader_(row, headers, "Ganador"),
       winnerLabel: getCellByHeader_(row, headers, "Ganador etiqueta"),
+      matchWinner: getCellByHeader_(row, headers, "Ganador partido"),
       apiUpdatedAt: getCellByHeader_(row, headers, "Actualizado API"),
       utcDate: getCellByHeader_(row, headers, "Fecha UTC API"),
     };

@@ -6,7 +6,8 @@ Este paquete contiene un sitio estatico listo para GitHub Pages y un Google Apps
 
 - `index.html`: pagina principal con resultados, ranking y calendario.
 - `quiniela.html`: formulario de quiniela. Muestra un partido por vez, incluye banderas y resume todas las selecciones antes de enviar.
-- `predicciones.html`: matriz para mostrar predicciones de participantes, resultados y puntos por grupo.
+- `dieciseisavos.html`: formulario de los 16 cruces, limitado a participantes existentes y con cierre el 28 de junio a las 3:00 p.m. CR.
+- `predicciones.html`: matrices para mostrar predicciones de fase de grupos y dieciseisavos.
 - `exportar-predicciones.html`: herramienta personal para descargar un XLSX completo con todas las predicciones, sin correos.
 - `apps-script.gs`: backend de Google Apps Script para respuestas, resultados, ranking y football-data.org.
 
@@ -20,7 +21,7 @@ Este paquete contiene un sitio estatico listo para GitHub Pages y un Google Apps
    - `FOOTBALL_DATA_API_KEY`: tu API key de football-data.org.
    - `SYNC_SECRET`: opcional, solo si quieres permitir sincronizacion manual por URL.
 5. Ejecuta una vez la funcion `checkFootballDataSetup` para autorizar permisos y confirmar que la key existe.
-6. Ejecuta una vez `setupQuinielaSheets` para crear las hojas `Partidos`, `Resultados`, `Ranking` y `Estado API`.
+6. Ejecuta una vez `setupQuinielaSheets` para crear las hojas de partidos, resultados y rankings de ambas fases.
 7. Si no ves las hojas, ejecuta `diagnosticoQuiniela` y revisa `spreadsheetUrl`; esa es la hoja donde el script esta escribiendo.
 8. Ejecuta una vez `syncFootballData` para consultar football-data.org y llenar resultados/API.
 9. Ejecuta una vez `installFootballDataTrigger` para instalar una sincronizacion automatica cada 5 minutos.
@@ -29,7 +30,7 @@ Este paquete contiene un sitio estatico listo para GitHub Pages y un Google Apps
    - `Execute as`: `Me`
    - `Who has access`: `Anyone`
 12. Copia la URL del Web App que termina en `/exec`.
-13. En `quiniela.html`, `index.html` y `predicciones.html`, confirma que `APPS_SCRIPT_URL` tenga esa URL. En este paquete ya esta configurada con:
+13. En `quiniela.html`, `dieciseisavos.html`, `index.html` y `predicciones.html`, confirma que `APPS_SCRIPT_URL` tenga esa URL. En este paquete ya esta configurada con:
    `https://script.google.com/macros/s/AKfycby-vt500y5fZEJ5QAT7z9y0Zn7WEJJTg6iAeTf2qvYp97cqa8EWhVVPcW_9psToHu-k/exec`
 
 Si haces cambios en `apps-script.gs`, vuelve a desplegar el Web App con `Deploy` > `Manage deployments` > editar despliegue > `New version`.
@@ -40,7 +41,10 @@ Si haces cambios en `apps-script.gs`, vuelve a desplegar el Web App con `Deploy`
 - Los headers `X-RequestsAvailable`, `X-RequestCounter-Reset`, `X-API-Version` y `X-Authenticated-Client` se guardan en `Estado API`.
 - `Resultados` guarda marcador, estado y ganador de cada partido.
 - `Ranking` da 1 punto por cada seleccion acertada en partidos finalizados.
+- `Dieciseisavos` conserva una sola fila por participante: un nuevo envio actualiza la respuesta existente.
+- `Ranking Dieciseisavos` muestra los puntos de la fase y `Ranking Acumulado` suma fase de grupos y dieciseisavos. Ambos guardan movimiento de posicion.
 - Cuando football-data.org devuelve una respuesta incompleta o no empareja temporalmente un partido, Apps Script conserva el ultimo resultado valido guardado para no borrar puntos ni partidos finalizados.
+- Para la quiniela se usa `score.regularTime`: el marcador al terminar los 90 minutos. Los goles de tiempo extra y penales no cambian el resultado ni los puntos; un empate a 90 minutos siempre cuenta como `Empate`.
 - `index.html` lee `?action=publicData` desde Apps Script cada 60 segundos fuera de partidos en vivo y cada 10 segundos durante una ventana en vivo; no llama directamente a football-data.org.
 - Durante una ventana en vivo, Apps Script permite sincronizar football-data.org como maximo una vez cada 10 segundos, equivalente a hasta 6 llamadas por minuto.
 - `predicciones.html` lee `?action=predictionsData` cada 60 segundos fuera de partidos en vivo y cada 10 segundos durante una ventana en vivo. Tambien refresca al volver a enfocar la pestana.
@@ -52,7 +56,7 @@ Si haces cambios en `apps-script.gs`, vuelve a desplegar el Web App con `Deploy`
 ## Subir a GitHub Pages
 
 1. Crea un repositorio en GitHub.
-2. Sube todo el contenido de esta carpeta a la raiz del repositorio: `index.html`, `quiniela.html`, `predicciones.html`, `exportar-predicciones.html`, `apps-script.gs`, `matches.json`, `README.md` y la carpeta `assets`.
+2. Sube todo el contenido de esta carpeta a la raiz del repositorio: `index.html`, `quiniela.html`, `dieciseisavos.html`, `predicciones.html`, `exportar-predicciones.html`, `apps-script.gs`, `matches.json`, `README.md` y la carpeta `assets`.
 3. En `Settings` > `Pages`, publica desde la rama principal y la carpeta raiz.
 
-El Apps Script creara automaticamente las pestanas `Respuestas`, `Partidos`, `Resultados`, `Ranking` y `Estado API` cuando se usen las funciones correspondientes.
+El Apps Script creara automaticamente las pestanas `Respuestas`, `Partidos`, `Resultados`, `Ranking`, `Dieciseisavos`, `Partidos Dieciseisavos`, `Resultados Dieciseisavos`, `Ranking Dieciseisavos`, `Ranking Acumulado` y `Estado API` cuando se usen las funciones correspondientes.
