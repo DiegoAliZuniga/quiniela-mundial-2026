@@ -2042,7 +2042,7 @@
       const parts = String(value || "").split("-");
       if (parts.length !== 3) return String(value || "");
       const month = MONTHS[Number(parts[1]) - 1] || parts[1];
-      return `${Number(parts[2])}-${month}`;
+      return `${String(Number(parts[2])).padStart(2, "0")}-${month}`;
     }
 
     function worksheetXml(rows) {
