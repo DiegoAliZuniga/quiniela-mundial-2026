@@ -14,10 +14,10 @@ const FOOTBALL_DATA_API_URL = "https://api.football-data.org/v4/competitions/WC/
 const FOOTBALL_DATA_TOKEN_PROPERTY = "FOOTBALL_DATA_API_KEY";
 const SYNC_SECRET_PROPERTY = "SYNC_SECRET";
 const PUBLIC_SYNC_CACHE_KEY = "PUBLIC_DATA_SYNC_ATTEMPTED";
-const PUBLIC_DATA_CACHE_KEY = "PUBLIC_DATA_PAYLOAD_V5";
-const PREDICTIONS_DATA_CACHE_KEY = "PREDICTIONS_DATA_PAYLOAD_V5";
+const PUBLIC_DATA_CACHE_KEY = "PUBLIC_DATA_PAYLOAD_V6";
+const PREDICTIONS_DATA_CACHE_KEY = "PREDICTIONS_DATA_PAYLOAD_V6";
 const ROUND_OF_32_FORM_CACHE_KEY = "ROUND_OF_32_FORM_DATA_V1";
-const ROUND_OF_32_MATCHES_CACHE_KEY = "ROUND_OF_32_MATCHES_V2";
+const ROUND_OF_32_MATCHES_CACHE_KEY = "ROUND_OF_32_MATCHES_V3";
 const CR_TIME_ZONE = "America/Costa_Rica";
 const LIVE_SYNC_MAX_AGE_MINUTES = 10 / 60;
 const STANDARD_SYNC_MAX_AGE_MINUTES = 5;
@@ -1874,8 +1874,8 @@ const ROUND_OF_32_FALLBACK_MATCHES = [
       "flagCode": "es"
     },
     "away": {
-      "name": "A definir",
-      "flagCode": ""
+      "name": "Austria",
+      "flagCode": "at"
     }
   },
   {
@@ -1908,8 +1908,8 @@ const ROUND_OF_32_FALLBACK_MATCHES = [
       "flagCode": "ch"
     },
     "away": {
-      "name": "A definir",
-      "flagCode": ""
+      "name": "Argelia",
+      "flagCode": "dz"
     }
   },
   {
