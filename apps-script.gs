@@ -15,7 +15,7 @@ const FOOTBALL_DATA_TOKEN_PROPERTY = "FOOTBALL_DATA_API_KEY";
 const SYNC_SECRET_PROPERTY = "SYNC_SECRET";
 const PUBLIC_SYNC_CACHE_KEY = "PUBLIC_DATA_SYNC_ATTEMPTED";
 const PUBLIC_DATA_CACHE_KEY = "PUBLIC_DATA_PAYLOAD_V6";
-const PREDICTIONS_DATA_CACHE_KEY = "PREDICTIONS_DATA_PAYLOAD_V6";
+const PREDICTIONS_DATA_CACHE_KEY = "PREDICTIONS_DATA_PAYLOAD_V7";
 const ROUND_OF_32_FORM_CACHE_KEY = "ROUND_OF_32_FORM_DATA_V1";
 const ROUND_OF_32_MATCHES_CACHE_KEY = "ROUND_OF_32_MATCHES_V3";
 const CR_TIME_ZONE = "America/Costa_Rica";
@@ -2338,6 +2338,15 @@ function getPredictionsData_() {
   maybeSyncFootballDataForPublic_(ss);
   const participants = readParticipants_(ss);
   const roundParticipants = readRoundOf32Participants_(ss);
+  const originalParticipantByName = {};
+  participants.forEach(function(participant) {
+    originalParticipantByName[normalizeParticipantName_(participant.name)] = participant;
+  });
+  roundParticipants.forEach(function(participant) {
+    const original = originalParticipantByName[normalizeParticipantName_(participant.name)] || {};
+    participant.champion = original.champion || "Sin selección";
+    participant.championFlagCode = original.championFlagCode || "";
+  });
   const roundMatches = readRoundOf32MatchesSheet_(ss);
   const roundResults = readRoundOf32Results_(ss);
   const maxVisibleParticipants = 16;
