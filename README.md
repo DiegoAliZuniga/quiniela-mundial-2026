@@ -6,7 +6,7 @@ Este paquete contiene un sitio estatico listo para GitHub Pages y un Google Apps
 
 - `index.html`: pagina principal con resultados, ranking y calendario.
 - `quiniela.html`: formulario de quiniela. Muestra un partido por vez, incluye banderas y resume todas las selecciones antes de enviar.
-- `dieciseisavos.html`: formulario de los 16 cruces, limitado a participantes existentes y con cierre el 28 de junio a las 3:00 p.m. CR.
+- `dieciseisavos.html`: formulario de los 16 cruces, limitado a participantes existentes y con cierre el 28 de junio a la 1:00 p.m. CR.
 - `predicciones.html`: matrices para mostrar predicciones de fase de grupos y dieciseisavos.
 - `exportar-predicciones.html`: herramienta personal para descargar un XLSX completo con todas las predicciones, sin correos.
 - `apps-script.gs`: backend de Google Apps Script para respuestas, resultados, ranking y football-data.org.

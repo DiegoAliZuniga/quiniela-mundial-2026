@@ -14,10 +14,10 @@ const FOOTBALL_DATA_API_URL = "https://api.football-data.org/v4/competitions/WC/
 const FOOTBALL_DATA_TOKEN_PROPERTY = "FOOTBALL_DATA_API_KEY";
 const SYNC_SECRET_PROPERTY = "SYNC_SECRET";
 const PUBLIC_SYNC_CACHE_KEY = "PUBLIC_DATA_SYNC_ATTEMPTED";
-const PUBLIC_DATA_CACHE_KEY = "PUBLIC_DATA_PAYLOAD_V4";
-const PREDICTIONS_DATA_CACHE_KEY = "PREDICTIONS_DATA_PAYLOAD_V4";
+const PUBLIC_DATA_CACHE_KEY = "PUBLIC_DATA_PAYLOAD_V5";
+const PREDICTIONS_DATA_CACHE_KEY = "PREDICTIONS_DATA_PAYLOAD_V5";
 const ROUND_OF_32_FORM_CACHE_KEY = "ROUND_OF_32_FORM_DATA_V1";
-const ROUND_OF_32_MATCHES_CACHE_KEY = "ROUND_OF_32_MATCHES_V1";
+const ROUND_OF_32_MATCHES_CACHE_KEY = "ROUND_OF_32_MATCHES_V2";
 const CR_TIME_ZONE = "America/Costa_Rica";
 const LIVE_SYNC_MAX_AGE_MINUTES = 10 / 60;
 const STANDARD_SYNC_MAX_AGE_MINUTES = 5;
@@ -30,8 +30,8 @@ const CACHE_MAX_CHUNKS = 20;
 const POINTS_PER_HIT = 1;
 const FORM_CLOSE_AT_UTC_MS = Date.UTC(2026, 5, 11, 19, 0, 0);
 const FORM_CLOSE_LABEL = "11 de junio de 2026, 1:00 p.m. hora Costa Rica";
-const ROUND_OF_32_CLOSE_AT_UTC_MS = Date.UTC(2026, 5, 28, 21, 0, 0);
-const ROUND_OF_32_CLOSE_LABEL = "28 de junio de 2026, 3:00 p.m. hora Costa Rica";
+const ROUND_OF_32_CLOSE_AT_UTC_MS = Date.UTC(2026, 5, 28, 19, 0, 0);
+const ROUND_OF_32_CLOSE_LABEL = "28 de junio de 2026, 1:00 p.m. hora Costa Rica";
 const MATCHES = [
   {
     "id": "M001",
@@ -1697,8 +1697,8 @@ const ROUND_OF_32_FALLBACK_MATCHES = [
     "stage": "LAST_32",
     "crDate": "2026-06-28",
     "crDateLabel": "28 jun 2026",
-    "crTime": "3:00 p.m.",
-    "crTimeMinutes": 900,
+    "crTime": "1:00 p.m.",
+    "crTimeMinutes": 780,
     "home": {
       "name": "Sudáfrica",
       "flagCode": "za"
@@ -1714,8 +1714,8 @@ const ROUND_OF_32_FALLBACK_MATCHES = [
     "stage": "LAST_32",
     "crDate": "2026-06-29",
     "crDateLabel": "29 jun 2026",
-    "crTime": "1:00 p.m.",
-    "crTimeMinutes": 780,
+    "crTime": "11:00 a.m.",
+    "crTimeMinutes": 660,
     "home": {
       "name": "Brasil",
       "flagCode": "br"
@@ -1731,8 +1731,8 @@ const ROUND_OF_32_FALLBACK_MATCHES = [
     "stage": "LAST_32",
     "crDate": "2026-06-29",
     "crDateLabel": "29 jun 2026",
-    "crTime": "4:30 p.m.",
-    "crTimeMinutes": 990,
+    "crTime": "2:30 p.m.",
+    "crTimeMinutes": 870,
     "home": {
       "name": "Alemania",
       "flagCode": "de"
@@ -1748,8 +1748,8 @@ const ROUND_OF_32_FALLBACK_MATCHES = [
     "stage": "LAST_32",
     "crDate": "2026-06-29",
     "crDateLabel": "29 jun 2026",
-    "crTime": "9:00 p.m.",
-    "crTimeMinutes": 1260,
+    "crTime": "7:00 p.m.",
+    "crTimeMinutes": 1140,
     "home": {
       "name": "Países Bajos",
       "flagCode": "nl"
@@ -1765,8 +1765,8 @@ const ROUND_OF_32_FALLBACK_MATCHES = [
     "stage": "LAST_32",
     "crDate": "2026-06-30",
     "crDateLabel": "30 jun 2026",
-    "crTime": "1:00 p.m.",
-    "crTimeMinutes": 780,
+    "crTime": "11:00 a.m.",
+    "crTimeMinutes": 660,
     "home": {
       "name": "Costa de Marfil",
       "flagCode": "ci"
@@ -1782,8 +1782,8 @@ const ROUND_OF_32_FALLBACK_MATCHES = [
     "stage": "LAST_32",
     "crDate": "2026-06-30",
     "crDateLabel": "30 jun 2026",
-    "crTime": "5:00 p.m.",
-    "crTimeMinutes": 1020,
+    "crTime": "3:00 p.m.",
+    "crTimeMinutes": 900,
     "home": {
       "name": "Francia",
       "flagCode": "fr"
@@ -1799,15 +1799,15 @@ const ROUND_OF_32_FALLBACK_MATCHES = [
     "stage": "LAST_32",
     "crDate": "2026-06-30",
     "crDateLabel": "30 jun 2026",
-    "crTime": "9:00 p.m.",
-    "crTimeMinutes": 1260,
+    "crTime": "7:00 p.m.",
+    "crTimeMinutes": 1140,
     "home": {
       "name": "México",
       "flagCode": "mx"
     },
     "away": {
-      "name": "A definir",
-      "flagCode": ""
+      "name": "Ecuador",
+      "flagCode": "ec"
     }
   },
   {
@@ -1816,15 +1816,15 @@ const ROUND_OF_32_FALLBACK_MATCHES = [
     "stage": "LAST_32",
     "crDate": "2026-07-01",
     "crDateLabel": "1 jul 2026",
-    "crTime": "12:00 p.m.",
-    "crTimeMinutes": 720,
+    "crTime": "10:00 a.m.",
+    "crTimeMinutes": 600,
     "home": {
-      "name": "A definir",
-      "flagCode": ""
+      "name": "Inglaterra",
+      "flagCode": "gb-eng"
     },
     "away": {
-      "name": "A definir",
-      "flagCode": ""
+      "name": "República Dem. del Congo",
+      "flagCode": "cd"
     }
   },
   {
@@ -1833,15 +1833,15 @@ const ROUND_OF_32_FALLBACK_MATCHES = [
     "stage": "LAST_32",
     "crDate": "2026-07-01",
     "crDateLabel": "1 jul 2026",
-    "crTime": "4:00 p.m.",
-    "crTimeMinutes": 960,
+    "crTime": "2:00 p.m.",
+    "crTimeMinutes": 840,
     "home": {
       "name": "Bélgica",
       "flagCode": "be"
     },
     "away": {
-      "name": "A definir",
-      "flagCode": ""
+      "name": "Senegal",
+      "flagCode": "sn"
     }
   },
   {
@@ -1850,8 +1850,8 @@ const ROUND_OF_32_FALLBACK_MATCHES = [
     "stage": "LAST_32",
     "crDate": "2026-07-01",
     "crDateLabel": "1 jul 2026",
-    "crTime": "8:00 p.m.",
-    "crTimeMinutes": 1200,
+    "crTime": "6:00 p.m.",
+    "crTimeMinutes": 1080,
     "home": {
       "name": "Estados Unidos",
       "flagCode": "us"
@@ -1867,8 +1867,8 @@ const ROUND_OF_32_FALLBACK_MATCHES = [
     "stage": "LAST_32",
     "crDate": "2026-07-02",
     "crDateLabel": "2 jul 2026",
-    "crTime": "3:00 p.m.",
-    "crTimeMinutes": 900,
+    "crTime": "1:00 p.m.",
+    "crTimeMinutes": 780,
     "home": {
       "name": "España",
       "flagCode": "es"
@@ -1884,15 +1884,15 @@ const ROUND_OF_32_FALLBACK_MATCHES = [
     "stage": "LAST_32",
     "crDate": "2026-07-02",
     "crDateLabel": "2 jul 2026",
-    "crTime": "7:00 p.m.",
-    "crTimeMinutes": 1140,
+    "crTime": "5:00 p.m.",
+    "crTimeMinutes": 1020,
     "home": {
-      "name": "A definir",
-      "flagCode": ""
+      "name": "Portugal",
+      "flagCode": "pt"
     },
     "away": {
-      "name": "A definir",
-      "flagCode": ""
+      "name": "Croacia",
+      "flagCode": "hr"
     }
   },
   {
@@ -1901,8 +1901,8 @@ const ROUND_OF_32_FALLBACK_MATCHES = [
     "stage": "LAST_32",
     "crDate": "2026-07-02",
     "crDateLabel": "2 jul 2026",
-    "crTime": "11:00 p.m.",
-    "crTimeMinutes": 1380,
+    "crTime": "9:00 p.m.",
+    "crTimeMinutes": 1260,
     "home": {
       "name": "Suiza",
       "flagCode": "ch"
@@ -1918,8 +1918,8 @@ const ROUND_OF_32_FALLBACK_MATCHES = [
     "stage": "LAST_32",
     "crDate": "2026-07-03",
     "crDateLabel": "3 jul 2026",
-    "crTime": "2:00 p.m.",
-    "crTimeMinutes": 840,
+    "crTime": "12:00 p.m.",
+    "crTimeMinutes": 720,
     "home": {
       "name": "Australia",
       "flagCode": "au"
@@ -1935,8 +1935,8 @@ const ROUND_OF_32_FALLBACK_MATCHES = [
     "stage": "LAST_32",
     "crDate": "2026-07-03",
     "crDateLabel": "3 jul 2026",
-    "crTime": "6:00 p.m.",
-    "crTimeMinutes": 1080,
+    "crTime": "4:00 p.m.",
+    "crTimeMinutes": 960,
     "home": {
       "name": "Argentina",
       "flagCode": "ar"
@@ -1952,15 +1952,15 @@ const ROUND_OF_32_FALLBACK_MATCHES = [
     "stage": "LAST_32",
     "crDate": "2026-07-03",
     "crDateLabel": "3 jul 2026",
-    "crTime": "9:30 p.m.",
-    "crTimeMinutes": 1290,
+    "crTime": "7:30 p.m.",
+    "crTimeMinutes": 1170,
     "home": {
-      "name": "A definir",
-      "flagCode": ""
+      "name": "Colombia",
+      "flagCode": "co"
     },
     "away": {
-      "name": "A definir",
-      "flagCode": ""
+      "name": "Ghana",
+      "flagCode": "gh"
     }
   }
 ];
@@ -2521,7 +2521,13 @@ function buildRoundOf32Matches_(apiMatches) {
     if (slot < 0) {
       slot = fallback.findIndex(function(match) { return !match.apiId; });
     }
-    if (slot >= 0) fallback[slot] = Object.assign({}, fallback[slot], mapped);
+    if (slot >= 0) {
+      const confirmed = fallback[slot];
+      fallback[slot] = Object.assign({}, confirmed, mapped, {
+        home: preferDefinedRoundTeam_(mapped.home, confirmed.home),
+        away: preferDefinedRoundTeam_(mapped.away, confirmed.away),
+      });
+    }
   });
 
   return fallback
@@ -2529,6 +2535,12 @@ function buildRoundOf32Matches_(apiMatches) {
     .map(function(match, index) {
       return Object.assign({}, match, { id: "R32-" + String(index + 1).padStart(2, "0"), number: index + 1 });
     });
+}
+
+function preferDefinedRoundTeam_(apiTeam, confirmedTeam) {
+  const name = normalizeTeamName_(apiTeam && apiTeam.name);
+  const placeholders = ["", "a definir", "por definir", "tbd", "to be decided"];
+  return placeholders.indexOf(name) === -1 ? apiTeam : (confirmedTeam || apiTeam);
 }
 
 function roundOf32MatchFromApi_(apiMatch) {
