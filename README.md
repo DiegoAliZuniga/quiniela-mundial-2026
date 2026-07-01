@@ -4,11 +4,11 @@ Este paquete contiene un sitio estatico listo para GitHub Pages y un Google Apps
 
 ## Archivos
 
-- `index.html`: pagina principal con resultados, ranking y calendario.
+- `index.html`: pagina principal con resultados, calendarios y rankings completos de todos los participantes.
 - `quiniela.html`: formulario de quiniela. Muestra un partido por vez, incluye banderas y resume todas las selecciones antes de enviar.
 - `dieciseisavos.html`: formulario de los 16 cruces, limitado a participantes existentes y con cierre el 28 de junio a la 1:00 p.m. CR.
-- `predicciones.html`: matrices para mostrar predicciones de fase de grupos y dieciseisavos.
-- `exportar-predicciones.html`: herramienta personal para descargar un XLSX completo con todas las predicciones, sin correos.
+- `predicciones.html`: matriz visible de dieciseisavos con puntos de fase de grupos, puntos de dieciseisavos, total acumulado y campeon elegido.
+- `exportar-predicciones.html`: herramienta personal para descargar por separado la fase de grupos o dieciseisavos en XLSX, sin correos.
 - `apps-script.gs`: backend de Google Apps Script para respuestas, resultados, ranking y football-data.org.
 
 ## Configurar Google Sheets y Apps Script
@@ -51,7 +51,7 @@ Si haces cambios en `apps-script.gs`, vuelve a desplegar el Web App con `Deploy`
 - `?action=predictionsData` tambien intenta sincronizar football-data.org antes de devolver resultados, usando el mismo cache global de Apps Script.
 - `publicData` y `predictionsData` usan cache corta en Apps Script para evitar leer toda la hoja en cada visita. La cache dura 8 segundos durante ventanas en vivo y 30 segundos fuera de ellas.
 - `index.html` y `predicciones.html` guardan la ultima respuesta valida en el navegador por hasta 10 minutos para pintar rapido y luego actualizar en segundo plano.
-- `exportar-predicciones.html` lee `?action=predictionsExportData` para descargar todas las predicciones en XLSX.
+- `exportar-predicciones.html` lee `?action=predictionsExportData` para descargar en XLSX la fase de grupos o dieciseisavos con sus resumenes de puntaje.
 
 ## Subir a GitHub Pages
 

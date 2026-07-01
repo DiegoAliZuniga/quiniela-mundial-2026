@@ -171,13 +171,14 @@
       <p class="eyebrow">Herramienta personal</p>
       <h1 id="title">Descargar predicciones completas</h1>
       <p>
-        Esta pagina genera un XLSX con toda la matriz de predicciones: partidos,
-        resultados oficiales disponibles, ganador, seleccion de cada participante,
-        puntos por grupo, total de puntos y campeon elegido. No incluye correos.
+        Esta página genera archivos XLSX separados para la fase de grupos y los
+        dieciseisavos. Incluye resultados, predicciones, puntos por fase, total
+        acumulado y campeón elegido. No incluye correos.
       </p>
 
       <div class="actions">
         <button id="downloadBtn" type="button" disabled>Preparando datos...</button>
+        <button id="downloadRoundBtn" type="button" disabled>Preparando dieciseisavos...</button>
         <a class="button" href="predicciones.html">Ver predicciones</a>
         <a class="button" href="index.html">Inicio</a>
       </div>
@@ -1863,15 +1864,18 @@
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby-vt500y5fZEJ5QAT7z9y0Zn7WEJJTg6iAeTf2qvYp97cqa8EWhVVPcW_9psToHu-k/exec";
     const FINISHED_STATUSES = new Set(["FINISHED", "AWARDED"]);
     const MONTHS = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+    const CR_TIME_ZONE = "America/Costa_Rica";
     const state = { data: null };
 
     const downloadBtn = document.getElementById("downloadBtn");
+    const downloadRoundBtn = document.getElementById("downloadRoundBtn");
     const statusEl = document.getElementById("status");
     const participantCountEl = document.getElementById("participantCount");
     const matchCountEl = document.getElementById("matchCount");
     const loadedAtEl = document.getElementById("loadedAt");
 
-    downloadBtn.addEventListener("click", downloadXlsx);
+    downloadBtn.addEventListener("click", () => downloadXlsx("groups"));
+    downloadRoundBtn.addEventListener("click", () => downloadXlsx("roundOf32"));
     loadExportData();
 
     function loadExportData() {
@@ -1889,33 +1893,39 @@
           state.data = data;
           const participants = Array.isArray(data.participants) ? data.participants : [];
           const matches = Array.isArray(data.matches) && data.matches.length ? data.matches : MATCHES;
+          const roundMatches = data.roundOf32 && Array.isArray(data.roundOf32.matches) ? data.roundOf32.matches : [];
           participantCountEl.textContent = participants.length;
-          matchCountEl.textContent = matches.length;
+          matchCountEl.textContent = `${matches.length} + ${roundMatches.length}`;
           loadedAtEl.textContent = new Date().toLocaleTimeString("es-CR", { hour: "numeric", minute: "2-digit" });
           downloadBtn.disabled = false;
-          downloadBtn.textContent = "Descargar XLSX completo";
-          setStatus("Listo. El archivo se descargara con todos los participantes disponibles.");
+          downloadBtn.textContent = "Descargar fase de grupos";
+          downloadRoundBtn.disabled = roundMatches.length === 0;
+          downloadRoundBtn.textContent = roundMatches.length ? "Descargar dieciseisavos" : "Dieciseisavos no disponibles";
+          setStatus("Listo. Puedes descargar la fase de grupos o la matriz completa de dieciseisavos.");
         })
         .catch((error) => {
           downloadBtn.disabled = true;
           downloadBtn.textContent = "No disponible";
+          downloadRoundBtn.disabled = true;
+          downloadRoundBtn.textContent = "No disponible";
           setStatus(error.message || "No se pudo preparar el archivo.", true);
         });
     }
 
-    function downloadXlsx() {
+    function downloadXlsx(phase) {
       if (!state.data) return;
-      const workbook = buildXlsx(state.data);
+      const isRound = phase === "roundOf32";
+      const workbook = buildXlsx(state.data, phase);
       const blob = new Blob([workbook], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `predicciones-completas-${fileDate(new Date())}.xlsx`;
+      link.download = `${isRound ? "predicciones-dieciseisavos" : "predicciones-fase-grupos"}-${fileDate(new Date())}.xlsx`;
       document.body.appendChild(link);
       link.click();
       link.remove();
       URL.revokeObjectURL(url);
-      setStatus("XLSX descargado. Puedes abrirlo directamente en Excel o subirlo a Google Sheets.");
+      setStatus(`${isRound ? "Dieciseisavos" : "Fase de grupos"} descargado en XLSX.`);
     }
 
     function buildRows(data) {
@@ -1954,14 +1964,77 @@
       return rows;
     }
 
-    function buildXlsx(data) {
-      const rows = buildRows(data);
+    function buildRoundRows(data) {
+      const round = data && data.roundOf32 ? data.roundOf32 : {};
+      const matches = (Array.isArray(round.matches) ? round.matches : []).map((match) => ({
+        ...match,
+        crDate: normalizeExportDate(match && (match.crDate || match.date)),
+      })).sort((a, b) =>
+        String(a.crDate || "").localeCompare(String(b.crDate || "")) ||
+        Number(a.crTimeMinutes || 0) - Number(b.crTimeMinutes || 0) ||
+        Number(a.number || 0) - Number(b.number || 0)
+      );
+      const participants = Array.isArray(round.participants) ? round.participants : [];
+      const resultsById = new Map((round.results || []).map((result) => [String(result.matchId || ""), result]));
+      const rows = [];
+
+      rows.push(["", "", "", "", "", ""].concat(participants.map((_, index) => String(index + 1))));
+      rows.push(["Fecha", "Local", "GL", "Visita", "GV", "Ganador"].concat(participants.map((participant, index) => participant.name || `Participante ${index + 1}`)));
+      rows.push(["", "Dieciseisavos", "", "Dieciseisavos", "", ""].concat(participants.map(() => "")));
+      matches.forEach((match) => {
+        const result = resultsById.get(String(match.id || "")) || {};
+        rows.push([
+          shortDate(match.crDate),
+          teamName(match.home),
+          goalValue(regularTimeGoal(result, "home")),
+          teamName(match.away),
+          goalValue(regularTimeGoal(result, "away")),
+          winnerLabel(match, result),
+        ].concat(participants.map((participant) => pickForMatch(participant, match))));
+      });
+      rows.push([]);
+      rows.push(["", "Participantes", "", "", "", ""].concat(participants.map((participant) => participant.name || "")));
+      rows.push(["", "Puntos fase de grupos", "", "", "", ""].concat(participants.map((participant) => previousExportPoints(participant, round, matches, resultsById))));
+      rows.push(["", "Puntos dieciseisavos", "", "", "", ""].concat(participants.map((participant) => roundExportPoints(participant, round, matches, resultsById))));
+      rows.push(["", "Total puntos", "", "", "", ""].concat(participants.map((participant) => cumulativeExportPoints(participant, round, matches, resultsById))));
+      rows.push(["", "Campeón elegido", "", "", "", ""].concat(participants.map((participant) => participant.champion || "Sin selección")));
+      return rows;
+    }
+
+    function exportParticipantKey(value) {
+      return String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
+    }
+
+    function exportRankingPoints(rows, participant, fallback) {
+      const key = exportParticipantKey(participant && participant.name);
+      const row = (Array.isArray(rows) ? rows : []).find((item) => exportParticipantKey(item && item.name) === key);
+      return row ? Number(row.points || 0) : Number(fallback || 0);
+    }
+
+    function roundExportPoints(participant, round, matches, resultsById) {
+      return exportRankingPoints(round.ranking, participant, scoreParticipant(participant, matches, resultsById));
+    }
+
+    function cumulativeExportPoints(participant, round, matches, resultsById) {
+      const phase = roundExportPoints(participant, round, matches, resultsById);
+      return exportRankingPoints(round.cumulativeRanking, participant, phase);
+    }
+
+    function previousExportPoints(participant, round, matches, resultsById) {
+      return Math.max(0, cumulativeExportPoints(participant, round, matches, resultsById) - roundExportPoints(participant, round, matches, resultsById));
+    }
+
+    function buildXlsx(data, phase = "groups") {
+      const isRound = phase === "roundOf32";
+      const rows = isRound ? buildRoundRows(data) : buildRows(data);
+      const sheetName = isRound ? "Dieciseisavos" : "Fase de grupos";
+      const title = isRound ? "Predicciones de dieciseisavos" : "Predicciones de fase de grupos";
       return makeZip({
         "[Content_Types].xml": contentTypesXml(),
         "_rels/.rels": rootRelsXml(),
         "docProps/app.xml": appPropsXml(),
-        "docProps/core.xml": corePropsXml(),
-        "xl/workbook.xml": workbookXml(),
+        "docProps/core.xml": corePropsXml(title),
+        "xl/workbook.xml": workbookXml(sheetName),
         "xl/_rels/workbook.xml.rels": workbookRelsXml(),
         "xl/worksheets/sheet1.xml": worksheetXml(rows),
       });
@@ -2039,10 +2112,28 @@
     }
 
     function shortDate(value) {
-      const parts = String(value || "").split("-");
-      if (parts.length !== 3) return String(value || "");
+      const normalized = normalizeExportDate(value);
+      const parts = normalized.split("-");
+      if (parts.length !== 3) return normalized;
       const month = MONTHS[Number(parts[1]) - 1] || parts[1];
       return `${String(Number(parts[2])).padStart(2, "0")}-${month}`;
+    }
+
+    function normalizeExportDate(value) {
+      const text = String(value || "").trim();
+      if (!text) return "";
+      const iso = text.match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (iso) return `${iso[1]}-${iso[2]}-${iso[3]}`;
+      const parsed = new Date(text);
+      if (Number.isNaN(parsed.getTime())) return text;
+      const parts = new Intl.DateTimeFormat("en-CA", {
+        timeZone: CR_TIME_ZONE,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }).formatToParts(parsed);
+      const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+      return `${values.year}-${values.month}-${values.day}`;
     }
 
     function worksheetXml(rows) {
@@ -2115,11 +2206,11 @@
 </Relationships>`;
     }
 
-    function workbookXml() {
+    function workbookXml(sheetName = "Predicciones") {
       return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
   <sheets>
-    <sheet name="Predicciones" sheetId="1" r:id="rId1"/>
+    <sheet name="${xmlEscape(sheetName)}" sheetId="1" r:id="rId1"/>
   </sheets>
 </workbook>`;
     }
@@ -2138,11 +2229,11 @@
 </Properties>`;
     }
 
-    function corePropsXml() {
+    function corePropsXml(title = "Predicciones completas") {
       const now = new Date().toISOString();
       return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <dc:title>Predicciones completas</dc:title>
+  <dc:title>${xmlEscape(title)}</dc:title>
   <dc:creator>Quiniela Mundial 2026</dc:creator>
   <cp:lastModifiedBy>Quiniela Mundial 2026</cp:lastModifiedBy>
   <dcterms:created xsi:type="dcterms:W3CDTF">${now}</dcterms:created>

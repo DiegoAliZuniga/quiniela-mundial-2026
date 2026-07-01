@@ -2278,7 +2278,7 @@
         numberValue(b.points) - numberValue(a.points) ||
         numberValue(b.hits) - numberValue(a.hits) ||
         String(a.name || "").localeCompare(String(b.name || ""), "es")
-      ).slice(0, 10) : [];
+      ) : [];
       if (ranking.length === 0) {
         board.innerHTML = `<p>${escapeHtml(emptyMessage)}</p>`;
         return;

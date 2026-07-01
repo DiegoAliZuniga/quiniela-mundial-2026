@@ -15,7 +15,7 @@ const FOOTBALL_DATA_TOKEN_PROPERTY = "FOOTBALL_DATA_API_KEY";
 const SYNC_SECRET_PROPERTY = "SYNC_SECRET";
 const PUBLIC_SYNC_CACHE_KEY = "PUBLIC_DATA_SYNC_ATTEMPTED";
 const PUBLIC_DATA_CACHE_KEY = "PUBLIC_DATA_PAYLOAD_V6";
-const PREDICTIONS_DATA_CACHE_KEY = "PREDICTIONS_DATA_PAYLOAD_V7";
+const PREDICTIONS_DATA_CACHE_KEY = "PREDICTIONS_DATA_PAYLOAD_V8";
 const ROUND_OF_32_FORM_CACHE_KEY = "ROUND_OF_32_FORM_DATA_V1";
 const ROUND_OF_32_MATCHES_CACHE_KEY = "ROUND_OF_32_MATCHES_V3";
 const CR_TIME_ZONE = "America/Costa_Rica";
@@ -2338,15 +2338,7 @@ function getPredictionsData_() {
   maybeSyncFootballDataForPublic_(ss);
   const participants = readParticipants_(ss);
   const roundParticipants = readRoundOf32Participants_(ss);
-  const originalParticipantByName = {};
-  participants.forEach(function(participant) {
-    originalParticipantByName[normalizeParticipantName_(participant.name)] = participant;
-  });
-  roundParticipants.forEach(function(participant) {
-    const original = originalParticipantByName[normalizeParticipantName_(participant.name)] || {};
-    participant.champion = original.champion || "Sin selección";
-    participant.championFlagCode = original.championFlagCode || "";
-  });
+  enrichRoundParticipants_(roundParticipants, participants);
   const roundMatches = readRoundOf32MatchesSheet_(ss);
   const roundResults = readRoundOf32Results_(ss);
   const maxVisibleParticipants = 16;
@@ -2373,9 +2365,25 @@ function getPredictionsData_() {
   return payload;
 }
 
+function enrichRoundParticipants_(roundParticipants, participants) {
+  const originalParticipantByName = {};
+  (participants || []).forEach(function(participant) {
+    originalParticipantByName[normalizeParticipantName_(participant.name)] = participant;
+  });
+  (roundParticipants || []).forEach(function(participant) {
+    const original = originalParticipantByName[normalizeParticipantName_(participant.name)] || {};
+    participant.champion = original.champion || "Sin selección";
+    participant.championFlagCode = original.championFlagCode || "";
+  });
+  return roundParticipants;
+}
+
 function getPredictionsExportData_() {
   const ss = getSpreadsheet_();
+  maybeSyncFootballDataForPublic_(ss);
   const participants = readParticipants_(ss);
+  const roundParticipants = readRoundOf32Participants_(ss);
+  enrichRoundParticipants_(roundParticipants, participants);
   return {
     ok: true,
     generatedAt: new Date().toISOString(),
@@ -2383,6 +2391,14 @@ function getPredictionsExportData_() {
     results: readResults_(ss),
     participants: participants,
     totalParticipants: participants.length,
+    roundOf32: {
+      matches: readRoundOf32MatchesSheet_(ss),
+      results: readRoundOf32Results_(ss),
+      participants: roundParticipants,
+      totalParticipants: roundParticipants.length,
+      ranking: readExtendedRanking_(ss, ROUND_OF_32_RANKING_SHEET),
+      cumulativeRanking: readExtendedRanking_(ss, CUMULATIVE_RANKING_SHEET),
+    },
   };
 }
 

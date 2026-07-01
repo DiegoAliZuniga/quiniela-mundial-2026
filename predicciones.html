@@ -2284,7 +2284,7 @@
     const CR_TIME_ZONE = "America/Costa_Rica";
     const STANDARD_PREDICTIONS_REFRESH_MS = 60000;
     const LIVE_PREDICTIONS_REFRESH_MS = 10000;
-    const PREDICTIONS_STORAGE_KEY = "quinielaPredictionsData:v10";
+    const PREDICTIONS_STORAGE_KEY = "quinielaPredictionsData:v11";
     const PREDICTIONS_STORAGE_MAX_AGE_MS = 10 * 60 * 1000;
     const GROUP_COLORS = {
       A: "#f1d294",
@@ -2309,7 +2309,7 @@
       totalParticipants: 0,
       generatedAt: "",
       hiddenParticipants: 0,
-      roundOf32: { matches: [], results: [], participants: [], totalParticipants: 0, hiddenParticipants: 0 },
+      roundOf32: { matches: [], results: [], participants: [], totalParticipants: 0, hiddenParticipants: 0, ranking: [], cumulativeRanking: [] },
     };
     let predictionsRefreshTimer = null;
     let predictionsRequestInFlight = null;
@@ -2365,7 +2365,9 @@
           participants: Array.isArray(data.roundOf32.participants) ? data.roundOf32.participants : [],
           totalParticipants: Number(data.roundOf32.totalParticipants || 0),
           hiddenParticipants: Number(data.roundOf32.hiddenParticipants || 0),
-        } : { matches: [], results: [], participants: [], totalParticipants: 0, hiddenParticipants: 0 },
+          ranking: Array.isArray(data.roundOf32.ranking) ? data.roundOf32.ranking : [],
+          cumulativeRanking: Array.isArray(data.roundOf32.cumulativeRanking) ? data.roundOf32.cumulativeRanking : [],
+        } : { matches: [], results: [], participants: [], totalParticipants: 0, hiddenParticipants: 0, ranking: [], cumulativeRanking: [] },
       };
     }
 
@@ -2441,6 +2443,8 @@
           participants: payload.roundOf32.participants,
           totalParticipants: payload.roundOf32.totalParticipants,
           hiddenParticipants: payload.roundOf32.hiddenParticipants,
+          ranking: payload.roundOf32.ranking,
+          cumulativeRanking: payload.roundOf32.cumulativeRanking,
         },
       });
     }
@@ -2507,12 +2511,13 @@
       const columns = roundDisplayColumns();
       const resultsById = mapByMatchId(round.results);
       roundPredictionsHead.innerHTML = renderHead(columns);
-      roundPredictionsBody.innerHTML = renderRoundBody(round.matches, columns, resultsById);
-      renderRoundMobileParticipants(columns, round.matches, resultsById);
+      roundPredictionsBody.innerHTML = renderRoundBody(round, columns, resultsById);
+      renderRoundMobileParticipants(round, columns, resultsById);
       renderRoundStatus();
     }
 
-    function renderRoundBody(matches, columns, resultsById) {
+    function renderRoundBody(round, columns, resultsById) {
+      const matches = round.matches || [];
       const rows = [];
       rows.push(`
         <tr class="group-row" style="--group-color:#cfe2f3;">
@@ -2521,28 +2526,51 @@
         </tr>
       `);
       (matches || []).forEach((match) => rows.push(renderMatchRow(match, columns, resultsById.get(match.id))));
-      rows.push(renderRoundPointsRow(matches || [], columns, resultsById));
       rows.push(renderSpacerRow(columns));
       rows.push(renderFooterNames(columns));
-      rows.push(renderTotalRowForMatches(matches || [], columns, resultsById, "Puntos dieciseisavos"));
+      rows.push(renderRoundSummaryRow("Puntos fase de grupos", columns, (participant) => previousPhasePoints(participant, round, matches, resultsById)));
+      rows.push(renderRoundSummaryRow("Puntos dieciseisavos", columns, (participant) => roundPhasePoints(participant, round, matches, resultsById)));
+      rows.push(renderRoundSummaryRow("Total puntos", columns, (participant) => cumulativePoints(participant, round, matches, resultsById), "total-row"));
+      rows.push(renderRoundChampionRow(columns));
       return rows.join("");
     }
 
-    function renderRoundPointsRow(matches, columns, resultsById) {
-      const hasComputed = matches.some((match) => isComputed(resultsById.get(match.id)));
+    function renderRoundSummaryRow(label, columns, valueForParticipant, extraClass = "") {
       const cells = columns.map((participant) => {
         if (!participant) return '<td class="points-cell empty-player">.</td>';
-        return `<td class="points-cell">${hasComputed ? escapeHtml(scoreForMatches(participant, matches, resultsById)) : ""}</td>`;
+        return `<td class="points-cell">${escapeHtml(valueForParticipant(participant))}</td>`;
       }).join("");
-      return `<tr class="points-row"><td></td><td class="points-label">Puntos de la fase</td><td></td><td></td><td></td><td></td><td></td>${cells}</tr>`;
+      return `<tr class="footer-row ${extraClass}"><td></td><td>${escapeHtml(label)}</td><td></td><td></td><td></td><td></td><td></td>${cells}</tr>`;
     }
 
-    function renderTotalRowForMatches(matches, columns, resultsById, label) {
-      const cells = columns.map((participant) => {
-        if (!participant) return '<td class="points-cell empty-player">.</td>';
-        return `<td class="points-cell">${escapeHtml(scoreForMatches(participant, matches, resultsById))}</td>`;
-      }).join("");
-      return `<tr class="footer-row total-row"><td></td><td>${escapeHtml(label)}</td><td></td><td></td><td></td><td></td><td></td>${cells}</tr>`;
+    function renderRoundChampionRow(columns) {
+      return `<tr class="footer-row"><td></td><td>Campeón elegido</td><td></td><td></td><td></td><td></td><td></td>${columns.map((participant) =>
+        `<td class="player-cell ${participant ? "" : "empty-player"}">${participant ? escapeHtml(participant.champion || "Sin selección") : "."}</td>`
+      ).join("")}</tr>`;
+    }
+
+    function participantKey(value) {
+      return String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
+    }
+
+    function rankingPoints(rows, participant, fallback) {
+      const key = participantKey(participant && participant.name);
+      const row = (Array.isArray(rows) ? rows : []).find((item) => participantKey(item && item.name) === key);
+      return row ? Number(row.points || 0) : Number(fallback || 0);
+    }
+
+    function roundPhasePoints(participant, round, matches, resultsById) {
+      const computed = scoreForMatches(participant, matches, resultsById);
+      return rankingPoints(round.ranking, participant, computed);
+    }
+
+    function cumulativePoints(participant, round, matches, resultsById) {
+      const phase = roundPhasePoints(participant, round, matches, resultsById);
+      return rankingPoints(round.cumulativeRanking, participant, phase);
+    }
+
+    function previousPhasePoints(participant, round, matches, resultsById) {
+      return Math.max(0, cumulativePoints(participant, round, matches, resultsById) - roundPhasePoints(participant, round, matches, resultsById));
     }
 
     function roundDisplayColumns() {
@@ -2551,11 +2579,13 @@
       return columns;
     }
 
-    function renderRoundMobileParticipants(columns, matches, resultsById) {
+    function renderRoundMobileParticipants(round, columns, resultsById) {
+      const matches = round.matches || [];
       const participants = columns.filter(Boolean).map((participant) => ({
         ...participant,
-        score: scoreForMatches(participant, matches, resultsById),
-      })).sort((a, b) => b.score - a.score || String(a.name || "").localeCompare(String(b.name || ""), "es"));
+        phasePoints: roundPhasePoints(participant, round, matches, resultsById),
+        totalPoints: cumulativePoints(participant, round, matches, resultsById),
+      })).sort((a, b) => b.totalPoints - a.totalPoints || String(a.name || "").localeCompare(String(b.name || ""), "es"));
       if (!participants.length) {
         roundMobileParticipants.hidden = true;
         roundMobileParticipants.replaceChildren();
@@ -2564,8 +2594,9 @@
       roundMobileParticipants.hidden = false;
       roundMobileParticipants.innerHTML = participants.map((participant, index) => `
         <article class="mobile-participant-card">
-          <div class="mobile-participant-top"><span>${index + 1}. ${escapeHtml(participant.name)}</span><span>${escapeHtml(participant.score)} pts</span></div>
+          <div class="mobile-participant-top"><span>${index + 1}. ${escapeHtml(participant.name)}</span><span>${escapeHtml(participant.totalPoints)} pts total</span></div>
           <div class="mobile-participant-meta">Campeón elegido: ${escapeHtml(participant.champion || "Sin selección")}</div>
+          <div class="mobile-participant-meta">Dieciseisavos: ${escapeHtml(participant.phasePoints)} pts</div>
         </article>
       `).join("");
     }
