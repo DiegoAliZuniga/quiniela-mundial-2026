@@ -366,9 +366,9 @@
     </div>
   </section>
 
-  <section class="section blue" aria-label="Ranking de dieciseisavos">
+  <section class="section blue" aria-label="Ranking de octavos">
     <div class="wrap ranking-card">
-      <h2>Ranking de dieciseisavos</h2>
+      <h2>Ranking de octavos</h2>
       <div class="ranking-board" id="roundRankingBoard">
         <p>El ranking se activará cuando se contabilicen resultados de esta fase.</p>
       </div>
@@ -2049,7 +2049,7 @@
     const CR_TIME_ZONE = "America/Costa_Rica";
     const STANDARD_DATA_REFRESH_MS = 60000;
     const LIVE_DATA_REFRESH_MS = 10000;
-    const PUBLIC_DATA_STORAGE_KEY = "quinielaPublicData:v6";
+    const PUBLIC_DATA_STORAGE_KEY = "quinielaPublicData:v7";
     const PUBLIC_DATA_STORAGE_MAX_AGE_MS = 10 * 60 * 1000;
     const LIVE_STATUSES = new Set(["IN_PLAY", "PAUSED", "EXTRA_TIME", "PENALTY_SHOOTOUT"]);
     const FINISHED_STATUSES = new Set(["FINISHED", "AWARDED"]);
@@ -2061,7 +2061,7 @@
     const roundRankingBoard = document.getElementById("roundRankingBoard");
     const syncNote = document.getElementById("syncNote");
     const roundSyncNote = document.getElementById("roundSyncNote");
-    let publicData = { results: [], ranking: [], roundOf32Ranking: [], roundOf32: { matches: [], results: [] }, apiState: null, generatedAt: "" };
+    let publicData = { results: [], ranking: [], roundOf32: { matches: [], results: [] }, octavosRanking: [], octavos: { matches: [], results: [] }, apiState: null, generatedAt: "" };
     let publicResultsById = new Map();
     let publicDataSignature = "";
     let publicDataRefreshTimer = null;
@@ -2089,11 +2089,15 @@
     }
 
     function allMatches() {
-      return MATCHES.concat(publicData.roundOf32 && Array.isArray(publicData.roundOf32.matches) ? publicData.roundOf32.matches : []);
+      const roundMatches = publicData.roundOf32 && Array.isArray(publicData.roundOf32.matches) ? publicData.roundOf32.matches : [];
+      const octavosMatches = publicData.octavos && Array.isArray(publicData.octavos.matches) ? publicData.octavos.matches : [];
+      return MATCHES.concat(roundMatches, octavosMatches);
     }
 
     function allResults() {
-      return publicData.results.concat(publicData.roundOf32 && Array.isArray(publicData.roundOf32.results) ? publicData.roundOf32.results : []);
+      const roundResults = publicData.roundOf32 && Array.isArray(publicData.roundOf32.results) ? publicData.roundOf32.results : [];
+      const octavosResults = publicData.octavos && Array.isArray(publicData.octavos.results) ? publicData.octavos.results : [];
+      return publicData.results.concat(roundResults, octavosResults);
     }
 
     function hasLiveWindow(now = nowInCostaRica()) {
@@ -2228,7 +2232,7 @@
       calendarStrip.innerHTML = upcoming.map((match) => `
         <article class="fixture-card">
           <div class="fixture-meta">
-            <span>${match.stage === "LAST_32" ? "Dieciseisavos" : `Grupo ${escapeHtml(match.group)}`}</span>
+            <span>${match.stage === "LAST_16" ? "Octavos" : match.stage === "LAST_32" ? "Dieciseisavos" : `Grupo ${escapeHtml(match.group)}`}</span>
             <span>${escapeHtml(match.crDateLabel)}</span>
           </div>
           <div class="fixture-teams">${escapeHtml(match.home.name)} vs ${escapeHtml(match.away.name)}</div>
@@ -2259,7 +2263,7 @@
 
     function renderRanking() {
       renderRankingBoard(rankingBoard, publicData.ranking, "El ranking acumulado se activará cuando se calculen los resultados oficiales.");
-      renderRankingBoard(roundRankingBoard, publicData.roundOf32Ranking, "El ranking de dieciseisavos se activará cuando se contabilicen resultados de esta fase.");
+      renderRankingBoard(roundRankingBoard, publicData.octavosRanking, "El ranking de octavos se activará cuando se contabilicen resultados de esta fase.");
 
       const apiState = publicData.apiState || {};
       if (publicData.generatedAt || apiState.updatedAt) {
@@ -2405,10 +2409,14 @@
           ? data.results.filter((result) => result && (result.matchId || result.apiId || result.home || result.away || result.status || result.winner))
           : [],
         ranking: Array.isArray(data && data.ranking) ? data.ranking : [],
-        roundOf32Ranking: Array.isArray(data && data.roundOf32Ranking) ? data.roundOf32Ranking : [],
         roundOf32: data && data.roundOf32 ? {
           matches: Array.isArray(data.roundOf32.matches) ? data.roundOf32.matches : [],
           results: Array.isArray(data.roundOf32.results) ? data.roundOf32.results : [],
+        } : { matches: [], results: [] },
+        octavosRanking: Array.isArray(data && data.octavosRanking) ? data.octavosRanking : [],
+        octavos: data && data.octavos ? {
+          matches: Array.isArray(data.octavos.matches) ? data.octavos.matches : [],
+          results: Array.isArray(data.octavos.results) ? data.octavos.results : [],
         } : { matches: [], results: [] },
         apiState: data && data.apiState ? data.apiState : null,
         generatedAt: data && data.generatedAt ? data.generatedAt : "",
@@ -2441,16 +2449,20 @@
           row.computedMatches,
           row.movement,
         ]),
-        roundOf32Ranking: payload.roundOf32Ranking.map((row) => [
+        roundOf32: {
+          matches: payload.roundOf32.matches,
+          results: payload.roundOf32.results,
+        },
+        octavosRanking: payload.octavosRanking.map((row) => [
           row.name,
           row.points,
           row.hits,
           row.computedMatches,
           row.movement,
         ]),
-        roundOf32: {
-          matches: payload.roundOf32.matches,
-          results: payload.roundOf32.results,
+        octavos: {
+          matches: payload.octavos.matches,
+          results: payload.octavos.results,
         },
         apiUpdatedAt: payload.apiState && payload.apiState.updatedAt,
       });

@@ -18,7 +18,7 @@ const FOOTBALL_DATA_API_URL = "https://api.football-data.org/v4/competitions/WC/
 const FOOTBALL_DATA_TOKEN_PROPERTY = "FOOTBALL_DATA_API_KEY";
 const SYNC_SECRET_PROPERTY = "SYNC_SECRET";
 const PUBLIC_SYNC_CACHE_KEY = "PUBLIC_DATA_SYNC_ATTEMPTED";
-const PUBLIC_DATA_CACHE_KEY = "PUBLIC_DATA_PAYLOAD_V6";
+const PUBLIC_DATA_CACHE_KEY = "PUBLIC_DATA_PAYLOAD_V7";
 const PREDICTIONS_DATA_CACHE_KEY = "PREDICTIONS_DATA_PAYLOAD_V9";
 const ROUND_OF_32_FORM_CACHE_KEY = "ROUND_OF_32_FORM_DATA_V1";
 const ROUND_OF_32_MATCHES_CACHE_KEY = "ROUND_OF_32_MATCHES_V3";
@@ -2305,6 +2305,14 @@ function syncFootballData() {
     const roundResults = mergeResults_(freshRoundResults, previousRoundResults);
     writeRoundOf32Results_(ss, roundResults);
     const roundRankings = rebuildRoundOf32Rankings_(ss, roundResults);
+
+    const octavosMatches = cloneOctavosFallbackMatches_();
+    setupOctavosMatchesSheet_(ss, octavosMatches);
+    const previousOctavosResults = readResultsFromSheet_(ss, OCTAVOS_RESULTS_SHEET);
+    const freshOctavosResults = buildOctavosResults_(octavosMatches, apiResponse.matches);
+    const octavosResults = mergeResults_(freshOctavosResults, previousOctavosResults);
+    writeResultsToSheet_(ss, OCTAVOS_RESULTS_SHEET, octavosResults);
+    const octavosRankings = rebuildOctavosRankings_(ss, octavosResults, roundRankings.cumulative);
     writeCachedPayload_(ROUND_OF_32_MATCHES_CACHE_KEY, { matches: roundMatches }, 300);
     writeApiState_(ss, apiResponse.apiState);
     clearDataCaches_();
@@ -2317,7 +2325,9 @@ function syncFootballData() {
       ranking: ranking.length,
       roundOf32Results: roundResults.length,
       roundOf32Ranking: roundRankings.phase.length,
-      cumulativeRanking: roundRankings.cumulative.length,
+      octavosResults: octavosResults.length,
+      octavosRanking: octavosRankings.phase.length,
+      cumulativeRanking: octavosRankings.cumulative.length,
       apiState: apiResponse.apiState,
     };
   } catch (error) {
@@ -2352,6 +2362,7 @@ function getPublicData_() {
   const groupStageRanking = readRanking_(ss);
   const cumulativeRanking = readExtendedRanking_(ss, CUMULATIVE_RANKING_SHEET);
   const roundOf32Ranking = readExtendedRanking_(ss, ROUND_OF_32_RANKING_SHEET);
+  const octavosRanking = readExtendedRanking_(ss, OCTAVOS_RANKING_SHEET);
   const payload = {
     ok: true,
     generatedAt: new Date().toISOString(),
@@ -2362,6 +2373,11 @@ function getPublicData_() {
     roundOf32: {
       matches: readRoundOf32MatchesSheet_(ss),
       results: readRoundOf32Results_(ss),
+    },
+    octavosRanking: octavosRanking,
+    octavos: {
+      matches: cloneOctavosFallbackMatches_(),
+      results: readResultsFromSheet_(ss, OCTAVOS_RESULTS_SHEET),
     },
     apiState: readApiState_(ss),
   };
@@ -2389,7 +2405,7 @@ function maybeSyncFootballDataForPublic_(ss) {
 
 function hasLiveMatchWindow_() {
   const now = nowInCostaRica_();
-  return MATCHES.concat(ROUND_OF_32_FALLBACK_MATCHES).some(function(match) {
+  return MATCHES.concat(ROUND_OF_32_FALLBACK_MATCHES, OCTAVOS_FALLBACK_MATCHES).some(function(match) {
     return match.crDate === now.date &&
       now.minutes >= match.crTimeMinutes &&
       now.minutes <= match.crTimeMinutes + 130;
@@ -3098,6 +3114,14 @@ function buildRoundOf32Results_(roundMatches, apiMatches) {
   });
 }
 
+function buildOctavosResults_(octavosMatches, apiMatches) {
+  const usedApiIds = {};
+  return (octavosMatches || []).map(function(match) {
+    const apiMatchInfo = findApiMatch_(match, apiMatches || [], usedApiIds);
+    return buildResult_(match, apiMatchInfo ? apiMatchInfo.match : null, apiMatchInfo ? apiMatchInfo.reversed : false);
+  });
+}
+
 function mergeResults_(freshResults, previousResults) {
   const previousById = {};
   (previousResults || []).forEach(function(result) {
@@ -3518,6 +3542,63 @@ function rebuildRoundOf32Rankings_(ss, results) {
       hits: Number(groupRow.hits || 0) + Number(phaseRow.hits || 0),
       computedMatches: Number(groupRow.computedMatches || 0) + computedMatches,
       totalPredictions: Number(groupRow.totalPredictions || 0) + Number(phaseRow.totalPredictions || 0),
+    };
+  });
+  sortRankingRows_(cumulative);
+  const cumulativeComputed = cumulative.length ? Number(cumulative[0].computedMatches || 0) : computedMatches;
+  applyRankingMovement_(ss, CUMULATIVE_RANKING_SHEET, cumulative, cumulativeComputed);
+  writeExtendedRanking_(ss, CUMULATIVE_RANKING_SHEET, cumulative);
+
+  return { phase: phase, cumulative: cumulative };
+}
+
+function rebuildOctavosRankings_(ss, results, previousCumulative) {
+  const existingNames = readExistingParticipantNames_(ss);
+  const submittedParticipants = readOctavosParticipants_(ss);
+  const submittedByName = {};
+  submittedParticipants.forEach(function(participant) {
+    submittedByName[normalizeParticipantName_(participant.name)] = participant;
+  });
+
+  const finishedResults = {};
+  (results || []).forEach(function(result) {
+    if (isQuinielaResultComplete_(result)) finishedResults[result.matchId] = result.winner;
+  });
+  const computedMatches = Object.keys(finishedResults).length;
+  const phase = existingNames.map(function(name) {
+    const participant = submittedByName[normalizeParticipantName_(name)] || { selections: [] };
+    let hits = 0;
+    (participant.selections || []).forEach(function(selection) {
+      if (finishedResults[selection.id] && finishedResults[selection.id] === selection.pick) hits += 1;
+    });
+    return {
+      name: name,
+      points: hits * POINTS_PER_HIT,
+      hits: hits,
+      computedMatches: computedMatches,
+      totalPredictions: (participant.selections || []).length,
+    };
+  });
+  sortRankingRows_(phase);
+  applyRankingMovement_(ss, OCTAVOS_RANKING_SHEET, phase, computedMatches);
+  writeExtendedRanking_(ss, OCTAVOS_RANKING_SHEET, phase);
+
+  const previousByName = {};
+  (previousCumulative || []).forEach(function(row) {
+    previousByName[normalizeParticipantName_(row.name)] = row;
+  });
+  const phaseByName = {};
+  phase.forEach(function(row) { phaseByName[normalizeParticipantName_(row.name)] = row; });
+  const cumulative = existingNames.map(function(name) {
+    const key = normalizeParticipantName_(name);
+    const previousRow = previousByName[key] || {};
+    const phaseRow = phaseByName[key] || {};
+    return {
+      name: name,
+      points: Number(previousRow.points || 0) + Number(phaseRow.points || 0),
+      hits: Number(previousRow.hits || 0) + Number(phaseRow.hits || 0),
+      computedMatches: Number(previousRow.computedMatches || 0) + computedMatches,
+      totalPredictions: Number(previousRow.totalPredictions || 0) + Number(phaseRow.totalPredictions || 0),
     };
   });
   sortRankingRows_(cumulative);

@@ -2566,11 +2566,11 @@
 
     function cumulativePoints(participant, round, matches, resultsById) {
       const phase = roundPhasePoints(participant, round, matches, resultsById);
-      return rankingPoints(round.cumulativeRanking, participant, 0) + phase;
+      return rankingPoints(round.cumulativeRanking, participant, phase);
     }
 
     function previousPhasePoints(participant, round, matches, resultsById) {
-      return rankingPoints(round.cumulativeRanking, participant, 0);
+      return Math.max(0, cumulativePoints(participant, round, matches, resultsById) - roundPhasePoints(participant, round, matches, resultsById));
     }
 
     function roundDisplayColumns() {
