@@ -52,7 +52,7 @@ Si haces cambios en `apps-script.gs`, vuelve a desplegar el Web App con `Deploy`
 - `?action=predictionsData` tambien intenta sincronizar football-data.org antes de devolver resultados, usando el mismo cache global de Apps Script.
 - `publicData` y `predictionsData` usan cache corta en Apps Script para evitar leer toda la hoja en cada visita. La cache dura 8 segundos durante ventanas en vivo y 30 segundos fuera de ellas.
 - `index.html` y `predicciones.html` guardan la ultima respuesta valida en el navegador por hasta 10 minutos para pintar rapido y luego actualizar en segundo plano.
-- `exportar-predicciones.html` lee `?action=predictionsExportData` para descargar en XLSX la fase de grupos o dieciseisavos con sus resumenes de puntaje.
+- `exportar-predicciones.html` lee `?action=predictionsExportData` para descargar en XLSX la fase de grupos u octavos con sus resumenes de puntaje.
 
 ## Subir a GitHub Pages
 

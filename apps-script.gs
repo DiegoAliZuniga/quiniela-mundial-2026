@@ -2512,10 +2512,10 @@ function getPredictionsData_() {
   const participants = readParticipants_(ss);
   const roundParticipants = readRoundOf32Participants_(ss);
   enrichRoundParticipants_(roundParticipants, participants);
-  const roundMatches = readRoundOf32MatchesSheet_(ss);
-  const roundResults = readRoundOf32Results_(ss);
   const octavosParticipants = readOctavosParticipants_(ss);
   enrichRoundParticipants_(octavosParticipants, participants);
+  const roundMatches = readRoundOf32MatchesSheet_(ss);
+  const roundResults = readRoundOf32Results_(ss);
   const octavosMatches = cloneOctavosFallbackMatches_();
   const octavosResults = readResultsFromSheet_(ss, OCTAVOS_RESULTS_SHEET);
   const maxVisibleParticipants = 16;
@@ -2570,6 +2570,8 @@ function getPredictionsExportData_() {
   const participants = readParticipants_(ss);
   const roundParticipants = readRoundOf32Participants_(ss);
   enrichRoundParticipants_(roundParticipants, participants);
+  const octavosParticipants = readOctavosParticipants_(ss);
+  enrichRoundParticipants_(octavosParticipants, participants);
   return {
     ok: true,
     generatedAt: new Date().toISOString(),
@@ -2583,6 +2585,14 @@ function getPredictionsExportData_() {
       participants: roundParticipants,
       totalParticipants: roundParticipants.length,
       ranking: readExtendedRanking_(ss, ROUND_OF_32_RANKING_SHEET),
+      cumulativeRanking: readExtendedRanking_(ss, CUMULATIVE_RANKING_SHEET),
+    },
+    octavos: {
+      matches: cloneOctavosFallbackMatches_(),
+      results: readResultsFromSheet_(ss, OCTAVOS_RESULTS_SHEET),
+      participants: octavosParticipants,
+      totalParticipants: octavosParticipants.length,
+      ranking: readExtendedRanking_(ss, OCTAVOS_RANKING_SHEET),
       cumulativeRanking: readExtendedRanking_(ss, CUMULATIVE_RANKING_SHEET),
     },
   };

@@ -172,13 +172,13 @@
       <h1 id="title">Descargar predicciones completas</h1>
       <p>
         Esta página genera archivos XLSX separados para la fase de grupos y los
-        dieciseisavos. Incluye resultados, predicciones, puntos por fase, total
+        octavos. Incluye resultados, predicciones, puntos por fase, total
         acumulado y campeón elegido. No incluye correos.
       </p>
 
       <div class="actions">
         <button id="downloadBtn" type="button" disabled>Preparando datos...</button>
-        <button id="downloadRoundBtn" type="button" disabled>Preparando dieciseisavos...</button>
+        <button id="downloadRoundBtn" type="button" disabled>Preparando octavos...</button>
         <a class="button" href="predicciones.html">Ver predicciones</a>
         <a class="button" href="index.html">Inicio</a>
       </div>
@@ -1875,7 +1875,7 @@
     const loadedAtEl = document.getElementById("loadedAt");
 
     downloadBtn.addEventListener("click", () => downloadXlsx("groups"));
-    downloadRoundBtn.addEventListener("click", () => downloadXlsx("roundOf32"));
+    downloadRoundBtn.addEventListener("click", () => downloadXlsx("octavos"));
     loadExportData();
 
     function loadExportData() {
@@ -1893,15 +1893,15 @@
           state.data = data;
           const participants = Array.isArray(data.participants) ? data.participants : [];
           const matches = Array.isArray(data.matches) && data.matches.length ? data.matches : MATCHES;
-          const roundMatches = data.roundOf32 && Array.isArray(data.roundOf32.matches) ? data.roundOf32.matches : [];
+          const roundMatches = data.octavos && Array.isArray(data.octavos.matches) ? data.octavos.matches : [];
           participantCountEl.textContent = participants.length;
           matchCountEl.textContent = `${matches.length} + ${roundMatches.length}`;
           loadedAtEl.textContent = new Date().toLocaleTimeString("es-CR", { hour: "numeric", minute: "2-digit" });
           downloadBtn.disabled = false;
           downloadBtn.textContent = "Descargar fase de grupos";
           downloadRoundBtn.disabled = roundMatches.length === 0;
-          downloadRoundBtn.textContent = roundMatches.length ? "Descargar dieciseisavos" : "Dieciseisavos no disponibles";
-          setStatus("Listo. Puedes descargar la fase de grupos o la matriz completa de dieciseisavos.");
+          downloadRoundBtn.textContent = roundMatches.length ? "Descargar octavos" : "Octavos no disponibles";
+          setStatus("Listo. Puedes descargar la fase de grupos o la matriz completa de octavos.");
         })
         .catch((error) => {
           downloadBtn.disabled = true;
@@ -1914,18 +1914,18 @@
 
     function downloadXlsx(phase) {
       if (!state.data) return;
-      const isRound = phase === "roundOf32";
+      const isRound = phase === "octavos";
       const workbook = buildXlsx(state.data, phase);
       const blob = new Blob([workbook], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `${isRound ? "predicciones-dieciseisavos" : "predicciones-fase-grupos"}-${fileDate(new Date())}.xlsx`;
+      link.download = `${isRound ? "predicciones-octavos" : "predicciones-fase-grupos"}-${fileDate(new Date())}.xlsx`;
       document.body.appendChild(link);
       link.click();
       link.remove();
       URL.revokeObjectURL(url);
-      setStatus(`${isRound ? "Dieciseisavos" : "Fase de grupos"} descargado en XLSX.`);
+      setStatus(`${isRound ? "Octavos" : "Fase de grupos"} descargado en XLSX.`);
     }
 
     function buildRows(data) {
@@ -1965,7 +1965,7 @@
     }
 
     function buildRoundRows(data) {
-      const round = data && data.roundOf32 ? data.roundOf32 : {};
+      const round = data && data.octavos ? data.octavos : {};
       const matches = (Array.isArray(round.matches) ? round.matches : []).map((match) => ({
         ...match,
         crDate: normalizeExportDate(match && (match.crDate || match.date)),
@@ -1980,7 +1980,7 @@
 
       rows.push(["", "", "", "", "", ""].concat(participants.map((_, index) => String(index + 1))));
       rows.push(["Fecha", "Local", "GL", "Visita", "GV", "Ganador"].concat(participants.map((participant, index) => participant.name || `Participante ${index + 1}`)));
-      rows.push(["", "Dieciseisavos", "", "Dieciseisavos", "", ""].concat(participants.map(() => "")));
+      rows.push(["", "Octavos", "", "Octavos", "", ""].concat(participants.map(() => "")));
       matches.forEach((match) => {
         const result = resultsById.get(String(match.id || "")) || {};
         rows.push([
@@ -1994,8 +1994,8 @@
       });
       rows.push([]);
       rows.push(["", "Participantes", "", "", "", ""].concat(participants.map((participant) => participant.name || "")));
-      rows.push(["", "Puntos fase de grupos", "", "", "", ""].concat(participants.map((participant) => previousExportPoints(participant, round, matches, resultsById))));
-      rows.push(["", "Puntos dieciseisavos", "", "", "", ""].concat(participants.map((participant) => roundExportPoints(participant, round, matches, resultsById))));
+      rows.push(["", "Puntos anteriores", "", "", "", ""].concat(participants.map((participant) => previousExportPoints(participant, round, matches, resultsById))));
+      rows.push(["", "Puntos octavos", "", "", "", ""].concat(participants.map((participant) => roundExportPoints(participant, round, matches, resultsById))));
       rows.push(["", "Total puntos", "", "", "", ""].concat(participants.map((participant) => cumulativeExportPoints(participant, round, matches, resultsById))));
       rows.push(["", "Campeón elegido", "", "", "", ""].concat(participants.map((participant) => participant.champion || "Sin selección")));
       return rows;
@@ -2025,10 +2025,10 @@
     }
 
     function buildXlsx(data, phase = "groups") {
-      const isRound = phase === "roundOf32";
+      const isRound = phase === "octavos";
       const rows = isRound ? buildRoundRows(data) : buildRows(data);
-      const sheetName = isRound ? "Dieciseisavos" : "Fase de grupos";
-      const title = isRound ? "Predicciones de dieciseisavos" : "Predicciones de fase de grupos";
+      const sheetName = isRound ? "Octavos" : "Fase de grupos";
+      const title = isRound ? "Predicciones de octavos" : "Predicciones de fase de grupos";
       return makeZip({
         "[Content_Types].xml": contentTypesXml(),
         "_rels/.rels": rootRelsXml(),
