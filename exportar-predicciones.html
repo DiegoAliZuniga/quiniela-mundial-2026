@@ -1975,7 +1975,7 @@
         Number(a.number || 0) - Number(b.number || 0)
       );
       const participants = Array.isArray(round.participants) ? round.participants : [];
-      const resultsById = new Map((round.results || []).map((result) => [String(result.matchId || ""), result]));
+      const resultsById = mapExportResults(round.results, matches);
       const rows = [];
 
       rows.push(["", "", "", "", "", ""].concat(participants.map((_, index) => String(index + 1))));
@@ -2061,6 +2061,24 @@
         if (!isComputed(result) || !pick) return total;
         return pick.pick === result.winner ? total + 1 : total;
       }, 0);
+    }
+
+    function mapExportResults(results, matches) {
+      const map = new Map();
+      const byNumber = new Map();
+      (Array.isArray(results) ? results : []).forEach((result) => {
+        if (result && result.matchId) map.set(String(result.matchId), result);
+        if (result && result.number !== "" && result.number !== null && result.number !== undefined) {
+          byNumber.set(Number(result.number), result);
+        }
+      });
+      (Array.isArray(matches) ? matches : []).forEach((match) => {
+        const id = String(match && match.id || "");
+        if (!id || map.has(id)) return;
+        const fallback = byNumber.get(Number(match.number));
+        if (fallback) map.set(id, fallback);
+      });
+      return map;
     }
 
     function isComputed(result) {

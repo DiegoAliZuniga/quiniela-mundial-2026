@@ -3033,6 +3033,7 @@ function setupOctavosMatchesSheet_(ss, matches) {
     return [match.id, match.apiId || "", match.number, match.crDate, match.crTime, match.home.name, match.away.name];
   }));
   sheet.clearContents();
+  sheet.getRange(1, 1, rows.length, 1).setNumberFormat("@");
   sheet.getRange(1, 1, rows.length, rows[0].length).setValues(rows);
   sheet.setFrozenRows(1);
 }
@@ -3445,6 +3446,7 @@ function writeResultsToSheet_(ss, sheetName, results) {
   }));
 
   sheet.clearContents();
+  sheet.getRange(1, 1, rows.length, 1).setNumberFormat("@");
   sheet.getRange(1, 1, rows.length, headers.length).setValues(rows);
   sheet.setFrozenRows(1);
   sheet.autoResizeColumns(1, headers.length);
@@ -3767,6 +3769,12 @@ function readResultsFromSheet_(ss, sheetName) {
       apiUpdatedAt: getCellByHeader_(row, headers, "Actualizado API"),
       utcDate: getCellByHeader_(row, headers, "Fecha UTC API"),
     };
+    if (sheetName === OCTAVOS_RESULTS_SHEET && String(result.matchId || "").indexOf("OCT-") !== 0) {
+      const fallbackMatch = OCTAVOS_FALLBACK_MATCHES.find(function(match) {
+        return Number(match.number) === Number(result.number);
+      });
+      if (fallbackMatch) result.matchId = fallbackMatch.id;
+    }
     if (result.matchId || result.apiId || result.home || result.away || result.status || result.winner) {
       results.push(result);
     }

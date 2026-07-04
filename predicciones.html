@@ -2509,7 +2509,7 @@
       if (!roundPredictionsHead || !roundPredictionsBody) return;
       const round = state.roundOf32 || { matches: [], results: [], participants: [] };
       const columns = roundDisplayColumns();
-      const resultsById = mapByMatchId(round.results);
+      const resultsById = mapByMatchId(round.results, round.matches);
       roundPredictionsHead.innerHTML = renderHead(columns);
       roundPredictionsBody.innerHTML = renderRoundBody(round, columns, resultsById);
       renderRoundMobileParticipants(round, columns, resultsById);
@@ -2856,9 +2856,21 @@
       return columns;
     }
 
-    function mapByMatchId(results) {
+    function mapByMatchId(results, matches = []) {
       const map = new Map();
-      (Array.isArray(results) ? results : []).forEach((result) => map.set(result.matchId, result));
+      const resultsByNumber = new Map();
+      (Array.isArray(results) ? results : []).forEach((result) => {
+        if (result && result.matchId) map.set(String(result.matchId), result);
+        if (result && result.number !== "" && result.number !== null && result.number !== undefined) {
+          resultsByNumber.set(Number(result.number), result);
+        }
+      });
+      (Array.isArray(matches) ? matches : []).forEach((match) => {
+        const id = String(match && match.id || "");
+        if (!id || map.has(id)) return;
+        const fallback = resultsByNumber.get(Number(match.number));
+        if (fallback) map.set(id, fallback);
+      });
       return map;
     }
 
