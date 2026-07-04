@@ -555,7 +555,7 @@
         <h1>Predicciones de participantes</h1>
       </div>
       <nav class="hero-actions" aria-label="Navegacion principal">
-        <a class="btn primary" href="dieciseisavos.html">Llenar dieciseisavos</a>
+        <a class="btn primary" href="octavos.html">Llenar octavos</a>
         <a class="btn" href="index.html">Inicio</a>
       </nav>
     </div>
@@ -594,10 +594,10 @@
       <div class="note" id="tableNote" hidden></div>
     </section>
 
-    <section class="panel" id="roundPredictionsPanel" aria-label="Predicciones de dieciseisavos">
+    <section class="panel" id="roundPredictionsPanel" aria-label="Predicciones de octavos">
       <div class="panel-head">
         <div>
-          <h2 class="panel-title">Dieciseisavos de final</h2>
+          <h2 class="panel-title">Octavos de final</h2>
           <p class="panel-copy" id="roundStatusText">Cargando predicciones de la fase…</p>
         </div>
         <div class="toolbar">
@@ -607,7 +607,7 @@
         </div>
       </div>
       <div class="mobile-participants" id="roundMobileParticipants" hidden></div>
-      <div class="table-wrap" aria-label="Tabla de predicciones de dieciseisavos con desplazamiento horizontal">
+      <div class="table-wrap" aria-label="Tabla de predicciones de octavos con desplazamiento horizontal">
         <table aria-describedby="roundStatusText">
           <colgroup>
             <col class="date-col"><col class="team-col"><col class="score-col"><col class="team-col"><col class="score-col"><col class="winner-col"><col class="spacer-col"><col class="player-col" span="16">
@@ -2359,14 +2359,14 @@
         totalParticipants: Number(data && data.totalParticipants ? data.totalParticipants : 0),
         generatedAt: data && data.generatedAt ? data.generatedAt : "",
         hiddenParticipants: Number(data && data.hiddenParticipants ? data.hiddenParticipants : 0),
-        roundOf32: data && data.roundOf32 ? {
-          matches: sortMatchesChronologically(Array.isArray(data.roundOf32.matches) ? data.roundOf32.matches : []),
-          results: Array.isArray(data.roundOf32.results) ? data.roundOf32.results : [],
-          participants: Array.isArray(data.roundOf32.participants) ? data.roundOf32.participants : [],
-          totalParticipants: Number(data.roundOf32.totalParticipants || 0),
-          hiddenParticipants: Number(data.roundOf32.hiddenParticipants || 0),
-          ranking: Array.isArray(data.roundOf32.ranking) ? data.roundOf32.ranking : [],
-          cumulativeRanking: Array.isArray(data.roundOf32.cumulativeRanking) ? data.roundOf32.cumulativeRanking : [],
+        roundOf32: data && data.octavos ? {
+          matches: sortMatchesChronologically(Array.isArray(data.octavos.matches) ? data.octavos.matches : []),
+          results: Array.isArray(data.octavos.results) ? data.octavos.results : [],
+          participants: Array.isArray(data.octavos.participants) ? data.octavos.participants : [],
+          totalParticipants: Number(data.octavos.totalParticipants || 0),
+          hiddenParticipants: Number(data.octavos.hiddenParticipants || 0),
+          ranking: Array.isArray(data.octavos.ranking) ? data.octavos.ranking : [],
+          cumulativeRanking: Array.isArray(data.octavos.cumulativeRanking) ? data.octavos.cumulativeRanking : [],
         } : { matches: [], results: [], participants: [], totalParticipants: 0, hiddenParticipants: 0, ranking: [], cumulativeRanking: [] },
       };
     }
@@ -2521,15 +2521,15 @@
       const rows = [];
       rows.push(`
         <tr class="group-row" style="--group-color:#cfe2f3;">
-          <td></td><td>Dieciseisavos</td><td></td><td>Dieciseisavos</td><td></td><td></td><td></td>
+          <td></td><td>Octavos</td><td></td><td>Octavos</td><td></td><td></td><td></td>
           ${columns.map(() => "<td></td>").join("")}
         </tr>
       `);
       (matches || []).forEach((match) => rows.push(renderMatchRow(match, columns, resultsById.get(match.id))));
       rows.push(renderSpacerRow(columns));
       rows.push(renderFooterNames(columns));
-      rows.push(renderRoundSummaryRow("Puntos fase de grupos", columns, (participant) => previousPhasePoints(participant, round, matches, resultsById)));
-      rows.push(renderRoundSummaryRow("Puntos dieciseisavos", columns, (participant) => roundPhasePoints(participant, round, matches, resultsById)));
+      rows.push(renderRoundSummaryRow("Puntos anteriores", columns, (participant) => previousPhasePoints(participant, round, matches, resultsById)));
+      rows.push(renderRoundSummaryRow("Puntos octavos", columns, (participant) => roundPhasePoints(participant, round, matches, resultsById)));
       rows.push(renderRoundSummaryRow("Total puntos", columns, (participant) => cumulativePoints(participant, round, matches, resultsById), "total-row"));
       rows.push(renderRoundChampionRow(columns));
       return rows.join("");
@@ -2566,11 +2566,11 @@
 
     function cumulativePoints(participant, round, matches, resultsById) {
       const phase = roundPhasePoints(participant, round, matches, resultsById);
-      return rankingPoints(round.cumulativeRanking, participant, phase);
+      return rankingPoints(round.cumulativeRanking, participant, 0) + phase;
     }
 
     function previousPhasePoints(participant, round, matches, resultsById) {
-      return Math.max(0, cumulativePoints(participant, round, matches, resultsById) - roundPhasePoints(participant, round, matches, resultsById));
+      return rankingPoints(round.cumulativeRanking, participant, 0);
     }
 
     function roundDisplayColumns() {
@@ -2596,7 +2596,7 @@
         <article class="mobile-participant-card">
           <div class="mobile-participant-top"><span>${index + 1}. ${escapeHtml(participant.name)}</span><span>${escapeHtml(participant.totalPoints)} pts total</span></div>
           <div class="mobile-participant-meta">Campeón elegido: ${escapeHtml(participant.champion || "Sin selección")}</div>
-          <div class="mobile-participant-meta">Dieciseisavos: ${escapeHtml(participant.phasePoints)} pts</div>
+          <div class="mobile-participant-meta">Octavos: ${escapeHtml(participant.phasePoints)} pts</div>
         </article>
       `).join("");
     }
@@ -2606,8 +2606,8 @@
       const total = Number(round.totalParticipants || (round.participants || []).length || 0);
       roundParticipantCount.textContent = `${total} participante${total === 1 ? "" : "s"}`;
       roundStatusText.textContent = total
-        ? `Predicciones de dieciseisavos. Actualizado: ${state.generatedAt ? formatDateTime(state.generatedAt) : "pendiente"}.`
-        : "Aún no hay predicciones enviadas para dieciseisavos.";
+        ? `Predicciones de octavos. Actualizado: ${state.generatedAt ? formatDateTime(state.generatedAt) : "pendiente"}.`
+        : "Aún no hay predicciones enviadas para octavos.";
       const hidden = Number(round.hiddenParticipants || 0);
       roundTableNote.hidden = hidden === 0;
       roundTableNote.textContent = hidden ? `Hay ${hidden} participante${hidden === 1 ? "" : "s"} adicional${hidden === 1 ? "" : "es"}.` : "";

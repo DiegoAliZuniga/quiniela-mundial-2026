@@ -93,7 +93,7 @@
       <div class="brand"><img src="https://img.favpng.com/6/1/5/world-cup-2026-logo-fifa-2026-logo-featuring-trophy-design-By6wambc.jpg" alt="Copa Mundial"><h1>Quiniela Mundial 2026<br>Octavos de final</h1></div>
       <div class="phase-pill">8 partidos · 90 minutos</div>
     </header>
-    <div class="deadline" id="deadlineNotice" role="status">Cierre: 28 de junio de 2026, 1:00 p.m. hora Costa Rica</div>
+    <div class="deadline" id="deadlineNotice" role="status">Cierre: 4 de julio de 2026, 11:00 a.m. hora Costa Rica</div>
 
     <section class="panel" id="identityScreen">
       <h2>Escoge tu nombre</h2>
@@ -275,12 +275,12 @@
             "flagCode": "ch"
         },
         "away": {
-            "name": "Argelia",
-            "flagCode": "dz"
+            "name": "Colombia",
+            "flagCode": "co"
         }
     }
 ];
-    const CLOSE_AT = new Date("2026-06-28T19:00:00.000Z").getTime();
+    const CLOSE_AT = new Date("2026-07-04T17:00:00.000Z").getTime();
     const STORAGE_KEY = "quiniela-octavos-2026-v1";
     const state = { participants:[], matches:FALLBACK_MATCHES, name:"", picks:{}, currentIndex:0, screen:"identity", serverClosed:false, editIndex:-1, editPick:"", promptShown:false };
     const $ = (id) => document.getElementById(id);
@@ -385,7 +385,7 @@
     function pickLabel(match,pick){ if(pick==="home")return match.home.name; if(pick==="away")return match.away.name; if(pick==="draw")return "Empate"; return ""; }
     function showScreen(name){ Object.entries(screens).forEach(([key,node])=>node.hidden=key!==name); }
     function isClosed(){ return state.serverClosed || Date.now()>=CLOSE_AT; }
-    function renderDeadline(){ const closed=isClosed(); $("deadlineNotice").classList.toggle("closed",closed); $("deadlineNotice").textContent=closed?"Quiniela cerrada. El formulario cerró el 28 de junio de 2026, 1:00 p.m. hora Costa Rica.":"Cierre: 28 de junio de 2026, 1:00 p.m. hora Costa Rica"; $("startBtn").disabled=closed||state.participants.length===0; if(closed){$("submitBtn").disabled=true;$("summaryPromptSubmitBtn").disabled=true;} }
+    function renderDeadline(){ const closed=isClosed(); $("deadlineNotice").classList.toggle("closed",closed); $("deadlineNotice").textContent=closed?"Quiniela cerrada. El formulario cerró el 4 de julio de 2026, 11:00 a.m. hora Costa Rica.":"Cierre: 4 de julio de 2026, 11:00 a.m. hora Costa Rica"; $("startBtn").disabled=closed||state.participants.length===0; if(closed){$("submitBtn").disabled=true;$("summaryPromptSubmitBtn").disabled=true;} }
     function saveDraft(){ try{localStorage.setItem(STORAGE_KEY,JSON.stringify({name:state.name,picks:state.picks,currentIndex:state.currentIndex,screen:state.screen,promptShown:state.promptShown}));}catch(ignore){} }
     function loadDraft(){ try{const draft=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null"); if(!draft)return; state.name=draft.name||""; state.picks=draft.picks||{}; state.currentIndex=Math.max(0,Math.min(Number(draft.currentIndex||0),7)); state.screen=draft.screen||"identity"; state.promptShown=Boolean(draft.promptShown); $("participantName").value=state.name;}catch(ignore){} }
     function restoreScreen(){ if(!state.name||!findParticipant(state.name)){state.screen="identity";showScreen("identity");return;} if(state.screen==="summary"&&state.matches.every((match)=>state.picks[match.id]))showSummary(false); else if(state.screen==="match")renderMatch(); else showScreen("identity"); }

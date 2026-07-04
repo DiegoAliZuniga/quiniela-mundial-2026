@@ -19,7 +19,7 @@ const FOOTBALL_DATA_TOKEN_PROPERTY = "FOOTBALL_DATA_API_KEY";
 const SYNC_SECRET_PROPERTY = "SYNC_SECRET";
 const PUBLIC_SYNC_CACHE_KEY = "PUBLIC_DATA_SYNC_ATTEMPTED";
 const PUBLIC_DATA_CACHE_KEY = "PUBLIC_DATA_PAYLOAD_V6";
-const PREDICTIONS_DATA_CACHE_KEY = "PREDICTIONS_DATA_PAYLOAD_V8";
+const PREDICTIONS_DATA_CACHE_KEY = "PREDICTIONS_DATA_PAYLOAD_V9";
 const ROUND_OF_32_FORM_CACHE_KEY = "ROUND_OF_32_FORM_DATA_V1";
 const ROUND_OF_32_MATCHES_CACHE_KEY = "ROUND_OF_32_MATCHES_V3";
 const CR_TIME_ZONE = "America/Costa_Rica";
@@ -2103,8 +2103,8 @@ const OCTAVOS_FALLBACK_MATCHES = [
       "flagCode": "ch"
     },
     "away": {
-      "name": "Argelia",
-      "flagCode": "dz"
+      "name": "Colombia",
+      "flagCode": "co"
     }
   }
 ];
@@ -2498,6 +2498,10 @@ function getPredictionsData_() {
   enrichRoundParticipants_(roundParticipants, participants);
   const roundMatches = readRoundOf32MatchesSheet_(ss);
   const roundResults = readRoundOf32Results_(ss);
+  const octavosParticipants = readOctavosParticipants_(ss);
+  enrichRoundParticipants_(octavosParticipants, participants);
+  const octavosMatches = cloneOctavosFallbackMatches_();
+  const octavosResults = readResultsFromSheet_(ss, OCTAVOS_RESULTS_SHEET);
   const maxVisibleParticipants = 16;
   const payload = {
     ok: true,
@@ -2515,6 +2519,15 @@ function getPredictionsData_() {
       totalParticipants: roundParticipants.length,
       hiddenParticipants: Math.max(roundParticipants.length - maxVisibleParticipants, 0),
       ranking: readExtendedRanking_(ss, ROUND_OF_32_RANKING_SHEET),
+      cumulativeRanking: readExtendedRanking_(ss, CUMULATIVE_RANKING_SHEET),
+    },
+    octavos: {
+      matches: octavosMatches,
+      results: octavosResults,
+      participants: octavosParticipants.slice(0, maxVisibleParticipants),
+      totalParticipants: octavosParticipants.length,
+      hiddenParticipants: Math.max(octavosParticipants.length - maxVisibleParticipants, 0),
+      ranking: readExtendedRanking_(ss, OCTAVOS_RANKING_SHEET),
       cumulativeRanking: readExtendedRanking_(ss, CUMULATIVE_RANKING_SHEET),
     },
   };
@@ -3516,7 +3529,15 @@ function rebuildRoundOf32Rankings_(ss, results) {
 }
 
 function readRoundOf32Participants_(ss) {
-  const sheet = ss.getSheetByName(ROUND_OF_32_RESPONSES_SHEET);
+  return readPhaseParticipants_(ss, ROUND_OF_32_RESPONSES_SHEET);
+}
+
+function readOctavosParticipants_(ss) {
+  return readPhaseParticipants_(ss, OCTAVOS_RESPONSES_SHEET);
+}
+
+function readPhaseParticipants_(ss, sheetName) {
+  const sheet = ss.getSheetByName(sheetName);
   if (!sheet || sheet.getLastRow() < 2) return [];
   const values = sheet.getDataRange().getValues();
   const headers = values[0].map(function(header) { return String(header || ""); });
