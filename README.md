@@ -6,6 +6,7 @@ Este paquete contiene un sitio estatico listo para GitHub Pages y un Google Apps
 
 - `index.html`: pagina principal con resultados, calendarios y rankings completos de todos los participantes.
 - `quiniela.html`: formulario de quiniela. Muestra un partido por vez, incluye banderas y resume todas las selecciones antes de enviar.
+- `octavos.html`: formulario de octavos de final. Sigue la misma estructura de dieciseisavos, con una sola respuesta por participante.
 - `dieciseisavos.html`: formulario de los 16 cruces, limitado a participantes existentes y con cierre el 28 de junio a la 1:00 p.m. CR.
 - `predicciones.html`: matriz visible de dieciseisavos con puntos de fase de grupos, puntos de dieciseisavos, total acumulado y campeon elegido.
 - `exportar-predicciones.html`: herramienta personal para descargar por separado la fase de grupos o dieciseisavos en XLSX, sin correos.
@@ -21,7 +22,7 @@ Este paquete contiene un sitio estatico listo para GitHub Pages y un Google Apps
    - `FOOTBALL_DATA_API_KEY`: tu API key de football-data.org.
    - `SYNC_SECRET`: opcional, solo si quieres permitir sincronizacion manual por URL.
 5. Ejecuta una vez la funcion `checkFootballDataSetup` para autorizar permisos y confirmar que la key existe.
-6. Ejecuta una vez `setupQuinielaSheets` para crear las hojas de partidos, resultados y rankings de ambas fases.
+6. Ejecuta una vez `setupQuinielaSheets` para crear las hojas de partidos, resultados y rankings de las fases principales y de octavos.
 7. Si no ves las hojas, ejecuta `diagnosticoQuiniela` y revisa `spreadsheetUrl`; esa es la hoja donde el script esta escribiendo.
 8. Ejecuta una vez `syncFootballData` para consultar football-data.org y llenar resultados/API.
 9. Ejecuta una vez `installFootballDataTrigger` para instalar una sincronizacion automatica cada 5 minutos.
@@ -59,4 +60,4 @@ Si haces cambios en `apps-script.gs`, vuelve a desplegar el Web App con `Deploy`
 2. Sube todo el contenido de esta carpeta a la raiz del repositorio: `index.html`, `quiniela.html`, `dieciseisavos.html`, `predicciones.html`, `exportar-predicciones.html`, `apps-script.gs`, `matches.json`, `README.md` y la carpeta `assets`.
 3. En `Settings` > `Pages`, publica desde la rama principal y la carpeta raiz.
 
-El Apps Script creara automaticamente las pestanas `Respuestas`, `Partidos`, `Resultados`, `Ranking`, `Dieciseisavos`, `Partidos Dieciseisavos`, `Resultados Dieciseisavos`, `Ranking Dieciseisavos`, `Ranking Acumulado` y `Estado API` cuando se usen las funciones correspondientes.
+El Apps Script creara automaticamente las pestanas `Respuestas`, `Partidos`, `Resultados`, `Ranking`, `Dieciseisavos`, `Partidos Dieciseisavos`, `Resultados Dieciseisavos`, `Ranking Dieciseisavos`, `Ranking Acumulado`, `Octavos`, `Partidos Octavos`, `Resultados Octavos`, `Ranking Octavos` y `Estado API` cuando se usen las funciones correspondientes.

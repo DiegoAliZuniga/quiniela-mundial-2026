@@ -7,6 +7,10 @@ const ROUND_OF_32_RESPONSES_SHEET = "Dieciseisavos";
 const ROUND_OF_32_MATCHES_SHEET = "Partidos Dieciseisavos";
 const ROUND_OF_32_RESULTS_SHEET = "Resultados Dieciseisavos";
 const ROUND_OF_32_RANKING_SHEET = "Ranking Dieciseisavos";
+const OCTAVOS_RESPONSES_SHEET = "Octavos";
+const OCTAVOS_MATCHES_SHEET = "Partidos Octavos";
+const OCTAVOS_RESULTS_SHEET = "Resultados Octavos";
+const OCTAVOS_RANKING_SHEET = "Ranking Octavos";
 const CUMULATIVE_RANKING_SHEET = "Ranking Acumulado";
 const API_STATE_SHEET = "Estado API";
 const DIAGNOSTIC_SHEET = "Diagnostico";
@@ -1964,6 +1968,146 @@ const ROUND_OF_32_FALLBACK_MATCHES = [
     }
   }
 ];
+const OCTAVOS_CLOSE_AT_UTC_MS = Date.UTC(2026, 6, 4, 17, 0, 0);
+const OCTAVOS_CLOSE_LABEL = "4 de julio de 2026, 11:00 a.m. hora Costa Rica";
+const OCTAVOS_FALLBACK_MATCHES = [
+  {
+    "id": "OCT-01",
+    "number": 1,
+    "stage": "LAST_16",
+    "crDate": "2026-07-04",
+    "crDateLabel": "4 jul 2026",
+    "crTime": "11:00 a.m.",
+    "crTimeMinutes": 660,
+    "home": {
+      "name": "Canadá",
+      "flagCode": "ca"
+    },
+    "away": {
+      "name": "Marruecos",
+      "flagCode": "ma"
+    }
+  },
+  {
+    "id": "OCT-02",
+    "number": 2,
+    "stage": "LAST_16",
+    "crDate": "2026-07-04",
+    "crDateLabel": "4 jul 2026",
+    "crTime": "3:00 p.m.",
+    "crTimeMinutes": 900,
+    "home": {
+      "name": "Paraguay",
+      "flagCode": "py"
+    },
+    "away": {
+      "name": "Francia",
+      "flagCode": "fr"
+    }
+  },
+  {
+    "id": "OCT-03",
+    "number": 3,
+    "stage": "LAST_16",
+    "crDate": "2026-07-05",
+    "crDateLabel": "5 jul 2026",
+    "crTime": "2:00 p.m.",
+    "crTimeMinutes": 840,
+    "home": {
+      "name": "Brasil",
+      "flagCode": "br"
+    },
+    "away": {
+      "name": "Noruega",
+      "flagCode": "no"
+    }
+  },
+  {
+    "id": "OCT-04",
+    "number": 4,
+    "stage": "LAST_16",
+    "crDate": "2026-07-05",
+    "crDateLabel": "5 jul 2026",
+    "crTime": "6:00 p.m.",
+    "crTimeMinutes": 1080,
+    "home": {
+      "name": "México",
+      "flagCode": "mx"
+    },
+    "away": {
+      "name": "Inglaterra",
+      "flagCode": "gb-eng"
+    }
+  },
+  {
+    "id": "OCT-05",
+    "number": 5,
+    "stage": "LAST_16",
+    "crDate": "2026-07-06",
+    "crDateLabel": "6 jul 2026",
+    "crTime": "1:00 p.m.",
+    "crTimeMinutes": 780,
+    "home": {
+      "name": "Portugal",
+      "flagCode": "pt"
+    },
+    "away": {
+      "name": "España",
+      "flagCode": "es"
+    }
+  },
+  {
+    "id": "OCT-06",
+    "number": 6,
+    "stage": "LAST_16",
+    "crDate": "2026-07-06",
+    "crDateLabel": "6 jul 2026",
+    "crTime": "6:00 p.m.",
+    "crTimeMinutes": 1080,
+    "home": {
+      "name": "Estados Unidos",
+      "flagCode": "us"
+    },
+    "away": {
+      "name": "Bélgica",
+      "flagCode": "be"
+    }
+  },
+  {
+    "id": "OCT-07",
+    "number": 7,
+    "stage": "LAST_16",
+    "crDate": "2026-07-07",
+    "crDateLabel": "7 jul 2026",
+    "crTime": "10:00 a.m.",
+    "crTimeMinutes": 600,
+    "home": {
+      "name": "Argentina",
+      "flagCode": "ar"
+    },
+    "away": {
+      "name": "Egipto",
+      "flagCode": "eg"
+    }
+  },
+  {
+    "id": "OCT-08",
+    "number": 8,
+    "stage": "LAST_16",
+    "crDate": "2026-07-07",
+    "crDateLabel": "7 jul 2026",
+    "crTime": "2:00 p.m.",
+    "crTimeMinutes": 840,
+    "home": {
+      "name": "Suiza",
+      "flagCode": "ch"
+    },
+    "away": {
+      "name": "Argelia",
+      "flagCode": "dz"
+    }
+  }
+];
 
 function doGet(e) {
   const action = e && e.parameter ? e.parameter.action : "";
@@ -1985,6 +2129,14 @@ function doGet(e) {
 
   if (action === "submitRoundOf32") {
     return handleRoundOf32Submission_(e);
+  }
+
+  if (action === "octavosFormData") {
+    return respond_(e, getOctavosFormData_());
+  }
+
+  if (action === "submitOctavos") {
+    return handleOctavosSubmission_(e);
   }
 
   if (action === "syncResults") {
@@ -2079,6 +2231,11 @@ function setupQuinielaSheets() {
   if (!ss.getSheetByName(ROUND_OF_32_RANKING_SHEET)) writeExtendedRanking_(ss, ROUND_OF_32_RANKING_SHEET, []);
   if (!ss.getSheetByName(CUMULATIVE_RANKING_SHEET)) writeExtendedRanking_(ss, CUMULATIVE_RANKING_SHEET, []);
 
+  setupOctavosMatchesSheet_(ss, cloneOctavosFallbackMatches_());
+  setupOctavosResponsesSheet_(ss);
+  if (!ss.getSheetByName(OCTAVOS_RESULTS_SHEET)) writeResultsToSheet_(ss, OCTAVOS_RESULTS_SHEET, []);
+  if (!ss.getSheetByName(OCTAVOS_RANKING_SHEET)) writeExtendedRanking_(ss, OCTAVOS_RANKING_SHEET, []);
+
   const apiStateSheet = ss.getSheetByName(API_STATE_SHEET);
   if (!apiStateSheet || apiStateSheet.getLastRow() === 0) {
     writeApiState_(ss, {
@@ -2101,7 +2258,7 @@ function setupQuinielaSheets() {
     existingSheets: ss.getSheets().map(function(sheet) {
       return sheet.getName();
     }),
-    sheets: [MATCHES_SHEET, RESULTS_SHEET, RANKING_SHEET, ROUND_OF_32_RESPONSES_SHEET, ROUND_OF_32_MATCHES_SHEET, ROUND_OF_32_RESULTS_SHEET, ROUND_OF_32_RANKING_SHEET, CUMULATIVE_RANKING_SHEET, API_STATE_SHEET],
+    sheets: [MATCHES_SHEET, RESULTS_SHEET, RANKING_SHEET, ROUND_OF_32_RESPONSES_SHEET, ROUND_OF_32_MATCHES_SHEET, ROUND_OF_32_RESULTS_SHEET, ROUND_OF_32_RANKING_SHEET, CUMULATIVE_RANKING_SHEET, OCTAVOS_RESPONSES_SHEET, OCTAVOS_MATCHES_SHEET, OCTAVOS_RESULTS_SHEET, OCTAVOS_RANKING_SHEET, API_STATE_SHEET],
   };
   writeDiagnosticSheet_(ss, result);
 
@@ -2747,6 +2904,133 @@ function setupRoundOf32ResponsesSheet_(ss) {
   const sheet = ss.getSheetByName(ROUND_OF_32_RESPONSES_SHEET) || ss.insertSheet(ROUND_OF_32_RESPONSES_SHEET);
   const headers = ["Actualizado", "Nombre", "Clave participante", "Total partidos", "Completados", "Selecciones JSON"]
     .concat(ROUND_OF_32_FALLBACK_MATCHES.map(function(match) { return match.id; }));
+  ensureHeaders_(sheet, headers);
+  sheet.setFrozenRows(1);
+}
+
+function getOctavosFormData_() {
+  const ss = getSpreadsheet_();
+  return {
+    ok: true,
+    generatedAt: new Date().toISOString(),
+    participants: readExistingParticipantNames_(ss),
+    matches: cloneOctavosFallbackMatches_(),
+    totalMatches: OCTAVOS_FALLBACK_MATCHES.length,
+    closed: isOctavosFormClosed_(),
+    closesAt: new Date(OCTAVOS_CLOSE_AT_UTC_MS).toISOString(),
+    closeLabel: OCTAVOS_CLOSE_LABEL,
+    source: "manual",
+    message: "",
+  };
+}
+
+function handleOctavosSubmission_(e) {
+  const lock = LockService.getScriptLock();
+  let response;
+
+  try {
+    lock.waitLock(30000);
+    if (isOctavosFormClosed_()) {
+      throw new Error("La quiniela de octavos cerro el " + OCTAVOS_CLOSE_LABEL + ".");
+    }
+
+    const payload = parsePayload_(e);
+    const ss = getSpreadsheet_();
+    const participant = validateRoundOf32Participant_(ss, payload && payload.name);
+    const matches = cloneOctavosFallbackMatches_();
+    const picks = payload && payload.picks ? payload.picks : {};
+    const selections = matches.map(function(match) {
+      const pick = picks[match.id];
+      if (["home", "draw", "away"].indexOf(pick) === -1) {
+        throw new Error("Hay selecciones incompletas.");
+      }
+      return {
+        id: match.id,
+        number: match.number,
+        stage: "LAST_16",
+        crDate: match.crDate,
+        crDateLabel: match.crDateLabel,
+        crTime: match.crTime,
+        crTimeMinutes: match.crTimeMinutes,
+        home: match.home.name,
+        away: match.away.name,
+        pick: pick,
+        pickLabel: getPickLabel_(match, pick),
+      };
+    });
+
+    setupOctavosMatchesSheet_(ss, matches);
+    upsertOctavosResponse_(ss, participant.name, selections);
+    clearDataCaches_();
+
+    response = {
+      ok: true,
+      savedAt: new Date().toISOString(),
+      updated: true,
+      participant: participant.name,
+    };
+  } catch (error) {
+    response = { ok: false, error: String(error && error.message ? error.message : error) };
+  } finally {
+    try {
+      lock.releaseLock();
+    } catch (ignore) {}
+  }
+
+  return respond_(e, response);
+}
+
+function isOctavosFormClosed_() {
+  return new Date().getTime() >= OCTAVOS_CLOSE_AT_UTC_MS;
+}
+
+function cloneOctavosFallbackMatches_() {
+  return JSON.parse(JSON.stringify(OCTAVOS_FALLBACK_MATCHES));
+}
+
+function setupOctavosMatchesSheet_(ss, matches) {
+  const sheet = ss.getSheetByName(OCTAVOS_MATCHES_SHEET) || ss.insertSheet(OCTAVOS_MATCHES_SHEET);
+  const rows = [["ID", "API ID", "Numero", "Fecha CR", "Hora CR", "Local", "Visita"]].concat((matches || []).map(function(match) {
+    return [match.id, match.apiId || "", match.number, match.crDate, match.crTime, match.home.name, match.away.name];
+  }));
+  sheet.clearContents();
+  sheet.getRange(1, 1, rows.length, rows[0].length).setValues(rows);
+  sheet.setFrozenRows(1);
+}
+
+function upsertOctavosResponse_(ss, participantName, selections) {
+  const sheet = ss.getSheetByName(OCTAVOS_RESPONSES_SHEET) || ss.insertSheet(OCTAVOS_RESPONSES_SHEET);
+  const requiredHeaders = ["Actualizado", "Nombre", "Clave participante", "Total partidos", "Completados", "Selecciones JSON"]
+    .concat(OCTAVOS_FALLBACK_MATCHES.map(function(match) { return match.id; }));
+  const headers = ensureHeaders_(sheet, requiredHeaders);
+  const row = headers.map(function() { return ""; });
+  setCell_(row, headers, "Actualizado", new Date());
+  setCell_(row, headers, "Nombre", participantName);
+  setCell_(row, headers, "Clave participante", normalizeParticipantName_(participantName));
+  setCell_(row, headers, "Total partidos", selections.length);
+  setCell_(row, headers, "Completados", selections.length);
+  setCell_(row, headers, "Selecciones JSON", JSON.stringify(selections));
+  selections.forEach(function(selection) { setCell_(row, headers, selection.id, selection.pickLabel); });
+
+  let targetRow = sheet.getLastRow() + 1;
+  if (sheet.getLastRow() > 1) {
+    const nameIndex = headers.indexOf("Nombre");
+    const values = sheet.getRange(2, 1, sheet.getLastRow() - 1, headers.length).getValues();
+    for (let i = 0; i < values.length; i += 1) {
+      if (normalizeParticipantName_(values[i][nameIndex]) === normalizeParticipantName_(participantName)) {
+        targetRow = i + 2;
+        break;
+      }
+    }
+  }
+  sheet.getRange(targetRow, 1, 1, headers.length).setValues([row]);
+  sheet.setFrozenRows(1);
+}
+
+function setupOctavosResponsesSheet_(ss) {
+  const sheet = ss.getSheetByName(OCTAVOS_RESPONSES_SHEET) || ss.insertSheet(OCTAVOS_RESPONSES_SHEET);
+  const headers = ["Actualizado", "Nombre", "Clave participante", "Total partidos", "Completados", "Selecciones JSON"]
+    .concat(OCTAVOS_FALLBACK_MATCHES.map(function(match) { return match.id; }));
   ensureHeaders_(sheet, headers);
   sheet.setFrozenRows(1);
 }
