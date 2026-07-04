@@ -375,7 +375,7 @@
       if (state.matches.some((match)=>!state.picks[match.id])) return showToast("Faltan selecciones por completar.");
       $("submitBtn").disabled=true; $("summaryPromptSubmitBtn").disabled=true;
       const payload={name:state.name,picks:state.picks,submittedAt:new Date().toISOString(),source:"quiniela-octavos-2026"};
-      jsonp(`${APPS_SCRIPT_URL}?action=submitRoundOf32&payload=${encodeURIComponent(JSON.stringify(payload))}`)
+      jsonp(`${APPS_SCRIPT_URL}?action=submitOctavos&payload=${encodeURIComponent(JSON.stringify(payload))}`)
         .then((data)=>{ if(!data||data.ok===false)throw new Error(data&&data.error?data.error:"No se pudo guardar."); $("summaryPrompt").hidden=true; showToast("Quiniela de octavos guardada correctamente."); })
         .catch((error)=>showToast(error.message||"No se pudo guardar la quiniela."))
         .finally(()=>{ $("submitBtn").disabled=isClosed(); $("summaryPromptSubmitBtn").disabled=isClosed(); });
