@@ -2112,8 +2112,8 @@ const OCTAVOS_FALLBACK_MATCHES = [
     }
   }
 ];
-const QUARTERFINALS_CLOSE_AT_UTC_MS = Date.UTC(2026, 6, 9, 22, 0, 0);
-const QUARTERFINALS_CLOSE_LABEL = "9 de julio de 2026, 4:00 p.m. hora Costa Rica";
+const QUARTERFINALS_CLOSE_AT_UTC_MS = Date.UTC(2026, 6, 9, 20, 0, 0);
+const QUARTERFINALS_CLOSE_LABEL = "9 de julio de 2026, 2:00 p.m. hora Costa Rica";
 const QUARTERFINALS_FALLBACK_MATCHES = [
   {
     "id": "QF-01",
@@ -2121,8 +2121,8 @@ const QUARTERFINALS_FALLBACK_MATCHES = [
     "stage": "QUARTER_FINALS",
     "crDate": "2026-07-09",
     "crDateLabel": "9 jul 2026",
-    "crTime": "4:00 p.m.",
-    "crTimeMinutes": 960,
+    "crTime": "2:00 p.m.",
+    "crTimeMinutes": 840,
     "home": {
       "name": "Francia",
       "flagCode": "fr"
@@ -2138,8 +2138,8 @@ const QUARTERFINALS_FALLBACK_MATCHES = [
     "stage": "QUARTER_FINALS",
     "crDate": "2026-07-10",
     "crDateLabel": "10 jul 2026",
-    "crTime": "3:00 p.m.",
-    "crTimeMinutes": 900,
+    "crTime": "1:00 p.m.",
+    "crTimeMinutes": 780,
     "home": {
       "name": "España",
       "flagCode": "es"
@@ -2155,8 +2155,8 @@ const QUARTERFINALS_FALLBACK_MATCHES = [
     "stage": "QUARTER_FINALS",
     "crDate": "2026-07-11",
     "crDateLabel": "11 jul 2026",
-    "crTime": "5:00 p.m.",
-    "crTimeMinutes": 1020,
+    "crTime": "3:00 p.m.",
+    "crTimeMinutes": 900,
     "home": {
       "name": "Noruega",
       "flagCode": "no"
@@ -2172,8 +2172,8 @@ const QUARTERFINALS_FALLBACK_MATCHES = [
     "stage": "QUARTER_FINALS",
     "crDate": "2026-07-11",
     "crDateLabel": "11 jul 2026",
-    "crTime": "9:00 p.m.",
-    "crTimeMinutes": 1260,
+    "crTime": "7:00 p.m.",
+    "crTimeMinutes": 1140,
     "home": {
       "name": "Argentina",
       "flagCode": "ar"
