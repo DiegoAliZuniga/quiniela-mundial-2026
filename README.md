@@ -7,8 +7,9 @@ Este paquete contiene un sitio estatico listo para GitHub Pages y un Google Apps
 - `index.html`: pagina principal con resultados, calendarios y rankings completos de todos los participantes.
 - `quiniela.html`: formulario de quiniela. Muestra un partido por vez, incluye banderas y resume todas las selecciones antes de enviar.
 - `octavos.html`: formulario de octavos de final. Sigue la misma estructura de dieciseisavos, con una sola respuesta por participante.
+- `cuartos.html`: formulario de cuartos de final, con cuatro partidos y una sola respuesta actualizable por participante.
 - `dieciseisavos.html`: formulario de los 16 cruces, limitado a participantes existentes y con cierre el 28 de junio a la 1:00 p.m. CR.
-- `predicciones.html`: matriz visible de dieciseisavos con puntos de fase de grupos, puntos de dieciseisavos, total acumulado y campeon elegido.
+- `predicciones.html`: matriz visible de la fase actual con puntos anteriores, puntos de fase, total acumulado y campeon elegido.
 - `exportar-predicciones.html`: herramienta personal para descargar por separado la fase de grupos o dieciseisavos en XLSX, sin correos.
 - `apps-script.gs`: backend de Google Apps Script para respuestas, resultados, ranking y football-data.org.
 
@@ -57,7 +58,7 @@ Si haces cambios en `apps-script.gs`, vuelve a desplegar el Web App con `Deploy`
 ## Subir a GitHub Pages
 
 1. Crea un repositorio en GitHub.
-2. Sube todo el contenido de esta carpeta a la raiz del repositorio: `index.html`, `quiniela.html`, `dieciseisavos.html`, `predicciones.html`, `exportar-predicciones.html`, `apps-script.gs`, `matches.json`, `README.md` y la carpeta `assets`.
+2. Sube todo el contenido de esta carpeta a la raiz del repositorio, incluyendo `index.html`, `cuartos.html`, `predicciones.html`, `apps-script.gs` y la carpeta `assets`.
 3. En `Settings` > `Pages`, publica desde la rama principal y la carpeta raiz.
 
-El Apps Script creara automaticamente las pestanas `Respuestas`, `Partidos`, `Resultados`, `Ranking`, `Dieciseisavos`, `Partidos Dieciseisavos`, `Resultados Dieciseisavos`, `Ranking Dieciseisavos`, `Ranking Acumulado`, `Octavos`, `Partidos Octavos`, `Resultados Octavos`, `Ranking Octavos` y `Estado API` cuando se usen las funciones correspondientes.
+El Apps Script creara automaticamente las pestanas de respuestas, partidos, resultados y ranking para fase de grupos, dieciseisavos, octavos y cuartos, ademas de `Ranking Acumulado` y `Estado API`.

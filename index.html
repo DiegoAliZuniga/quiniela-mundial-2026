@@ -330,7 +330,7 @@
 
   <section class="section blue" aria-label="Acciones principales">
     <div class="wrap action-grid">
-      <a class="action-btn" href="octavos.html">Llenar octavos</a>
+      <a class="action-btn" href="cuartos.html">Llenar cuartos</a>
       <a class="action-btn" href="predicciones.html">Mostrar predicciones de participantes</a>
     </div>
   </section>
@@ -366,9 +366,9 @@
     </div>
   </section>
 
-  <section class="section blue" aria-label="Ranking de octavos">
+  <section class="section blue" aria-label="Ranking de cuartos">
     <div class="wrap ranking-card">
-      <h2>Ranking de octavos</h2>
+      <h2>Ranking de cuartos</h2>
       <div class="ranking-board" id="roundRankingBoard">
         <p>El ranking se activará cuando se contabilicen resultados de esta fase.</p>
       </div>
@@ -2049,7 +2049,7 @@
     const CR_TIME_ZONE = "America/Costa_Rica";
     const STANDARD_DATA_REFRESH_MS = 60000;
     const LIVE_DATA_REFRESH_MS = 10000;
-    const PUBLIC_DATA_STORAGE_KEY = "quinielaPublicData:v7";
+    const PUBLIC_DATA_STORAGE_KEY = "quinielaPublicData:v8";
     const PUBLIC_DATA_STORAGE_MAX_AGE_MS = 10 * 60 * 1000;
     const LIVE_STATUSES = new Set(["IN_PLAY", "PAUSED", "EXTRA_TIME", "PENALTY_SHOOTOUT"]);
     const FINISHED_STATUSES = new Set(["FINISHED", "AWARDED"]);
@@ -2061,7 +2061,7 @@
     const roundRankingBoard = document.getElementById("roundRankingBoard");
     const syncNote = document.getElementById("syncNote");
     const roundSyncNote = document.getElementById("roundSyncNote");
-    let publicData = { results: [], ranking: [], roundOf32: { matches: [], results: [] }, octavosRanking: [], octavos: { matches: [], results: [] }, apiState: null, generatedAt: "" };
+    let publicData = { results: [], ranking: [], roundOf32: { matches: [], results: [] }, octavos: { matches: [], results: [] }, quarterfinalsRanking: [], quarterfinals: { matches: [], results: [] }, apiState: null, generatedAt: "" };
     let publicResultsById = new Map();
     let publicDataSignature = "";
     let publicDataRefreshTimer = null;
@@ -2091,13 +2091,15 @@
     function allMatches() {
       const roundMatches = publicData.roundOf32 && Array.isArray(publicData.roundOf32.matches) ? publicData.roundOf32.matches : [];
       const octavosMatches = publicData.octavos && Array.isArray(publicData.octavos.matches) ? publicData.octavos.matches : [];
-      return MATCHES.concat(roundMatches, octavosMatches);
+      const quarterfinalsMatches = publicData.quarterfinals && Array.isArray(publicData.quarterfinals.matches) ? publicData.quarterfinals.matches : [];
+      return MATCHES.concat(roundMatches, octavosMatches, quarterfinalsMatches);
     }
 
     function allResults() {
       const roundResults = publicData.roundOf32 && Array.isArray(publicData.roundOf32.results) ? publicData.roundOf32.results : [];
       const octavosResults = publicData.octavos && Array.isArray(publicData.octavos.results) ? publicData.octavos.results : [];
-      return publicData.results.concat(roundResults, octavosResults);
+      const quarterfinalsResults = publicData.quarterfinals && Array.isArray(publicData.quarterfinals.results) ? publicData.quarterfinals.results : [];
+      return publicData.results.concat(roundResults, octavosResults, quarterfinalsResults);
     }
 
     function hasLiveWindow(now = nowInCostaRica()) {
@@ -2232,7 +2234,7 @@
       calendarStrip.innerHTML = upcoming.map((match) => `
         <article class="fixture-card">
           <div class="fixture-meta">
-            <span>${match.stage === "LAST_16" ? "Octavos" : match.stage === "LAST_32" ? "Dieciseisavos" : `Grupo ${escapeHtml(match.group)}`}</span>
+            <span>${match.stage === "QUARTER_FINALS" ? "Cuartos" : match.stage === "LAST_16" ? "Octavos" : match.stage === "LAST_32" ? "Dieciseisavos" : `Grupo ${escapeHtml(match.group)}`}</span>
             <span>${escapeHtml(match.crDateLabel)}</span>
           </div>
           <div class="fixture-teams">${escapeHtml(match.home.name)} vs ${escapeHtml(match.away.name)}</div>
@@ -2263,7 +2265,7 @@
 
     function renderRanking() {
       renderRankingBoard(rankingBoard, publicData.ranking, "El ranking acumulado se activará cuando se calculen los resultados oficiales.");
-      renderRankingBoard(roundRankingBoard, publicData.octavosRanking, "El ranking de octavos se activará cuando se contabilicen resultados de esta fase.");
+      renderRankingBoard(roundRankingBoard, publicData.quarterfinalsRanking, "El ranking de cuartos se activará cuando se contabilicen resultados de esta fase.");
 
       const apiState = publicData.apiState || {};
       if (publicData.generatedAt || apiState.updatedAt) {
@@ -2413,10 +2415,14 @@
           matches: Array.isArray(data.roundOf32.matches) ? data.roundOf32.matches : [],
           results: Array.isArray(data.roundOf32.results) ? data.roundOf32.results : [],
         } : { matches: [], results: [] },
-        octavosRanking: Array.isArray(data && data.octavosRanking) ? data.octavosRanking : [],
         octavos: data && data.octavos ? {
           matches: Array.isArray(data.octavos.matches) ? data.octavos.matches : [],
           results: Array.isArray(data.octavos.results) ? data.octavos.results : [],
+        } : { matches: [], results: [] },
+        quarterfinalsRanking: Array.isArray(data && data.quarterfinalsRanking) ? data.quarterfinalsRanking : [],
+        quarterfinals: data && data.quarterfinals ? {
+          matches: Array.isArray(data.quarterfinals.matches) ? data.quarterfinals.matches : [],
+          results: Array.isArray(data.quarterfinals.results) ? data.quarterfinals.results : [],
         } : { matches: [], results: [] },
         apiState: data && data.apiState ? data.apiState : null,
         generatedAt: data && data.generatedAt ? data.generatedAt : "",
@@ -2453,7 +2459,7 @@
           matches: payload.roundOf32.matches,
           results: payload.roundOf32.results,
         },
-        octavosRanking: payload.octavosRanking.map((row) => [
+        quarterfinalsRanking: payload.quarterfinalsRanking.map((row) => [
           row.name,
           row.points,
           row.hits,
@@ -2463,6 +2469,10 @@
         octavos: {
           matches: payload.octavos.matches,
           results: payload.octavos.results,
+        },
+        quarterfinals: {
+          matches: payload.quarterfinals.matches,
+          results: payload.quarterfinals.results,
         },
         apiUpdatedAt: payload.apiState && payload.apiState.updatedAt,
       });

@@ -11,6 +11,10 @@ const OCTAVOS_RESPONSES_SHEET = "Octavos";
 const OCTAVOS_MATCHES_SHEET = "Partidos Octavos";
 const OCTAVOS_RESULTS_SHEET = "Resultados Octavos";
 const OCTAVOS_RANKING_SHEET = "Ranking Octavos";
+const QUARTERFINALS_RESPONSES_SHEET = "Cuartos";
+const QUARTERFINALS_MATCHES_SHEET = "Partidos Cuartos";
+const QUARTERFINALS_RESULTS_SHEET = "Resultados Cuartos";
+const QUARTERFINALS_RANKING_SHEET = "Ranking Cuartos";
 const CUMULATIVE_RANKING_SHEET = "Ranking Acumulado";
 const API_STATE_SHEET = "Estado API";
 const DIAGNOSTIC_SHEET = "Diagnostico";
@@ -18,8 +22,8 @@ const FOOTBALL_DATA_API_URL = "https://api.football-data.org/v4/competitions/WC/
 const FOOTBALL_DATA_TOKEN_PROPERTY = "FOOTBALL_DATA_API_KEY";
 const SYNC_SECRET_PROPERTY = "SYNC_SECRET";
 const PUBLIC_SYNC_CACHE_KEY = "PUBLIC_DATA_SYNC_ATTEMPTED";
-const PUBLIC_DATA_CACHE_KEY = "PUBLIC_DATA_PAYLOAD_V7";
-const PREDICTIONS_DATA_CACHE_KEY = "PREDICTIONS_DATA_PAYLOAD_V9";
+const PUBLIC_DATA_CACHE_KEY = "PUBLIC_DATA_PAYLOAD_V8";
+const PREDICTIONS_DATA_CACHE_KEY = "PREDICTIONS_DATA_PAYLOAD_V10";
 const ROUND_OF_32_FORM_CACHE_KEY = "ROUND_OF_32_FORM_DATA_V1";
 const ROUND_OF_32_MATCHES_CACHE_KEY = "ROUND_OF_32_MATCHES_V3";
 const CR_TIME_ZONE = "America/Costa_Rica";
@@ -2108,6 +2112,78 @@ const OCTAVOS_FALLBACK_MATCHES = [
     }
   }
 ];
+const QUARTERFINALS_CLOSE_AT_UTC_MS = Date.UTC(2026, 6, 9, 22, 0, 0);
+const QUARTERFINALS_CLOSE_LABEL = "9 de julio de 2026, 4:00 p.m. hora Costa Rica";
+const QUARTERFINALS_FALLBACK_MATCHES = [
+  {
+    "id": "QF-01",
+    "number": 1,
+    "stage": "QUARTER_FINALS",
+    "crDate": "2026-07-09",
+    "crDateLabel": "9 jul 2026",
+    "crTime": "4:00 p.m.",
+    "crTimeMinutes": 960,
+    "home": {
+      "name": "Francia",
+      "flagCode": "fr"
+    },
+    "away": {
+      "name": "Marruecos",
+      "flagCode": "ma"
+    }
+  },
+  {
+    "id": "QF-02",
+    "number": 2,
+    "stage": "QUARTER_FINALS",
+    "crDate": "2026-07-10",
+    "crDateLabel": "10 jul 2026",
+    "crTime": "3:00 p.m.",
+    "crTimeMinutes": 900,
+    "home": {
+      "name": "España",
+      "flagCode": "es"
+    },
+    "away": {
+      "name": "Bélgica",
+      "flagCode": "be"
+    }
+  },
+  {
+    "id": "QF-03",
+    "number": 3,
+    "stage": "QUARTER_FINALS",
+    "crDate": "2026-07-11",
+    "crDateLabel": "11 jul 2026",
+    "crTime": "5:00 p.m.",
+    "crTimeMinutes": 1020,
+    "home": {
+      "name": "Noruega",
+      "flagCode": "no"
+    },
+    "away": {
+      "name": "Inglaterra",
+      "flagCode": "gb-eng"
+    }
+  },
+  {
+    "id": "QF-04",
+    "number": 4,
+    "stage": "QUARTER_FINALS",
+    "crDate": "2026-07-11",
+    "crDateLabel": "11 jul 2026",
+    "crTime": "9:00 p.m.",
+    "crTimeMinutes": 1260,
+    "home": {
+      "name": "Argentina",
+      "flagCode": "ar"
+    },
+    "away": {
+      "name": "Suiza",
+      "flagCode": "ch"
+    }
+  }
+];
 
 function doGet(e) {
   const action = e && e.parameter ? e.parameter.action : "";
@@ -2137,6 +2213,14 @@ function doGet(e) {
 
   if (action === "submitOctavos") {
     return handleOctavosSubmission_(e);
+  }
+
+  if (action === "quarterfinalsFormData") {
+    return respond_(e, getQuarterfinalsFormData_());
+  }
+
+  if (action === "submitQuarterfinals") {
+    return handleQuarterfinalsSubmission_(e);
   }
 
   if (action === "syncResults") {
@@ -2236,6 +2320,11 @@ function setupQuinielaSheets() {
   if (!ss.getSheetByName(OCTAVOS_RESULTS_SHEET)) writeResultsToSheet_(ss, OCTAVOS_RESULTS_SHEET, []);
   if (!ss.getSheetByName(OCTAVOS_RANKING_SHEET)) writeExtendedRanking_(ss, OCTAVOS_RANKING_SHEET, []);
 
+  setupQuarterfinalsMatchesSheet_(ss, cloneQuarterfinalsFallbackMatches_());
+  setupQuarterfinalsResponsesSheet_(ss);
+  if (!ss.getSheetByName(QUARTERFINALS_RESULTS_SHEET)) writeResultsToSheet_(ss, QUARTERFINALS_RESULTS_SHEET, []);
+  if (!ss.getSheetByName(QUARTERFINALS_RANKING_SHEET)) writeExtendedRanking_(ss, QUARTERFINALS_RANKING_SHEET, []);
+
   const apiStateSheet = ss.getSheetByName(API_STATE_SHEET);
   if (!apiStateSheet || apiStateSheet.getLastRow() === 0) {
     writeApiState_(ss, {
@@ -2258,7 +2347,7 @@ function setupQuinielaSheets() {
     existingSheets: ss.getSheets().map(function(sheet) {
       return sheet.getName();
     }),
-    sheets: [MATCHES_SHEET, RESULTS_SHEET, RANKING_SHEET, ROUND_OF_32_RESPONSES_SHEET, ROUND_OF_32_MATCHES_SHEET, ROUND_OF_32_RESULTS_SHEET, ROUND_OF_32_RANKING_SHEET, CUMULATIVE_RANKING_SHEET, OCTAVOS_RESPONSES_SHEET, OCTAVOS_MATCHES_SHEET, OCTAVOS_RESULTS_SHEET, OCTAVOS_RANKING_SHEET, API_STATE_SHEET],
+    sheets: [MATCHES_SHEET, RESULTS_SHEET, RANKING_SHEET, ROUND_OF_32_RESPONSES_SHEET, ROUND_OF_32_MATCHES_SHEET, ROUND_OF_32_RESULTS_SHEET, ROUND_OF_32_RANKING_SHEET, CUMULATIVE_RANKING_SHEET, OCTAVOS_RESPONSES_SHEET, OCTAVOS_MATCHES_SHEET, OCTAVOS_RESULTS_SHEET, OCTAVOS_RANKING_SHEET, QUARTERFINALS_RESPONSES_SHEET, QUARTERFINALS_MATCHES_SHEET, QUARTERFINALS_RESULTS_SHEET, QUARTERFINALS_RANKING_SHEET, API_STATE_SHEET],
   };
   writeDiagnosticSheet_(ss, result);
 
@@ -2313,6 +2402,14 @@ function syncFootballData() {
     const octavosResults = mergeResults_(freshOctavosResults, previousOctavosResults);
     writeResultsToSheet_(ss, OCTAVOS_RESULTS_SHEET, octavosResults);
     const octavosRankings = rebuildOctavosRankings_(ss, octavosResults, roundRankings.cumulative);
+
+    const quarterfinalsMatches = cloneQuarterfinalsFallbackMatches_();
+    setupQuarterfinalsMatchesSheet_(ss, quarterfinalsMatches);
+    const previousQuarterfinalsResults = readResultsFromSheet_(ss, QUARTERFINALS_RESULTS_SHEET);
+    const freshQuarterfinalsResults = buildQuarterfinalsResults_(quarterfinalsMatches, apiResponse.matches);
+    const quarterfinalsResults = mergeResults_(freshQuarterfinalsResults, previousQuarterfinalsResults);
+    writeResultsToSheet_(ss, QUARTERFINALS_RESULTS_SHEET, quarterfinalsResults);
+    const quarterfinalsRankings = rebuildQuarterfinalsRankings_(ss, quarterfinalsResults, octavosRankings.cumulative);
     writeCachedPayload_(ROUND_OF_32_MATCHES_CACHE_KEY, { matches: roundMatches }, 300);
     writeApiState_(ss, apiResponse.apiState);
     clearDataCaches_();
@@ -2327,7 +2424,9 @@ function syncFootballData() {
       roundOf32Ranking: roundRankings.phase.length,
       octavosResults: octavosResults.length,
       octavosRanking: octavosRankings.phase.length,
-      cumulativeRanking: octavosRankings.cumulative.length,
+      quarterfinalsResults: quarterfinalsResults.length,
+      quarterfinalsRanking: quarterfinalsRankings.phase.length,
+      cumulativeRanking: quarterfinalsRankings.cumulative.length,
       apiState: apiResponse.apiState,
     };
   } catch (error) {
@@ -2363,6 +2462,7 @@ function getPublicData_() {
   const cumulativeRanking = readExtendedRanking_(ss, CUMULATIVE_RANKING_SHEET);
   const roundOf32Ranking = readExtendedRanking_(ss, ROUND_OF_32_RANKING_SHEET);
   const octavosRanking = readExtendedRanking_(ss, OCTAVOS_RANKING_SHEET);
+  const quarterfinalsRanking = readExtendedRanking_(ss, QUARTERFINALS_RANKING_SHEET);
   const payload = {
     ok: true,
     generatedAt: new Date().toISOString(),
@@ -2378,6 +2478,11 @@ function getPublicData_() {
     octavos: {
       matches: cloneOctavosFallbackMatches_(),
       results: readResultsFromSheet_(ss, OCTAVOS_RESULTS_SHEET),
+    },
+    quarterfinalsRanking: quarterfinalsRanking,
+    quarterfinals: {
+      matches: cloneQuarterfinalsFallbackMatches_(),
+      results: readResultsFromSheet_(ss, QUARTERFINALS_RESULTS_SHEET),
     },
     apiState: readApiState_(ss),
   };
@@ -2405,7 +2510,7 @@ function maybeSyncFootballDataForPublic_(ss) {
 
 function hasLiveMatchWindow_() {
   const now = nowInCostaRica_();
-  return MATCHES.concat(ROUND_OF_32_FALLBACK_MATCHES, OCTAVOS_FALLBACK_MATCHES).some(function(match) {
+  return MATCHES.concat(ROUND_OF_32_FALLBACK_MATCHES, OCTAVOS_FALLBACK_MATCHES, QUARTERFINALS_FALLBACK_MATCHES).some(function(match) {
     return match.crDate === now.date &&
       now.minutes >= match.crTimeMinutes &&
       now.minutes <= match.crTimeMinutes + 130;
@@ -2514,10 +2619,14 @@ function getPredictionsData_() {
   enrichRoundParticipants_(roundParticipants, participants);
   const octavosParticipants = readOctavosParticipants_(ss);
   enrichRoundParticipants_(octavosParticipants, participants);
+  const quarterfinalsParticipants = readQuarterfinalsParticipants_(ss);
+  enrichRoundParticipants_(quarterfinalsParticipants, participants);
   const roundMatches = readRoundOf32MatchesSheet_(ss);
   const roundResults = readRoundOf32Results_(ss);
   const octavosMatches = cloneOctavosFallbackMatches_();
   const octavosResults = readResultsFromSheet_(ss, OCTAVOS_RESULTS_SHEET);
+  const quarterfinalsMatches = cloneQuarterfinalsFallbackMatches_();
+  const quarterfinalsResults = readResultsFromSheet_(ss, QUARTERFINALS_RESULTS_SHEET);
   const maxVisibleParticipants = 16;
   const payload = {
     ok: true,
@@ -2544,6 +2653,15 @@ function getPredictionsData_() {
       totalParticipants: octavosParticipants.length,
       hiddenParticipants: Math.max(octavosParticipants.length - maxVisibleParticipants, 0),
       ranking: readExtendedRanking_(ss, OCTAVOS_RANKING_SHEET),
+      cumulativeRanking: readExtendedRanking_(ss, CUMULATIVE_RANKING_SHEET),
+    },
+    quarterfinals: {
+      matches: quarterfinalsMatches,
+      results: quarterfinalsResults,
+      participants: quarterfinalsParticipants.slice(0, maxVisibleParticipants),
+      totalParticipants: quarterfinalsParticipants.length,
+      hiddenParticipants: Math.max(quarterfinalsParticipants.length - maxVisibleParticipants, 0),
+      ranking: readExtendedRanking_(ss, QUARTERFINALS_RANKING_SHEET),
       cumulativeRanking: readExtendedRanking_(ss, CUMULATIVE_RANKING_SHEET),
     },
   };
@@ -3075,6 +3193,119 @@ function setupOctavosResponsesSheet_(ss) {
   sheet.setFrozenRows(1);
 }
 
+function getQuarterfinalsFormData_() {
+  const ss = getSpreadsheet_();
+  return {
+    ok: true,
+    generatedAt: new Date().toISOString(),
+    participants: readExistingParticipantNames_(ss),
+    matches: cloneQuarterfinalsFallbackMatches_(),
+    totalMatches: QUARTERFINALS_FALLBACK_MATCHES.length,
+    closed: isQuarterfinalsFormClosed_(),
+    closesAt: new Date(QUARTERFINALS_CLOSE_AT_UTC_MS).toISOString(),
+    closeLabel: QUARTERFINALS_CLOSE_LABEL,
+    source: "manual",
+    message: "",
+  };
+}
+
+function handleQuarterfinalsSubmission_(e) {
+  const lock = LockService.getScriptLock();
+  let response;
+  try {
+    lock.waitLock(30000);
+    if (isQuarterfinalsFormClosed_()) {
+      throw new Error("La quiniela de cuartos cerro el " + QUARTERFINALS_CLOSE_LABEL + ".");
+    }
+    const payload = parsePayload_(e);
+    const ss = getSpreadsheet_();
+    const participant = validateRoundOf32Participant_(ss, payload && payload.name);
+    const matches = cloneQuarterfinalsFallbackMatches_();
+    const picks = payload && payload.picks ? payload.picks : {};
+    const selections = matches.map(function(match) {
+      const pick = picks[match.id];
+      if (["home", "draw", "away"].indexOf(pick) === -1) throw new Error("Hay selecciones incompletas.");
+      return {
+        id: match.id,
+        number: match.number,
+        stage: "QUARTER_FINALS",
+        crDate: match.crDate,
+        crDateLabel: match.crDateLabel,
+        crTime: match.crTime,
+        crTimeMinutes: match.crTimeMinutes,
+        home: match.home.name,
+        away: match.away.name,
+        pick: pick,
+        pickLabel: getPickLabel_(match, pick),
+      };
+    });
+    setupQuarterfinalsMatchesSheet_(ss, matches);
+    upsertQuarterfinalsResponse_(ss, participant.name, selections);
+    clearDataCaches_();
+    response = { ok: true, savedAt: new Date().toISOString(), updated: true, participant: participant.name };
+  } catch (error) {
+    response = { ok: false, error: String(error && error.message ? error.message : error) };
+  } finally {
+    try { lock.releaseLock(); } catch (ignore) {}
+  }
+  return respond_(e, response);
+}
+
+function isQuarterfinalsFormClosed_() {
+  return new Date().getTime() >= QUARTERFINALS_CLOSE_AT_UTC_MS;
+}
+
+function cloneQuarterfinalsFallbackMatches_() {
+  return JSON.parse(JSON.stringify(QUARTERFINALS_FALLBACK_MATCHES));
+}
+
+function setupQuarterfinalsMatchesSheet_(ss, matches) {
+  const sheet = ss.getSheetByName(QUARTERFINALS_MATCHES_SHEET) || ss.insertSheet(QUARTERFINALS_MATCHES_SHEET);
+  const rows = [["ID", "API ID", "Numero", "Fecha CR", "Hora CR", "Local", "Visita"]].concat((matches || []).map(function(match) {
+    return [match.id, match.apiId || "", match.number, match.crDate, match.crTime, match.home.name, match.away.name];
+  }));
+  sheet.clearContents();
+  sheet.getRange(1, 1, rows.length, 1).setNumberFormat("@");
+  sheet.getRange(1, 1, rows.length, rows[0].length).setValues(rows);
+  sheet.setFrozenRows(1);
+}
+
+function upsertQuarterfinalsResponse_(ss, participantName, selections) {
+  const sheet = ss.getSheetByName(QUARTERFINALS_RESPONSES_SHEET) || ss.insertSheet(QUARTERFINALS_RESPONSES_SHEET);
+  const requiredHeaders = ["Actualizado", "Nombre", "Clave participante", "Total partidos", "Completados", "Selecciones JSON"]
+    .concat(QUARTERFINALS_FALLBACK_MATCHES.map(function(match) { return match.id; }));
+  const headers = ensureHeaders_(sheet, requiredHeaders);
+  const row = headers.map(function() { return ""; });
+  setCell_(row, headers, "Actualizado", new Date());
+  setCell_(row, headers, "Nombre", participantName);
+  setCell_(row, headers, "Clave participante", normalizeParticipantName_(participantName));
+  setCell_(row, headers, "Total partidos", selections.length);
+  setCell_(row, headers, "Completados", selections.length);
+  setCell_(row, headers, "Selecciones JSON", JSON.stringify(selections));
+  selections.forEach(function(selection) { setCell_(row, headers, selection.id, selection.pickLabel); });
+  let targetRow = sheet.getLastRow() + 1;
+  if (sheet.getLastRow() > 1) {
+    const nameIndex = headers.indexOf("Nombre");
+    const values = sheet.getRange(2, 1, sheet.getLastRow() - 1, headers.length).getValues();
+    for (let i = 0; i < values.length; i += 1) {
+      if (normalizeParticipantName_(values[i][nameIndex]) === normalizeParticipantName_(participantName)) {
+        targetRow = i + 2;
+        break;
+      }
+    }
+  }
+  sheet.getRange(targetRow, 1, 1, headers.length).setValues([row]);
+  sheet.setFrozenRows(1);
+}
+
+function setupQuarterfinalsResponsesSheet_(ss) {
+  const sheet = ss.getSheetByName(QUARTERFINALS_RESPONSES_SHEET) || ss.insertSheet(QUARTERFINALS_RESPONSES_SHEET);
+  const headers = ["Actualizado", "Nombre", "Clave participante", "Total partidos", "Completados", "Selecciones JSON"]
+    .concat(QUARTERFINALS_FALLBACK_MATCHES.map(function(match) { return match.id; }));
+  ensureHeaders_(sheet, headers);
+  sheet.setFrozenRows(1);
+}
+
 function fetchFootballData_() {
   const token = getFootballDataToken_();
   if (!token) {
@@ -3131,6 +3362,10 @@ function buildOctavosResults_(octavosMatches, apiMatches) {
     const apiMatchInfo = findApiMatch_(match, apiMatches || [], usedApiIds);
     return buildResult_(match, apiMatchInfo ? apiMatchInfo.match : null, apiMatchInfo ? apiMatchInfo.reversed : false);
   });
+}
+
+function buildQuarterfinalsResults_(quarterfinalsMatches, apiMatches) {
+  return buildOctavosResults_(quarterfinalsMatches, apiMatches);
 }
 
 function mergeResults_(freshResults, previousResults) {
@@ -3621,12 +3856,71 @@ function rebuildOctavosRankings_(ss, results, previousCumulative) {
   return { phase: phase, cumulative: cumulative };
 }
 
+function rebuildQuarterfinalsRankings_(ss, results, previousCumulative) {
+  const existingNames = readExistingParticipantNames_(ss);
+  const submittedParticipants = readQuarterfinalsParticipants_(ss);
+  const submittedByName = {};
+  submittedParticipants.forEach(function(participant) {
+    submittedByName[normalizeParticipantName_(participant.name)] = participant;
+  });
+  const finishedResults = {};
+  (results || []).forEach(function(result) {
+    if (isQuinielaResultComplete_(result)) finishedResults[result.matchId] = result.winner;
+  });
+  const computedMatches = Object.keys(finishedResults).length;
+  const phase = existingNames.map(function(name) {
+    const participant = submittedByName[normalizeParticipantName_(name)] || { selections: [] };
+    let hits = 0;
+    (participant.selections || []).forEach(function(selection) {
+      if (finishedResults[selection.id] && finishedResults[selection.id] === selection.pick) hits += 1;
+    });
+    return {
+      name: name,
+      points: hits * POINTS_PER_HIT,
+      hits: hits,
+      computedMatches: computedMatches,
+      totalPredictions: (participant.selections || []).length,
+    };
+  });
+  sortRankingRows_(phase);
+  applyRankingMovement_(ss, QUARTERFINALS_RANKING_SHEET, phase, computedMatches);
+  writeExtendedRanking_(ss, QUARTERFINALS_RANKING_SHEET, phase);
+
+  const previousByName = {};
+  (previousCumulative || []).forEach(function(row) {
+    previousByName[normalizeParticipantName_(row.name)] = row;
+  });
+  const phaseByName = {};
+  phase.forEach(function(row) { phaseByName[normalizeParticipantName_(row.name)] = row; });
+  const cumulative = existingNames.map(function(name) {
+    const key = normalizeParticipantName_(name);
+    const previousRow = previousByName[key] || {};
+    const phaseRow = phaseByName[key] || {};
+    return {
+      name: name,
+      points: Number(previousRow.points || 0) + Number(phaseRow.points || 0),
+      hits: Number(previousRow.hits || 0) + Number(phaseRow.hits || 0),
+      computedMatches: Number(previousRow.computedMatches || 0) + computedMatches,
+      totalPredictions: Number(previousRow.totalPredictions || 0) + Number(phaseRow.totalPredictions || 0),
+    };
+  });
+  sortRankingRows_(cumulative);
+  const cumulativeComputed = cumulative.length ? Number(cumulative[0].computedMatches || 0) : computedMatches;
+  applyRankingMovement_(ss, CUMULATIVE_RANKING_SHEET, cumulative, cumulativeComputed);
+  writeExtendedRanking_(ss, CUMULATIVE_RANKING_SHEET, cumulative);
+  return { phase: phase, cumulative: cumulative };
+}
+
 function readRoundOf32Participants_(ss) {
   return readPhaseParticipants_(ss, ROUND_OF_32_RESPONSES_SHEET);
 }
 
 function readOctavosParticipants_(ss) {
   return readPhaseParticipants_(ss, OCTAVOS_RESPONSES_SHEET);
+}
+
+function readQuarterfinalsParticipants_(ss) {
+  return readPhaseParticipants_(ss, QUARTERFINALS_RESPONSES_SHEET);
 }
 
 function readPhaseParticipants_(ss, sheetName) {

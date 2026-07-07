@@ -555,7 +555,7 @@
         <h1>Predicciones de participantes</h1>
       </div>
       <nav class="hero-actions" aria-label="Navegacion principal">
-        <a class="btn primary" href="octavos.html">Llenar octavos</a>
+        <a class="btn primary" href="cuartos.html">Llenar cuartos</a>
         <a class="btn" href="index.html">Inicio</a>
       </nav>
     </div>
@@ -594,10 +594,10 @@
       <div class="note" id="tableNote" hidden></div>
     </section>
 
-    <section class="panel" id="roundPredictionsPanel" aria-label="Predicciones de octavos">
+    <section class="panel" id="roundPredictionsPanel" aria-label="Predicciones de cuartos">
       <div class="panel-head">
         <div>
-          <h2 class="panel-title">Octavos de final</h2>
+          <h2 class="panel-title">Cuartos de final</h2>
           <p class="panel-copy" id="roundStatusText">Cargando predicciones de la fase…</p>
         </div>
         <div class="toolbar">
@@ -607,7 +607,7 @@
         </div>
       </div>
       <div class="mobile-participants" id="roundMobileParticipants" hidden></div>
-      <div class="table-wrap" aria-label="Tabla de predicciones de octavos con desplazamiento horizontal">
+      <div class="table-wrap" aria-label="Tabla de predicciones de cuartos con desplazamiento horizontal">
         <table aria-describedby="roundStatusText">
           <colgroup>
             <col class="date-col"><col class="team-col"><col class="score-col"><col class="team-col"><col class="score-col"><col class="winner-col"><col class="spacer-col"><col class="player-col" span="16">
@@ -2284,7 +2284,7 @@
     const CR_TIME_ZONE = "America/Costa_Rica";
     const STANDARD_PREDICTIONS_REFRESH_MS = 60000;
     const LIVE_PREDICTIONS_REFRESH_MS = 10000;
-    const PREDICTIONS_STORAGE_KEY = "quinielaPredictionsData:v11";
+    const PREDICTIONS_STORAGE_KEY = "quinielaPredictionsData:v12";
     const PREDICTIONS_STORAGE_MAX_AGE_MS = 10 * 60 * 1000;
     const GROUP_COLORS = {
       A: "#f1d294",
@@ -2359,14 +2359,14 @@
         totalParticipants: Number(data && data.totalParticipants ? data.totalParticipants : 0),
         generatedAt: data && data.generatedAt ? data.generatedAt : "",
         hiddenParticipants: Number(data && data.hiddenParticipants ? data.hiddenParticipants : 0),
-        roundOf32: data && data.octavos ? {
-          matches: sortMatchesChronologically(Array.isArray(data.octavos.matches) ? data.octavos.matches : []),
-          results: Array.isArray(data.octavos.results) ? data.octavos.results : [],
-          participants: Array.isArray(data.octavos.participants) ? data.octavos.participants : [],
-          totalParticipants: Number(data.octavos.totalParticipants || 0),
-          hiddenParticipants: Number(data.octavos.hiddenParticipants || 0),
-          ranking: Array.isArray(data.octavos.ranking) ? data.octavos.ranking : [],
-          cumulativeRanking: Array.isArray(data.octavos.cumulativeRanking) ? data.octavos.cumulativeRanking : [],
+        roundOf32: data && data.quarterfinals ? {
+          matches: sortMatchesChronologically(Array.isArray(data.quarterfinals.matches) ? data.quarterfinals.matches : []),
+          results: Array.isArray(data.quarterfinals.results) ? data.quarterfinals.results : [],
+          participants: Array.isArray(data.quarterfinals.participants) ? data.quarterfinals.participants : [],
+          totalParticipants: Number(data.quarterfinals.totalParticipants || 0),
+          hiddenParticipants: Number(data.quarterfinals.hiddenParticipants || 0),
+          ranking: Array.isArray(data.quarterfinals.ranking) ? data.quarterfinals.ranking : [],
+          cumulativeRanking: Array.isArray(data.quarterfinals.cumulativeRanking) ? data.quarterfinals.cumulativeRanking : [],
         } : { matches: [], results: [], participants: [], totalParticipants: 0, hiddenParticipants: 0, ranking: [], cumulativeRanking: [] },
       };
     }
@@ -2521,7 +2521,7 @@
       const rows = [];
       rows.push(`
         <tr class="group-row" style="--group-color:#cfe2f3;">
-          <td></td><td>Octavos</td><td></td><td>Octavos</td><td></td><td></td><td></td>
+          <td></td><td>Cuartos</td><td></td><td>Cuartos</td><td></td><td></td><td></td>
           ${columns.map(() => "<td></td>").join("")}
         </tr>
       `);
@@ -2529,7 +2529,7 @@
       rows.push(renderSpacerRow(columns));
       rows.push(renderFooterNames(columns));
       rows.push(renderRoundSummaryRow("Puntos anteriores", columns, (participant) => previousPhasePoints(participant, round, matches, resultsById)));
-      rows.push(renderRoundSummaryRow("Puntos octavos", columns, (participant) => roundPhasePoints(participant, round, matches, resultsById)));
+      rows.push(renderRoundSummaryRow("Puntos cuartos", columns, (participant) => roundPhasePoints(participant, round, matches, resultsById)));
       rows.push(renderRoundSummaryRow("Total puntos", columns, (participant) => cumulativePoints(participant, round, matches, resultsById), "total-row"));
       rows.push(renderRoundChampionRow(columns));
       return rows.join("");
@@ -2596,7 +2596,7 @@
         <article class="mobile-participant-card">
           <div class="mobile-participant-top"><span>${index + 1}. ${escapeHtml(participant.name)}</span><span>${escapeHtml(participant.totalPoints)} pts total</span></div>
           <div class="mobile-participant-meta">Campeón elegido: ${escapeHtml(participant.champion || "Sin selección")}</div>
-          <div class="mobile-participant-meta">Octavos: ${escapeHtml(participant.phasePoints)} pts</div>
+          <div class="mobile-participant-meta">Cuartos: ${escapeHtml(participant.phasePoints)} pts</div>
         </article>
       `).join("");
     }
@@ -2606,8 +2606,8 @@
       const total = Number(round.totalParticipants || (round.participants || []).length || 0);
       roundParticipantCount.textContent = `${total} participante${total === 1 ? "" : "s"}`;
       roundStatusText.textContent = total
-        ? `Predicciones de octavos. Actualizado: ${state.generatedAt ? formatDateTime(state.generatedAt) : "pendiente"}.`
-        : "Aún no hay predicciones enviadas para octavos.";
+        ? `Predicciones de cuartos. Actualizado: ${state.generatedAt ? formatDateTime(state.generatedAt) : "pendiente"}.`
+        : "Aún no hay predicciones enviadas para cuartos.";
       const hidden = Number(round.hiddenParticipants || 0);
       roundTableNote.hidden = hidden === 0;
       roundTableNote.textContent = hidden ? `Hay ${hidden} participante${hidden === 1 ? "" : "s"} adicional${hidden === 1 ? "" : "es"}.` : "";
