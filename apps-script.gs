@@ -22,8 +22,8 @@ const FOOTBALL_DATA_API_URL = "https://api.football-data.org/v4/competitions/WC/
 const FOOTBALL_DATA_TOKEN_PROPERTY = "FOOTBALL_DATA_API_KEY";
 const SYNC_SECRET_PROPERTY = "SYNC_SECRET";
 const PUBLIC_SYNC_CACHE_KEY = "PUBLIC_DATA_SYNC_ATTEMPTED";
-const PUBLIC_DATA_CACHE_KEY = "PUBLIC_DATA_PAYLOAD_V8";
-const PREDICTIONS_DATA_CACHE_KEY = "PREDICTIONS_DATA_PAYLOAD_V10";
+const PUBLIC_DATA_CACHE_KEY = "PUBLIC_DATA_PAYLOAD_V9";
+const PREDICTIONS_DATA_CACHE_KEY = "PREDICTIONS_DATA_PAYLOAD_V11";
 const ROUND_OF_32_FORM_CACHE_KEY = "ROUND_OF_32_FORM_DATA_V1";
 const ROUND_OF_32_MATCHES_CACHE_KEY = "ROUND_OF_32_MATCHES_V3";
 const CR_TIME_ZONE = "America/Costa_Rica";
@@ -2223,6 +2223,10 @@ function doGet(e) {
     return handleQuarterfinalsSubmission_(e);
   }
 
+  if (action === "refreshData") {
+    return respond_(e, refreshPublicData_());
+  }
+
   if (action === "syncResults") {
     return respond_(e, syncFootballDataFromWeb_(e));
   }
@@ -2457,24 +2461,14 @@ function getPublicData_() {
   if (cached) return cached;
 
   const ss = getSpreadsheet_();
-  maybeSyncFootballDataForPublic_(ss);
-  const groupStageRanking = readRanking_(ss);
   const cumulativeRanking = readExtendedRanking_(ss, CUMULATIVE_RANKING_SHEET);
-  const roundOf32Ranking = readExtendedRanking_(ss, ROUND_OF_32_RANKING_SHEET);
-  const octavosRanking = readExtendedRanking_(ss, OCTAVOS_RANKING_SHEET);
   const quarterfinalsRanking = readExtendedRanking_(ss, QUARTERFINALS_RANKING_SHEET);
   const payload = {
     ok: true,
     generatedAt: new Date().toISOString(),
-    results: readResults_(ss),
-    ranking: cumulativeRanking.length ? cumulativeRanking : groupStageRanking,
-    groupStageRanking: groupStageRanking,
-    roundOf32Ranking: roundOf32Ranking,
-    roundOf32: {
-      matches: readRoundOf32MatchesSheet_(ss),
-      results: readRoundOf32Results_(ss),
-    },
-    octavosRanking: octavosRanking,
+    results: [],
+    ranking: cumulativeRanking.length ? cumulativeRanking : readRanking_(ss),
+    roundOf32: { matches: [], results: [] },
     octavos: {
       matches: cloneOctavosFallbackMatches_(),
       results: readResultsFromSheet_(ss, OCTAVOS_RESULTS_SHEET),
@@ -2506,6 +2500,12 @@ function maybeSyncFootballDataForPublic_(ss) {
   try {
     syncFootballData();
   } catch (ignore) {}
+}
+
+function refreshPublicData_() {
+  const ss = getSpreadsheet_();
+  maybeSyncFootballDataForPublic_(ss);
+  return { ok: true, generatedAt: new Date().toISOString() };
 }
 
 function hasLiveMatchWindow_() {
@@ -2613,48 +2613,21 @@ function getPredictionsData_() {
   if (cached) return cached;
 
   const ss = getSpreadsheet_();
-  maybeSyncFootballDataForPublic_(ss);
-  const participants = readParticipants_(ss);
-  const roundParticipants = readRoundOf32Participants_(ss);
-  enrichRoundParticipants_(roundParticipants, participants);
-  const octavosParticipants = readOctavosParticipants_(ss);
-  enrichRoundParticipants_(octavosParticipants, participants);
+  const participantProfiles = readParticipantProfiles_(ss);
   const quarterfinalsParticipants = readQuarterfinalsParticipants_(ss);
-  enrichRoundParticipants_(quarterfinalsParticipants, participants);
-  const roundMatches = readRoundOf32MatchesSheet_(ss);
-  const roundResults = readRoundOf32Results_(ss);
-  const octavosMatches = cloneOctavosFallbackMatches_();
-  const octavosResults = readResultsFromSheet_(ss, OCTAVOS_RESULTS_SHEET);
+  enrichRoundParticipants_(quarterfinalsParticipants, participantProfiles);
   const quarterfinalsMatches = cloneQuarterfinalsFallbackMatches_();
   const quarterfinalsResults = readResultsFromSheet_(ss, QUARTERFINALS_RESULTS_SHEET);
   const maxVisibleParticipants = 16;
   const payload = {
     ok: true,
     generatedAt: new Date().toISOString(),
-    matches: MATCHES,
-    results: readResults_(ss),
-    participants: participants.slice(0, maxVisibleParticipants),
-    totalParticipants: participants.length,
-    hiddenParticipants: Math.max(participants.length - maxVisibleParticipants, 0),
+    matches: [],
+    results: [],
+    participants: [],
+    totalParticipants: 0,
+    hiddenParticipants: 0,
     maxVisibleParticipants: maxVisibleParticipants,
-    roundOf32: {
-      matches: roundMatches,
-      results: roundResults,
-      participants: roundParticipants.slice(0, maxVisibleParticipants),
-      totalParticipants: roundParticipants.length,
-      hiddenParticipants: Math.max(roundParticipants.length - maxVisibleParticipants, 0),
-      ranking: readExtendedRanking_(ss, ROUND_OF_32_RANKING_SHEET),
-      cumulativeRanking: readExtendedRanking_(ss, CUMULATIVE_RANKING_SHEET),
-    },
-    octavos: {
-      matches: octavosMatches,
-      results: octavosResults,
-      participants: octavosParticipants.slice(0, maxVisibleParticipants),
-      totalParticipants: octavosParticipants.length,
-      hiddenParticipants: Math.max(octavosParticipants.length - maxVisibleParticipants, 0),
-      ranking: readExtendedRanking_(ss, OCTAVOS_RANKING_SHEET),
-      cumulativeRanking: readExtendedRanking_(ss, CUMULATIVE_RANKING_SHEET),
-    },
     quarterfinals: {
       matches: quarterfinalsMatches,
       results: quarterfinalsResults,
@@ -4095,6 +4068,32 @@ function readRanking_(ss) {
       ranking.push(result);
     }
     return ranking;
+  }, []);
+}
+
+function readParticipantProfiles_(ss) {
+  const sheet = ss.getSheetByName(RESPONSES_SHEET);
+  if (!sheet || sheet.getLastRow() < 2 || sheet.getLastColumn() < 1) return [];
+  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(function(header) {
+    return String(header || "");
+  });
+  const nameIndex = headerIndex_(headers, ["Nombre"]);
+  const championIndex = headerIndex_(headers, ["Campeon", "Campeón", "CampeÃ³n"]);
+  const championCodeIndex = headerIndex_(headers, ["Codigo campeon", "Código campeón", "CÃ³digo campeÃ³n"]);
+  if (nameIndex < 0) return [];
+  const rowCount = sheet.getLastRow() - 1;
+  const names = sheet.getRange(2, nameIndex + 1, rowCount, 1).getValues();
+  const champions = championIndex >= 0 ? sheet.getRange(2, championIndex + 1, rowCount, 1).getValues() : [];
+  const codes = championCodeIndex >= 0 ? sheet.getRange(2, championCodeIndex + 1, rowCount, 1).getValues() : [];
+  return names.reduce(function(profiles, row, index) {
+    const name = String(row[0] || "").trim();
+    if (!name) return profiles;
+    profiles.push({
+      name: name,
+      champion: champions[index] ? String(champions[index][0] || "") : "",
+      championFlagCode: codes[index] ? String(codes[index][0] || "") : "",
+    });
+    return profiles;
   }, []);
 }
 
