@@ -2663,6 +2663,8 @@ function getPredictionsExportData_() {
   enrichRoundParticipants_(roundParticipants, participants);
   const octavosParticipants = readOctavosParticipants_(ss);
   enrichRoundParticipants_(octavosParticipants, participants);
+  const quarterfinalsParticipants = readQuarterfinalsParticipants_(ss);
+  enrichRoundParticipants_(quarterfinalsParticipants, participants);
   return {
     ok: true,
     generatedAt: new Date().toISOString(),
@@ -2684,6 +2686,14 @@ function getPredictionsExportData_() {
       participants: octavosParticipants,
       totalParticipants: octavosParticipants.length,
       ranking: readExtendedRanking_(ss, OCTAVOS_RANKING_SHEET),
+      cumulativeRanking: readExtendedRanking_(ss, CUMULATIVE_RANKING_SHEET),
+    },
+    quarterfinals: {
+      matches: cloneQuarterfinalsFallbackMatches_(),
+      results: readResultsFromSheet_(ss, QUARTERFINALS_RESULTS_SHEET),
+      participants: quarterfinalsParticipants,
+      totalParticipants: quarterfinalsParticipants.length,
+      ranking: readExtendedRanking_(ss, QUARTERFINALS_RANKING_SHEET),
       cumulativeRanking: readExtendedRanking_(ss, CUMULATIVE_RANKING_SHEET),
     },
   };
