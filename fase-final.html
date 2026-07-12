@@ -98,7 +98,7 @@
       <div class="brand"><img src="https://img.favpng.com/6/1/5/world-cup-2026-logo-fifa-2026-logo-featuring-trophy-design-By6wambc.jpg" alt="Copa Mundial"><h1>Quiniela Mundial 2026<br>Fase Final de final</h1></div>
       <div class="phase-pill">16 partidos · 90 minutos</div>
     </header>
-    <div class="deadline" id="deadlineNotice" role="status">Cierre: 14 de julio de 2026, 3:00 p.m. hora Costa Rica</div>
+    <div class="deadline" id="deadlineNotice" role="status">Cierre: 14 de julio de 2026, 1:00 p.m. hora Costa Rica</div>
 
     <section class="panel" id="identityScreen">
       <h2>Escoge tu nombre</h2>
@@ -156,8 +156,8 @@
         "phaseLabel": "Semifinales",
         "crDate": "2026-07-14",
         "crDateLabel": "14 jul 2026",
-        "crTime": "3:00 p.m.",
-        "crTimeMinutes": 900,
+        "crTime": "1:00 p.m.",
+        "crTimeMinutes": 780,
         "home": {
             "name": "Francia",
             "flagCode": "fr"
@@ -174,8 +174,8 @@
         "phaseLabel": "Semifinales",
         "crDate": "2026-07-15",
         "crDateLabel": "15 jul 2026",
-        "crTime": "3:00 p.m.",
-        "crTimeMinutes": 900,
+        "crTime": "1:00 p.m.",
+        "crTimeMinutes": 780,
         "home": {
             "name": "Inglaterra",
             "flagCode": "gb-eng"
@@ -192,8 +192,8 @@
         "phaseLabel": "Tercer lugar",
         "crDate": "2026-07-18",
         "crDateLabel": "18 jul 2026",
-        "crTime": "5:00 p.m.",
-        "crTimeMinutes": 1020,
+        "crTime": "3:00 p.m.",
+        "crTimeMinutes": 900,
         "home": {
             "name": "Perdedor semifinal 1",
             "flagCode": ""
@@ -210,8 +210,8 @@
         "phaseLabel": "Final",
         "crDate": "2026-07-19",
         "crDateLabel": "19 jul 2026",
-        "crTime": "3:00 p.m.",
-        "crTimeMinutes": 900,
+        "crTime": "1:00 p.m.",
+        "crTimeMinutes": 780,
         "home": {
             "name": "Ganador semifinal 1",
             "flagCode": ""
@@ -222,7 +222,7 @@
         }
     }
 ];
-    const CLOSE_AT = new Date("2026-07-14T21:00:00.000Z").getTime();
+    const CLOSE_AT = new Date("2026-07-14T19:00:00.000Z").getTime();
     const STORAGE_KEY = "quiniela-fase-final-2026-v1";
     const state = { participants:[], matches:FALLBACK_MATCHES, name:"", picks:{}, advances:{}, currentIndex:0, screen:"identity", serverClosed:false, editIndex:-1, editPick:"", promptShown:false, derivedSignature:"" };
     const $ = (id) => document.getElementById(id);
@@ -340,7 +340,7 @@
     function selectionPayload(match){ const pick=state.picks[match.id]; const advance=state.advances[match.id]||""; const advanceTeam=advance?selectedTeam(match,advance):""; return {id:match.id,number:match.number,stage:match.stage,phaseLabel:match.phaseLabel,crDate:match.crDate,crDateLabel:match.crDateLabel,crTime:match.crTime,crTimeMinutes:match.crTimeMinutes,home:{name:match.home.name,flagCode:match.home.flagCode||""},away:{name:match.away.name,flagCode:match.away.flagCode||""},pick:pick,pickLabel:pickLabel(match,pick),selectedTeam:selectedTeam(match,pick),advancePick:advance,advanceTeam:advanceTeam}; }
     function showScreen(name){ Object.entries(screens).forEach(([key,node])=>node.hidden=key!==name); }
     function isClosed(){ return state.serverClosed || Date.now()>=CLOSE_AT; }
-    function renderDeadline(){ const closed=isClosed(); $("deadlineNotice").classList.toggle("closed",closed); $("deadlineNotice").textContent=closed?"Quiniela cerrada. El formulario cerró el 14 de julio de 2026, 3:00 p.m. hora Costa Rica.":"Cierre: 14 de julio de 2026, 3:00 p.m. hora Costa Rica"; $("startBtn").disabled=closed||state.participants.length===0; if(closed){$("submitBtn").disabled=true;$("summaryPromptSubmitBtn").disabled=true;} }
+    function renderDeadline(){ const closed=isClosed(); $("deadlineNotice").classList.toggle("closed",closed); $("deadlineNotice").textContent=closed?"Quiniela cerrada. El formulario cerró el 14 de julio de 2026, 1:00 p.m. hora Costa Rica.":"Cierre: 14 de julio de 2026, 1:00 p.m. hora Costa Rica"; $("startBtn").disabled=closed||state.participants.length===0; if(closed){$("submitBtn").disabled=true;$("summaryPromptSubmitBtn").disabled=true;} }
     function saveDraft(){ try{localStorage.setItem(STORAGE_KEY,JSON.stringify({name:state.name,picks:state.picks,advances:state.advances,currentIndex:state.currentIndex,screen:state.screen,promptShown:state.promptShown,derivedSignature:state.derivedSignature}));}catch(ignore){} }
     function loadDraft(){ try{const draft=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null"); if(!draft)return; state.name=draft.name||""; state.picks=draft.picks||{}; state.advances=draft.advances||{}; state.currentIndex=Math.max(0,Math.min(Number(draft.currentIndex||0),3)); state.screen=draft.screen||"identity"; state.promptShown=Boolean(draft.promptShown); state.derivedSignature=draft.derivedSignature||""; $("participantName").value=state.name; updateDerivedMatches();}catch(ignore){} }
     function restoreScreen(){ if(!state.name||!findParticipant(state.name)){state.screen="identity";showScreen("identity");return;} if(state.screen==="summary"&&state.matches.every((match)=>canContinueMatch(match)))showSummary(false); else if(state.screen==="match")renderMatch(); else showScreen("identity"); }

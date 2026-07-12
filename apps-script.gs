@@ -2188,8 +2188,8 @@ const QUARTERFINALS_FALLBACK_MATCHES = [
     }
   }
 ];
-const FINAL_PHASE_CLOSE_AT_UTC_MS = Date.UTC(2026, 6, 14, 21, 0, 0);
-const FINAL_PHASE_CLOSE_LABEL = "14 de julio de 2026, 3:00 p.m. hora Costa Rica";
+const FINAL_PHASE_CLOSE_AT_UTC_MS = Date.UTC(2026, 6, 14, 19, 0, 0);
+const FINAL_PHASE_CLOSE_LABEL = "14 de julio de 2026, 1:00 p.m. hora Costa Rica";
 const FINAL_PHASE_FALLBACK_MATCHES = [
   {
     "id": "FP-01",
@@ -2198,8 +2198,8 @@ const FINAL_PHASE_FALLBACK_MATCHES = [
     "phaseLabel": "Semifinales",
     "crDate": "2026-07-14",
     "crDateLabel": "14 jul 2026",
-    "crTime": "3:00 p.m.",
-    "crTimeMinutes": 900,
+    "crTime": "1:00 p.m.",
+    "crTimeMinutes": 780,
     "home": {
       "name": "Francia",
       "flagCode": "fr"
@@ -2216,8 +2216,8 @@ const FINAL_PHASE_FALLBACK_MATCHES = [
     "phaseLabel": "Semifinales",
     "crDate": "2026-07-15",
     "crDateLabel": "15 jul 2026",
-    "crTime": "3:00 p.m.",
-    "crTimeMinutes": 900,
+    "crTime": "1:00 p.m.",
+    "crTimeMinutes": 780,
     "home": {
       "name": "Inglaterra",
       "flagCode": "gb-eng"
@@ -2234,8 +2234,8 @@ const FINAL_PHASE_FALLBACK_MATCHES = [
     "phaseLabel": "Tercer lugar",
     "crDate": "2026-07-18",
     "crDateLabel": "18 jul 2026",
-    "crTime": "5:00 p.m.",
-    "crTimeMinutes": 1020,
+    "crTime": "3:00 p.m.",
+    "crTimeMinutes": 900,
     "home": {
       "name": "Perdedor semifinal 1",
       "flagCode": ""
@@ -2252,8 +2252,8 @@ const FINAL_PHASE_FALLBACK_MATCHES = [
     "phaseLabel": "Final",
     "crDate": "2026-07-19",
     "crDateLabel": "19 jul 2026",
-    "crTime": "3:00 p.m.",
-    "crTimeMinutes": 900,
+    "crTime": "1:00 p.m.",
+    "crTimeMinutes": 780,
     "home": {
       "name": "Ganador semifinal 1",
       "flagCode": ""
