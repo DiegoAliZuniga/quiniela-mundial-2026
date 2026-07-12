@@ -171,14 +171,14 @@
       <p class="eyebrow">Herramienta personal</p>
       <h1 id="title">Descargar predicciones completas</h1>
       <p>
-        Esta página genera archivos XLSX separados para la fase de grupos y los
-        cuartos. Incluye resultados, predicciones, puntos por fase, total
+        Esta página genera archivos XLSX separados para la fase de grupos y la
+        fase final. Incluye resultados, predicciones, puntos por fase, total
         acumulado y campeón elegido. No incluye correos.
       </p>
 
       <div class="actions">
         <button id="downloadBtn" type="button" disabled>Preparando datos...</button>
-        <button id="downloadRoundBtn" type="button" disabled>Preparando cuartos...</button>
+        <button id="downloadRoundBtn" type="button" disabled>Preparando fase final...</button>
         <a class="button" href="predicciones.html">Ver predicciones</a>
         <a class="button" href="index.html">Inicio</a>
       </div>
@@ -1875,7 +1875,7 @@
     const loadedAtEl = document.getElementById("loadedAt");
 
     downloadBtn.addEventListener("click", () => downloadXlsx("groups"));
-    downloadRoundBtn.addEventListener("click", () => downloadXlsx("quarterfinals"));
+    downloadRoundBtn.addEventListener("click", () => downloadXlsx("finalPhase"));
     loadExportData();
 
     function loadExportData() {
@@ -1893,15 +1893,15 @@
           state.data = data;
           const participants = Array.isArray(data.participants) ? data.participants : [];
           const matches = Array.isArray(data.matches) && data.matches.length ? data.matches : MATCHES;
-          const roundMatches = data.quarterfinals && Array.isArray(data.quarterfinals.matches) ? data.quarterfinals.matches : [];
+          const roundMatches = data.finalPhase && Array.isArray(data.finalPhase.matches) ? data.finalPhase.matches : [];
           participantCountEl.textContent = participants.length;
           matchCountEl.textContent = `${matches.length} + ${roundMatches.length}`;
           loadedAtEl.textContent = new Date().toLocaleTimeString("es-CR", { hour: "numeric", minute: "2-digit" });
           downloadBtn.disabled = false;
           downloadBtn.textContent = "Descargar fase de grupos";
           downloadRoundBtn.disabled = roundMatches.length === 0;
-          downloadRoundBtn.textContent = roundMatches.length ? "Descargar cuartos" : "Cuartos no disponibles";
-          setStatus("Listo. Puedes descargar la fase de grupos o la matriz completa de cuartos.");
+          downloadRoundBtn.textContent = roundMatches.length ? "Descargar fase final" : "Fase final no disponible";
+          setStatus("Listo. Puedes descargar la fase de grupos o la matriz completa de fase final.");
         })
         .catch((error) => {
           downloadBtn.disabled = true;
@@ -1914,18 +1914,18 @@
 
     function downloadXlsx(phase) {
       if (!state.data) return;
-      const isRound = phase === "quarterfinals";
+      const isRound = phase === "finalPhase";
       const workbook = buildXlsx(state.data, phase);
       const blob = new Blob([workbook], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `${isRound ? "predicciones-cuartos" : "predicciones-fase-grupos"}-${fileDate(new Date())}.xlsx`;
+      link.download = `${isRound ? "predicciones-fase-final" : "predicciones-fase-grupos"}-${fileDate(new Date())}.xlsx`;
       document.body.appendChild(link);
       link.click();
       link.remove();
       URL.revokeObjectURL(url);
-      setStatus(`${isRound ? "Cuartos" : "Fase de grupos"} descargado en XLSX.`);
+      setStatus(`${isRound ? "Fase final" : "Fase de grupos"} descargado en XLSX.`);
     }
 
     function buildRows(data) {
@@ -1965,7 +1965,7 @@
     }
 
     function buildRoundRows(data) {
-      const round = data && data.quarterfinals ? data.quarterfinals : {};
+      const round = data && data.finalPhase ? data.finalPhase : {};
       const matches = (Array.isArray(round.matches) ? round.matches : []).map((match) => ({
         ...match,
         crDate: normalizeExportDate(match && (match.crDate || match.date)),
@@ -1980,7 +1980,7 @@
 
       rows.push(["", "", "", "", "", ""].concat(participants.map((_, index) => String(index + 1))));
       rows.push(["Fecha", "Local", "GL", "Visita", "GV", "Ganador"].concat(participants.map((participant, index) => participant.name || `Participante ${index + 1}`)));
-      rows.push(["", "Cuartos", "", "Cuartos", "", ""].concat(participants.map(() => "")));
+      rows.push(["", "Fase final", "", "Fase final", "", ""].concat(participants.map(() => "")));
       matches.forEach((match) => {
         const result = resultsById.get(String(match.id || "")) || {};
         rows.push([
@@ -1995,7 +1995,7 @@
       rows.push([]);
       rows.push(["", "Participantes", "", "", "", ""].concat(participants.map((participant) => participant.name || "")));
       rows.push(["", "Puntos anteriores", "", "", "", ""].concat(participants.map((participant) => previousExportPoints(participant, round, matches, resultsById))));
-      rows.push(["", "Puntos cuartos", "", "", "", ""].concat(participants.map((participant) => roundExportPoints(participant, round, matches, resultsById))));
+      rows.push(["", "Puntos fase final", "", "", "", ""].concat(participants.map((participant) => roundExportPoints(participant, round, matches, resultsById))));
       rows.push(["", "Total puntos", "", "", "", ""].concat(participants.map((participant) => cumulativeExportPoints(participant, round, matches, resultsById))));
       rows.push(["", "Campeón elegido", "", "", "", ""].concat(participants.map((participant) => participant.champion || "Sin selección")));
       return rows;
@@ -2025,10 +2025,10 @@
     }
 
     function buildXlsx(data, phase = "groups") {
-      const isRound = phase === "quarterfinals";
+      const isRound = phase === "finalPhase";
       const rows = isRound ? buildRoundRows(data) : buildRows(data);
-      const sheetName = isRound ? "Cuartos" : "Fase de grupos";
-      const title = isRound ? "Predicciones de cuartos" : "Predicciones de fase de grupos";
+      const sheetName = isRound ? "Fase final" : "Fase de grupos";
+      const title = isRound ? "Predicciones de fase final" : "Predicciones de fase de grupos";
       return makeZip({
         "[Content_Types].xml": contentTypesXml(),
         "_rels/.rels": rootRelsXml(),
@@ -2059,8 +2059,17 @@
         const result = resultsById.get(String(match.id || ""));
         const pick = participant && participant.picksByMatchId ? participant.picksByMatchId[match.id] : null;
         if (!isComputed(result) || !pick) return total;
-        return pick.pick === result.winner ? total + 1 : total;
+        return exportPredictionHitsResult(pick, result) ? total + 1 : total;
       }, 0);
+    }
+
+    function exportPredictionHitsResult(pick, result) {
+      if (!pick || !result) return false;
+      if (pick.pick === "draw" || result.winner === "draw") return pick.pick === result.winner;
+      if (pick.selectedTeam && result.winnerTeam) {
+        return exportParticipantKey(pick.selectedTeam) === exportParticipantKey(result.winnerTeam);
+      }
+      return pick.pick === result.winner;
     }
 
     function mapExportResults(results, matches) {

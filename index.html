@@ -330,7 +330,7 @@
 
   <section class="section blue" aria-label="Acciones principales">
     <div class="wrap action-grid">
-      <a class="action-btn" href="cuartos.html">Llenar cuartos</a>
+      <a class="action-btn" href="fase-final.html">Llenar fase final</a>
       <a class="action-btn" href="predicciones.html">Mostrar predicciones de participantes</a>
     </div>
   </section>
@@ -366,9 +366,9 @@
     </div>
   </section>
 
-  <section class="section blue" aria-label="Ranking de cuartos">
+  <section class="section blue" aria-label="Ranking de fase final">
     <div class="wrap ranking-card">
-      <h2>Ranking de cuartos</h2>
+      <h2>Ranking de fase final</h2>
       <div class="ranking-board" id="roundRankingBoard">
         <p>El ranking se activará cuando se contabilicen resultados de esta fase.</p>
       </div>
@@ -392,7 +392,7 @@
     const CR_TIME_ZONE = "America/Costa_Rica";
     const STANDARD_DATA_REFRESH_MS = 60000;
     const LIVE_DATA_REFRESH_MS = 10000;
-    const PUBLIC_DATA_STORAGE_KEY = "quinielaPublicData:v9";
+    const PUBLIC_DATA_STORAGE_KEY = "quinielaPublicData:v10";
     const PUBLIC_DATA_STORAGE_MAX_AGE_MS = 10 * 60 * 1000;
     const LIVE_STATUSES = new Set(["IN_PLAY", "PAUSED", "EXTRA_TIME", "PENALTY_SHOOTOUT"]);
     const FINISHED_STATUSES = new Set(["FINISHED", "AWARDED"]);
@@ -404,7 +404,7 @@
     const roundRankingBoard = document.getElementById("roundRankingBoard");
     const syncNote = document.getElementById("syncNote");
     const roundSyncNote = document.getElementById("roundSyncNote");
-    let publicData = { results: [], ranking: [], roundOf32: { matches: [], results: [] }, octavos: { matches: [], results: [] }, quarterfinalsRanking: [], quarterfinals: { matches: [], results: [] }, apiState: null, generatedAt: "" };
+    let publicData = { results: [], ranking: [], roundOf32: { matches: [], results: [] }, octavos: { matches: [], results: [] }, quarterfinals: { matches: [], results: [] }, finalPhaseRanking: [], finalPhase: { matches: [], results: [] }, apiState: null, generatedAt: "" };
     let publicResultsById = new Map();
     let publicDataSignature = "";
     let publicDataRefreshTimer = null;
@@ -435,14 +435,16 @@
       const roundMatches = publicData.roundOf32 && Array.isArray(publicData.roundOf32.matches) ? publicData.roundOf32.matches : [];
       const octavosMatches = publicData.octavos && Array.isArray(publicData.octavos.matches) ? publicData.octavos.matches : [];
       const quarterfinalsMatches = publicData.quarterfinals && Array.isArray(publicData.quarterfinals.matches) ? publicData.quarterfinals.matches : [];
-      return MATCHES.concat(roundMatches, octavosMatches, quarterfinalsMatches);
+      const finalPhaseMatches = publicData.finalPhase && Array.isArray(publicData.finalPhase.matches) ? publicData.finalPhase.matches : [];
+      return MATCHES.concat(roundMatches, octavosMatches, quarterfinalsMatches, finalPhaseMatches);
     }
 
     function allResults() {
       const roundResults = publicData.roundOf32 && Array.isArray(publicData.roundOf32.results) ? publicData.roundOf32.results : [];
       const octavosResults = publicData.octavos && Array.isArray(publicData.octavos.results) ? publicData.octavos.results : [];
       const quarterfinalsResults = publicData.quarterfinals && Array.isArray(publicData.quarterfinals.results) ? publicData.quarterfinals.results : [];
-      return publicData.results.concat(roundResults, octavosResults, quarterfinalsResults);
+      const finalPhaseResults = publicData.finalPhase && Array.isArray(publicData.finalPhase.results) ? publicData.finalPhase.results : [];
+      return publicData.results.concat(roundResults, octavosResults, quarterfinalsResults, finalPhaseResults);
     }
 
     function hasLiveWindow(now = nowInCostaRica()) {
@@ -577,7 +579,7 @@
       calendarStrip.innerHTML = upcoming.map((match) => `
         <article class="fixture-card">
           <div class="fixture-meta">
-            <span>${match.stage === "QUARTER_FINALS" ? "Cuartos" : match.stage === "LAST_16" ? "Octavos" : match.stage === "LAST_32" ? "Dieciseisavos" : `Grupo ${escapeHtml(match.group)}`}</span>
+            <span>${match.stage === "FINAL" ? "Final" : match.stage === "THIRD_PLACE" ? "Tercer lugar" : match.stage === "SEMI_FINALS" ? "Semifinales" : match.stage === "QUARTER_FINALS" ? "Cuartos" : match.stage === "LAST_16" ? "Octavos" : match.stage === "LAST_32" ? "Dieciseisavos" : `Grupo ${escapeHtml(match.group)}`}</span>
             <span>${escapeHtml(match.crDateLabel)}</span>
           </div>
           <div class="fixture-teams">${escapeHtml(match.home.name)} vs ${escapeHtml(match.away.name)}</div>
@@ -608,7 +610,7 @@
 
     function renderRanking() {
       renderRankingBoard(rankingBoard, publicData.ranking, "El ranking acumulado se activará cuando se calculen los resultados oficiales.");
-      renderRankingBoard(roundRankingBoard, publicData.quarterfinalsRanking, "El ranking de cuartos se activará cuando se contabilicen resultados de esta fase.");
+      renderRankingBoard(roundRankingBoard, publicData.finalPhaseRanking, "El ranking de fase final se activará cuando se contabilicen resultados de esta fase.");
 
       const apiState = publicData.apiState || {};
       if (publicData.generatedAt || apiState.updatedAt) {
@@ -762,10 +764,14 @@
           matches: Array.isArray(data.octavos.matches) ? data.octavos.matches : [],
           results: Array.isArray(data.octavos.results) ? data.octavos.results : [],
         } : { matches: [], results: [] },
-        quarterfinalsRanking: Array.isArray(data && data.quarterfinalsRanking) ? data.quarterfinalsRanking : [],
         quarterfinals: data && data.quarterfinals ? {
           matches: Array.isArray(data.quarterfinals.matches) ? data.quarterfinals.matches : [],
           results: Array.isArray(data.quarterfinals.results) ? data.quarterfinals.results : [],
+        } : { matches: [], results: [] },
+        finalPhaseRanking: Array.isArray(data && data.finalPhaseRanking) ? data.finalPhaseRanking : [],
+        finalPhase: data && data.finalPhase ? {
+          matches: Array.isArray(data.finalPhase.matches) ? data.finalPhase.matches : [],
+          results: Array.isArray(data.finalPhase.results) ? data.finalPhase.results : [],
         } : { matches: [], results: [] },
         apiState: data && data.apiState ? data.apiState : null,
         generatedAt: data && data.generatedAt ? data.generatedAt : "",
@@ -802,7 +808,7 @@
           matches: payload.roundOf32.matches,
           results: payload.roundOf32.results,
         },
-        quarterfinalsRanking: payload.quarterfinalsRanking.map((row) => [
+        finalPhaseRanking: payload.finalPhaseRanking.map((row) => [
           row.name,
           row.points,
           row.hits,
@@ -816,6 +822,10 @@
         quarterfinals: {
           matches: payload.quarterfinals.matches,
           results: payload.quarterfinals.results,
+        },
+        finalPhase: {
+          matches: payload.finalPhase.matches,
+          results: payload.finalPhase.results,
         },
         apiUpdatedAt: payload.apiState && payload.apiState.updatedAt,
       });
@@ -838,7 +848,19 @@
       } else {
         renderLive();
         renderCalendar();
-        renderRanking();
+        updatePublicSyncNote();
+      }
+    }
+
+    function updatePublicSyncNote() {
+      const apiState = publicData.apiState || {};
+      if (publicData.generatedAt || apiState.updatedAt) {
+        const rateText = apiState.requestsAvailable !== "" && apiState.requestsAvailable !== undefined
+          ? ` · Requests disponibles: ${apiState.requestsAvailable}`
+          : "";
+        const text = `Actualizado: ${formatDateTime(publicData.generatedAt || apiState.updatedAt)}${rateText}`;
+        syncNote.textContent = text;
+        roundSyncNote.textContent = text;
       }
     }
 

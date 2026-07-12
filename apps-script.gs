@@ -15,6 +15,10 @@ const QUARTERFINALS_RESPONSES_SHEET = "Cuartos";
 const QUARTERFINALS_MATCHES_SHEET = "Partidos Cuartos";
 const QUARTERFINALS_RESULTS_SHEET = "Resultados Cuartos";
 const QUARTERFINALS_RANKING_SHEET = "Ranking Cuartos";
+const FINAL_PHASE_RESPONSES_SHEET = "Fase Final";
+const FINAL_PHASE_MATCHES_SHEET = "Partidos Fase Final";
+const FINAL_PHASE_RESULTS_SHEET = "Resultados Fase Final";
+const FINAL_PHASE_RANKING_SHEET = "Ranking Fase Final";
 const CUMULATIVE_RANKING_SHEET = "Ranking Acumulado";
 const API_STATE_SHEET = "Estado API";
 const DIAGNOSTIC_SHEET = "Diagnostico";
@@ -22,8 +26,8 @@ const FOOTBALL_DATA_API_URL = "https://api.football-data.org/v4/competitions/WC/
 const FOOTBALL_DATA_TOKEN_PROPERTY = "FOOTBALL_DATA_API_KEY";
 const SYNC_SECRET_PROPERTY = "SYNC_SECRET";
 const PUBLIC_SYNC_CACHE_KEY = "PUBLIC_DATA_SYNC_ATTEMPTED";
-const PUBLIC_DATA_CACHE_KEY = "PUBLIC_DATA_PAYLOAD_V9";
-const PREDICTIONS_DATA_CACHE_KEY = "PREDICTIONS_DATA_PAYLOAD_V11";
+const PUBLIC_DATA_CACHE_KEY = "PUBLIC_DATA_PAYLOAD_V10";
+const PREDICTIONS_DATA_CACHE_KEY = "PREDICTIONS_DATA_PAYLOAD_V12";
 const ROUND_OF_32_FORM_CACHE_KEY = "ROUND_OF_32_FORM_DATA_V1";
 const ROUND_OF_32_MATCHES_CACHE_KEY = "ROUND_OF_32_MATCHES_V3";
 const CR_TIME_ZONE = "America/Costa_Rica";
@@ -2184,6 +2188,82 @@ const QUARTERFINALS_FALLBACK_MATCHES = [
     }
   }
 ];
+const FINAL_PHASE_CLOSE_AT_UTC_MS = Date.UTC(2026, 6, 14, 21, 0, 0);
+const FINAL_PHASE_CLOSE_LABEL = "14 de julio de 2026, 3:00 p.m. hora Costa Rica";
+const FINAL_PHASE_FALLBACK_MATCHES = [
+  {
+    "id": "FP-01",
+    "number": 1,
+    "stage": "SEMI_FINALS",
+    "phaseLabel": "Semifinales",
+    "crDate": "2026-07-14",
+    "crDateLabel": "14 jul 2026",
+    "crTime": "3:00 p.m.",
+    "crTimeMinutes": 900,
+    "home": {
+      "name": "Francia",
+      "flagCode": "fr"
+    },
+    "away": {
+      "name": "España",
+      "flagCode": "es"
+    }
+  },
+  {
+    "id": "FP-02",
+    "number": 2,
+    "stage": "SEMI_FINALS",
+    "phaseLabel": "Semifinales",
+    "crDate": "2026-07-15",
+    "crDateLabel": "15 jul 2026",
+    "crTime": "3:00 p.m.",
+    "crTimeMinutes": 900,
+    "home": {
+      "name": "Inglaterra",
+      "flagCode": "gb-eng"
+    },
+    "away": {
+      "name": "Argentina",
+      "flagCode": "ar"
+    }
+  },
+  {
+    "id": "FP-03",
+    "number": 3,
+    "stage": "THIRD_PLACE",
+    "phaseLabel": "Tercer lugar",
+    "crDate": "2026-07-18",
+    "crDateLabel": "18 jul 2026",
+    "crTime": "5:00 p.m.",
+    "crTimeMinutes": 1020,
+    "home": {
+      "name": "Perdedor semifinal 1",
+      "flagCode": ""
+    },
+    "away": {
+      "name": "Perdedor semifinal 2",
+      "flagCode": ""
+    }
+  },
+  {
+    "id": "FP-04",
+    "number": 4,
+    "stage": "FINAL",
+    "phaseLabel": "Final",
+    "crDate": "2026-07-19",
+    "crDateLabel": "19 jul 2026",
+    "crTime": "3:00 p.m.",
+    "crTimeMinutes": 900,
+    "home": {
+      "name": "Ganador semifinal 1",
+      "flagCode": ""
+    },
+    "away": {
+      "name": "Ganador semifinal 2",
+      "flagCode": ""
+    }
+  }
+];
 
 function doGet(e) {
   const action = e && e.parameter ? e.parameter.action : "";
@@ -2221,6 +2301,14 @@ function doGet(e) {
 
   if (action === "submitQuarterfinals") {
     return handleQuarterfinalsSubmission_(e);
+  }
+
+  if (action === "finalPhaseFormData") {
+    return respond_(e, getFinalPhaseFormData_());
+  }
+
+  if (action === "submitFinalPhase") {
+    return handleFinalPhaseSubmission_(e);
   }
 
   if (action === "refreshData") {
@@ -2329,6 +2417,11 @@ function setupQuinielaSheets() {
   if (!ss.getSheetByName(QUARTERFINALS_RESULTS_SHEET)) writeResultsToSheet_(ss, QUARTERFINALS_RESULTS_SHEET, []);
   if (!ss.getSheetByName(QUARTERFINALS_RANKING_SHEET)) writeExtendedRanking_(ss, QUARTERFINALS_RANKING_SHEET, []);
 
+  setupFinalPhaseMatchesSheet_(ss, cloneFinalPhaseFallbackMatches_());
+  setupFinalPhaseResponsesSheet_(ss);
+  if (!ss.getSheetByName(FINAL_PHASE_RESULTS_SHEET)) writeResultsToSheet_(ss, FINAL_PHASE_RESULTS_SHEET, []);
+  if (!ss.getSheetByName(FINAL_PHASE_RANKING_SHEET)) writeExtendedRanking_(ss, FINAL_PHASE_RANKING_SHEET, []);
+
   const apiStateSheet = ss.getSheetByName(API_STATE_SHEET);
   if (!apiStateSheet || apiStateSheet.getLastRow() === 0) {
     writeApiState_(ss, {
@@ -2351,7 +2444,7 @@ function setupQuinielaSheets() {
     existingSheets: ss.getSheets().map(function(sheet) {
       return sheet.getName();
     }),
-    sheets: [MATCHES_SHEET, RESULTS_SHEET, RANKING_SHEET, ROUND_OF_32_RESPONSES_SHEET, ROUND_OF_32_MATCHES_SHEET, ROUND_OF_32_RESULTS_SHEET, ROUND_OF_32_RANKING_SHEET, CUMULATIVE_RANKING_SHEET, OCTAVOS_RESPONSES_SHEET, OCTAVOS_MATCHES_SHEET, OCTAVOS_RESULTS_SHEET, OCTAVOS_RANKING_SHEET, QUARTERFINALS_RESPONSES_SHEET, QUARTERFINALS_MATCHES_SHEET, QUARTERFINALS_RESULTS_SHEET, QUARTERFINALS_RANKING_SHEET, API_STATE_SHEET],
+    sheets: [MATCHES_SHEET, RESULTS_SHEET, RANKING_SHEET, ROUND_OF_32_RESPONSES_SHEET, ROUND_OF_32_MATCHES_SHEET, ROUND_OF_32_RESULTS_SHEET, ROUND_OF_32_RANKING_SHEET, CUMULATIVE_RANKING_SHEET, OCTAVOS_RESPONSES_SHEET, OCTAVOS_MATCHES_SHEET, OCTAVOS_RESULTS_SHEET, OCTAVOS_RANKING_SHEET, QUARTERFINALS_RESPONSES_SHEET, QUARTERFINALS_MATCHES_SHEET, QUARTERFINALS_RESULTS_SHEET, QUARTERFINALS_RANKING_SHEET, FINAL_PHASE_RESPONSES_SHEET, FINAL_PHASE_MATCHES_SHEET, FINAL_PHASE_RESULTS_SHEET, FINAL_PHASE_RANKING_SHEET, API_STATE_SHEET],
   };
   writeDiagnosticSheet_(ss, result);
 
@@ -2414,6 +2507,14 @@ function syncFootballData() {
     const quarterfinalsResults = mergeResults_(freshQuarterfinalsResults, previousQuarterfinalsResults);
     writeResultsToSheet_(ss, QUARTERFINALS_RESULTS_SHEET, quarterfinalsResults);
     const quarterfinalsRankings = rebuildQuarterfinalsRankings_(ss, quarterfinalsResults, octavosRankings.cumulative);
+
+    const finalPhaseMatches = cloneFinalPhaseFallbackMatches_();
+    setupFinalPhaseMatchesSheet_(ss, finalPhaseMatches);
+    const previousFinalPhaseResults = readResultsFromSheet_(ss, FINAL_PHASE_RESULTS_SHEET);
+    const freshFinalPhaseResults = buildFinalPhaseResults_(finalPhaseMatches, apiResponse.matches);
+    const finalPhaseResults = mergeResults_(freshFinalPhaseResults, previousFinalPhaseResults);
+    writeResultsToSheet_(ss, FINAL_PHASE_RESULTS_SHEET, finalPhaseResults);
+    const finalPhaseRankings = rebuildFinalPhaseRankings_(ss, finalPhaseResults, quarterfinalsRankings.cumulative);
     writeCachedPayload_(ROUND_OF_32_MATCHES_CACHE_KEY, { matches: roundMatches }, 300);
     writeApiState_(ss, apiResponse.apiState);
     clearDataCaches_();
@@ -2430,7 +2531,9 @@ function syncFootballData() {
       octavosRanking: octavosRankings.phase.length,
       quarterfinalsResults: quarterfinalsResults.length,
       quarterfinalsRanking: quarterfinalsRankings.phase.length,
-      cumulativeRanking: quarterfinalsRankings.cumulative.length,
+      finalPhaseResults: finalPhaseResults.length,
+      finalPhaseRanking: finalPhaseRankings.phase.length,
+      cumulativeRanking: finalPhaseRankings.cumulative.length,
       apiState: apiResponse.apiState,
     };
   } catch (error) {
@@ -2462,7 +2565,7 @@ function getPublicData_() {
 
   const ss = getSpreadsheet_();
   const cumulativeRanking = readExtendedRanking_(ss, CUMULATIVE_RANKING_SHEET);
-  const quarterfinalsRanking = readExtendedRanking_(ss, QUARTERFINALS_RANKING_SHEET);
+  const finalPhaseRanking = readExtendedRanking_(ss, FINAL_PHASE_RANKING_SHEET);
   const payload = {
     ok: true,
     generatedAt: new Date().toISOString(),
@@ -2473,10 +2576,14 @@ function getPublicData_() {
       matches: cloneOctavosFallbackMatches_(),
       results: readResultsFromSheet_(ss, OCTAVOS_RESULTS_SHEET),
     },
-    quarterfinalsRanking: quarterfinalsRanking,
     quarterfinals: {
       matches: cloneQuarterfinalsFallbackMatches_(),
       results: readResultsFromSheet_(ss, QUARTERFINALS_RESULTS_SHEET),
+    },
+    finalPhaseRanking: finalPhaseRanking,
+    finalPhase: {
+      matches: cloneFinalPhaseFallbackMatches_(),
+      results: readResultsFromSheet_(ss, FINAL_PHASE_RESULTS_SHEET),
     },
     apiState: readApiState_(ss),
   };
@@ -2510,7 +2617,7 @@ function refreshPublicData_() {
 
 function hasLiveMatchWindow_() {
   const now = nowInCostaRica_();
-  return MATCHES.concat(ROUND_OF_32_FALLBACK_MATCHES, OCTAVOS_FALLBACK_MATCHES, QUARTERFINALS_FALLBACK_MATCHES).some(function(match) {
+  return MATCHES.concat(ROUND_OF_32_FALLBACK_MATCHES, OCTAVOS_FALLBACK_MATCHES, QUARTERFINALS_FALLBACK_MATCHES, FINAL_PHASE_FALLBACK_MATCHES).some(function(match) {
     return match.crDate === now.date &&
       now.minutes >= match.crTimeMinutes &&
       now.minutes <= match.crTimeMinutes + 130;
@@ -2614,10 +2721,10 @@ function getPredictionsData_() {
 
   const ss = getSpreadsheet_();
   const participantProfiles = readParticipantProfiles_(ss);
-  const quarterfinalsParticipants = readQuarterfinalsParticipants_(ss);
-  enrichRoundParticipants_(quarterfinalsParticipants, participantProfiles);
-  const quarterfinalsMatches = cloneQuarterfinalsFallbackMatches_();
-  const quarterfinalsResults = readResultsFromSheet_(ss, QUARTERFINALS_RESULTS_SHEET);
+  const finalPhaseParticipants = readFinalPhaseParticipants_(ss);
+  enrichRoundParticipants_(finalPhaseParticipants, participantProfiles);
+  const finalPhaseMatches = cloneFinalPhaseFallbackMatches_();
+  const finalPhaseResults = readResultsFromSheet_(ss, FINAL_PHASE_RESULTS_SHEET);
   const maxVisibleParticipants = 16;
   const payload = {
     ok: true,
@@ -2628,13 +2735,13 @@ function getPredictionsData_() {
     totalParticipants: 0,
     hiddenParticipants: 0,
     maxVisibleParticipants: maxVisibleParticipants,
-    quarterfinals: {
-      matches: quarterfinalsMatches,
-      results: quarterfinalsResults,
-      participants: quarterfinalsParticipants.slice(0, maxVisibleParticipants),
-      totalParticipants: quarterfinalsParticipants.length,
-      hiddenParticipants: Math.max(quarterfinalsParticipants.length - maxVisibleParticipants, 0),
-      ranking: readExtendedRanking_(ss, QUARTERFINALS_RANKING_SHEET),
+    finalPhase: {
+      matches: finalPhaseMatches,
+      results: finalPhaseResults,
+      participants: finalPhaseParticipants.slice(0, maxVisibleParticipants),
+      totalParticipants: finalPhaseParticipants.length,
+      hiddenParticipants: Math.max(finalPhaseParticipants.length - maxVisibleParticipants, 0),
+      ranking: readExtendedRanking_(ss, FINAL_PHASE_RANKING_SHEET),
       cumulativeRanking: readExtendedRanking_(ss, CUMULATIVE_RANKING_SHEET),
     },
   };
@@ -2665,6 +2772,8 @@ function getPredictionsExportData_() {
   enrichRoundParticipants_(octavosParticipants, participants);
   const quarterfinalsParticipants = readQuarterfinalsParticipants_(ss);
   enrichRoundParticipants_(quarterfinalsParticipants, participants);
+  const finalPhaseParticipants = readFinalPhaseParticipants_(ss);
+  enrichRoundParticipants_(finalPhaseParticipants, participants);
   return {
     ok: true,
     generatedAt: new Date().toISOString(),
@@ -2694,6 +2803,14 @@ function getPredictionsExportData_() {
       participants: quarterfinalsParticipants,
       totalParticipants: quarterfinalsParticipants.length,
       ranking: readExtendedRanking_(ss, QUARTERFINALS_RANKING_SHEET),
+      cumulativeRanking: readExtendedRanking_(ss, CUMULATIVE_RANKING_SHEET),
+    },
+    finalPhase: {
+      matches: cloneFinalPhaseFallbackMatches_(),
+      results: readResultsFromSheet_(ss, FINAL_PHASE_RESULTS_SHEET),
+      participants: finalPhaseParticipants,
+      totalParticipants: finalPhaseParticipants.length,
+      ranking: readExtendedRanking_(ss, FINAL_PHASE_RANKING_SHEET),
       cumulativeRanking: readExtendedRanking_(ss, CUMULATIVE_RANKING_SHEET),
     },
   };
@@ -3289,6 +3406,155 @@ function setupQuarterfinalsResponsesSheet_(ss) {
   sheet.setFrozenRows(1);
 }
 
+function getFinalPhaseFormData_() {
+  const ss = getSpreadsheet_();
+  return {
+    ok: true,
+    generatedAt: new Date().toISOString(),
+    participants: readExistingParticipantNames_(ss),
+    matches: cloneFinalPhaseFallbackMatches_(),
+    totalMatches: FINAL_PHASE_FALLBACK_MATCHES.length,
+    closed: isFinalPhaseFormClosed_(),
+    closesAt: new Date(FINAL_PHASE_CLOSE_AT_UTC_MS).toISOString(),
+    closeLabel: FINAL_PHASE_CLOSE_LABEL,
+    source: "manual",
+    message: "",
+  };
+}
+
+function handleFinalPhaseSubmission_(e) {
+  const lock = LockService.getScriptLock();
+  let response;
+  try {
+    lock.waitLock(30000);
+    if (isFinalPhaseFormClosed_()) {
+      throw new Error("La quiniela de fase final cerro el " + FINAL_PHASE_CLOSE_LABEL + ".");
+    }
+    const payload = parsePayload_(e);
+    const ss = getSpreadsheet_();
+    const participant = validateRoundOf32Participant_(ss, payload && payload.name);
+    const matchesById = {};
+    (payload && Array.isArray(payload.matches) ? payload.matches : []).forEach(function(match) {
+      if (match && match.id) matchesById[match.id] = match;
+    });
+    const picks = payload && payload.picks ? payload.picks : {};
+    const advances = payload && payload.advances ? payload.advances : {};
+    const selections = cloneFinalPhaseFallbackMatches_().map(function(baseMatch) {
+      const submittedMatch = matchesById[baseMatch.id] || {};
+      const pick = picks[baseMatch.id] || submittedMatch.pick;
+      if (["home", "draw", "away"].indexOf(pick) === -1) throw new Error("Hay selecciones incompletas.");
+      if ((baseMatch.id === "FP-01" || baseMatch.id === "FP-02") && pick === "draw" && ["home", "away"].indexOf(advances[baseMatch.id] || submittedMatch.advancePick) === -1) {
+        throw new Error("Cuando marcas empate en semifinales, debes indicar quien avanza para armar la final.");
+      }
+      const match = {
+        id: baseMatch.id,
+        number: baseMatch.number,
+        stage: baseMatch.stage,
+        phaseLabel: baseMatch.phaseLabel,
+        crDate: baseMatch.crDate,
+        crDateLabel: baseMatch.crDateLabel,
+        crTime: baseMatch.crTime,
+        crTimeMinutes: baseMatch.crTimeMinutes,
+        home: submittedMatch.home && submittedMatch.home.name ? submittedMatch.home.name : submittedMatch.home || baseMatch.home.name,
+        away: submittedMatch.away && submittedMatch.away.name ? submittedMatch.away.name : submittedMatch.away || baseMatch.away.name,
+        homeFlagCode: submittedMatch.home && submittedMatch.home.flagCode ? submittedMatch.home.flagCode : submittedMatch.homeFlagCode || baseMatch.home.flagCode || "",
+        awayFlagCode: submittedMatch.away && submittedMatch.away.flagCode ? submittedMatch.away.flagCode : submittedMatch.awayFlagCode || baseMatch.away.flagCode || "",
+      };
+      const pickLabel = submittedMatch.pickLabel || finalPhasePickLabel_(match, pick);
+      return {
+        id: match.id,
+        number: match.number,
+        stage: match.stage,
+        phaseLabel: match.phaseLabel,
+        crDate: match.crDate,
+        crDateLabel: match.crDateLabel,
+        crTime: match.crTime,
+        crTimeMinutes: match.crTimeMinutes,
+        home: match.home,
+        away: match.away,
+        homeFlagCode: match.homeFlagCode,
+        awayFlagCode: match.awayFlagCode,
+        pick: pick,
+        pickLabel: pickLabel,
+        selectedTeam: submittedMatch.selectedTeam || (pick === "home" ? match.home : pick === "away" ? match.away : ""),
+        advancePick: advances[match.id] || submittedMatch.advancePick || "",
+        advanceTeam: submittedMatch.advanceTeam || "",
+      };
+    });
+    setupFinalPhaseMatchesSheet_(ss, cloneFinalPhaseFallbackMatches_());
+    upsertFinalPhaseResponse_(ss, participant.name, selections);
+    clearDataCaches_();
+    response = { ok: true, savedAt: new Date().toISOString(), updated: true, participant: participant.name };
+  } catch (error) {
+    response = { ok: false, error: String(error && error.message ? error.message : error) };
+  } finally {
+    try { lock.releaseLock(); } catch (ignore) {}
+  }
+  return respond_(e, response);
+}
+
+function finalPhasePickLabel_(match, pick) {
+  if (pick === "home") return match.home;
+  if (pick === "away") return match.away;
+  if (pick === "draw") return "Empate";
+  return "";
+}
+
+function isFinalPhaseFormClosed_() {
+  return new Date().getTime() >= FINAL_PHASE_CLOSE_AT_UTC_MS;
+}
+
+function cloneFinalPhaseFallbackMatches_() {
+  return JSON.parse(JSON.stringify(FINAL_PHASE_FALLBACK_MATCHES));
+}
+
+function setupFinalPhaseMatchesSheet_(ss, matches) {
+  const sheet = ss.getSheetByName(FINAL_PHASE_MATCHES_SHEET) || ss.insertSheet(FINAL_PHASE_MATCHES_SHEET);
+  const rows = [["ID", "API ID", "Numero", "Fase", "Fecha CR", "Hora CR", "Local", "Visita"]].concat((matches || []).map(function(match) {
+    return [match.id, match.apiId || "", match.number, match.phaseLabel || match.stage || "", match.crDate, match.crTime, match.home.name, match.away.name];
+  }));
+  sheet.clearContents();
+  sheet.getRange(1, 1, rows.length, 1).setNumberFormat("@");
+  sheet.getRange(1, 1, rows.length, rows[0].length).setValues(rows);
+  sheet.setFrozenRows(1);
+}
+
+function upsertFinalPhaseResponse_(ss, participantName, selections) {
+  const sheet = ss.getSheetByName(FINAL_PHASE_RESPONSES_SHEET) || ss.insertSheet(FINAL_PHASE_RESPONSES_SHEET);
+  const requiredHeaders = ["Actualizado", "Nombre", "Clave participante", "Total partidos", "Completados", "Selecciones JSON"]
+    .concat(FINAL_PHASE_FALLBACK_MATCHES.map(function(match) { return match.id; }));
+  const headers = ensureHeaders_(sheet, requiredHeaders);
+  const row = headers.map(function() { return ""; });
+  setCell_(row, headers, "Actualizado", new Date());
+  setCell_(row, headers, "Nombre", participantName);
+  setCell_(row, headers, "Clave participante", normalizeParticipantName_(participantName));
+  setCell_(row, headers, "Total partidos", selections.length);
+  setCell_(row, headers, "Completados", selections.length);
+  setCell_(row, headers, "Selecciones JSON", JSON.stringify(selections));
+  selections.forEach(function(selection) { setCell_(row, headers, selection.id, selection.pickLabel); });
+  let targetRow = sheet.getLastRow() + 1;
+  if (sheet.getLastRow() > 1) {
+    const nameIndex = headers.indexOf("Nombre");
+    const values = sheet.getRange(2, 1, sheet.getLastRow() - 1, headers.length).getValues();
+    for (let i = 0; i < values.length; i += 1) {
+      if (normalizeParticipantName_(values[i][nameIndex]) === normalizeParticipantName_(participantName)) {
+        targetRow = i + 2;
+        break;
+      }
+    }
+  }
+  sheet.getRange(targetRow, 1, 1, headers.length).setValues([row]);
+  sheet.setFrozenRows(1);
+}
+
+function setupFinalPhaseResponsesSheet_(ss) {
+  const sheet = ss.getSheetByName(FINAL_PHASE_RESPONSES_SHEET) || ss.insertSheet(FINAL_PHASE_RESPONSES_SHEET);
+  const headers = ["Actualizado", "Nombre", "Clave participante", "Total partidos", "Completados", "Selecciones JSON"]
+    .concat(FINAL_PHASE_FALLBACK_MATCHES.map(function(match) { return match.id; }));
+  ensureHeaders_(sheet, headers);
+  sheet.setFrozenRows(1);
+}
+
 function fetchFootballData_() {
   const token = getFootballDataToken_();
   if (!token) {
@@ -3351,6 +3617,14 @@ function buildQuarterfinalsResults_(quarterfinalsMatches, apiMatches) {
   return buildOctavosResults_(quarterfinalsMatches, apiMatches);
 }
 
+function buildFinalPhaseResults_(finalPhaseMatches, apiMatches) {
+  const usedApiIds = {};
+  return (finalPhaseMatches || []).map(function(match) {
+    const apiMatchInfo = findApiMatchForFinalPhase_(match, apiMatches || [], usedApiIds);
+    return buildResult_(match, apiMatchInfo ? apiMatchInfo.match : null, apiMatchInfo ? apiMatchInfo.reversed : false);
+  });
+}
+
 function mergeResults_(freshResults, previousResults) {
   const previousById = {};
   (previousResults || []).forEach(function(result) {
@@ -3389,6 +3663,7 @@ function mergeResult_(fresh, previous) {
     regularTimeComplete: previous.regularTimeComplete,
     winner: previous.winner,
     winnerLabel: previous.winnerLabel,
+    winnerTeam: previous.winnerTeam || fresh.winnerTeam || "",
     matchWinner: previous.matchWinner || fresh.matchWinner || "",
     apiUpdatedAt: previous.apiUpdatedAt || fresh.apiUpdatedAt || "",
     utcDate: previous.utcDate || fresh.utcDate || "",
@@ -3496,6 +3771,52 @@ function findApiMatch_(localMatch, apiMatches, usedApiIds) {
   return null;
 }
 
+function findApiMatchForFinalPhase_(localMatch, apiMatches, usedApiIds) {
+  const hasPlaceholder = isPlaceholderTeam_(localMatch.home && localMatch.home.name) || isPlaceholderTeam_(localMatch.away && localMatch.away.name);
+  if (!hasPlaceholder) {
+    const named = findApiMatch_(localMatch, apiMatches, usedApiIds);
+    if (named) return named;
+  }
+
+  for (let i = 0; i < apiMatches.length; i += 1) {
+    const apiMatch = apiMatches[i];
+    const apiId = String(apiMatch.id || i);
+    if (usedApiIds[apiId]) continue;
+    if (String(apiMatch.stage || "").toUpperCase() !== String(localMatch.stage || "").toUpperCase()) continue;
+    const crInfo = apiMatchCostaRicaInfo_(apiMatch);
+    if (crInfo.date === localMatch.crDate && Math.abs(crInfo.minutes - Number(localMatch.crTimeMinutes || 0)) <= 5) {
+      usedApiIds[apiId] = true;
+      return { match: apiMatch, reversed: false };
+    }
+  }
+
+  for (let j = 0; j < apiMatches.length; j += 1) {
+    const apiMatch = apiMatches[j];
+    const apiId = String(apiMatch.id || j);
+    if (usedApiIds[apiId]) continue;
+    const crInfo = apiMatchCostaRicaInfo_(apiMatch);
+    if (crInfo.date === localMatch.crDate && Math.abs(crInfo.minutes - Number(localMatch.crTimeMinutes || 0)) <= 5) {
+      usedApiIds[apiId] = true;
+      return { match: apiMatch, reversed: false };
+    }
+  }
+  return null;
+}
+
+function isPlaceholderTeam_(name) {
+  const value = normalizeTeamName_(name);
+  return !value || value === "a definir" || value.indexOf("ganador") !== -1 || value.indexOf("perdedor") !== -1;
+}
+
+function apiMatchCostaRicaInfo_(apiMatch) {
+  const date = apiMatch && apiMatch.utcDate ? new Date(apiMatch.utcDate) : null;
+  if (!date || Number.isNaN(date.getTime())) return { date: "", minutes: -1 };
+  return {
+    date: Utilities.formatDate(date, CR_TIME_ZONE, "yyyy-MM-dd"),
+    minutes: Number(Utilities.formatDate(date, CR_TIME_ZONE, "H")) * 60 + Number(Utilities.formatDate(date, CR_TIME_ZONE, "m")),
+  };
+}
+
 function buildResult_(localMatch, apiMatch, reversed) {
   const score = apiMatch && apiMatch.score ? apiMatch.score : {};
   const status = apiMatch ? apiMatch.status || "SCHEDULED" : "SCHEDULED";
@@ -3510,6 +3831,9 @@ function buildResult_(localMatch, apiMatch, reversed) {
   const regularAwayGoals = reversed ? regularTime.home : regularTime.away;
   const regularTimeComplete = isRegularTimeComplete_(apiMatch, score, regularTime);
   const winner = regularTimeComplete ? winnerFromGoals_(regularHomeGoals, regularAwayGoals) : "";
+  const apiHomeName = apiTeamName_(apiMatch && apiMatch.homeTeam);
+  const apiAwayName = apiTeamName_(apiMatch && apiMatch.awayTeam);
+  const winnerTeam = winner === "draw" ? "" : winner === "home" ? (reversed ? apiAwayName : apiHomeName) : winner === "away" ? (reversed ? apiHomeName : apiAwayName) : "";
   const updatedAt = apiMatch && apiMatch.lastUpdated ? apiMatch.lastUpdated : "";
 
   return {
@@ -3535,10 +3859,16 @@ function buildResult_(localMatch, apiMatch, reversed) {
     regularTimeComplete: regularTimeComplete,
     winner: winner,
     winnerLabel: getPickLabel_(localMatch, winner),
+    winnerTeam: winnerTeam,
     matchWinner: mapWinner_(score.winner, reversed),
     apiUpdatedAt: updatedAt,
     utcDate: apiMatch ? apiMatch.utcDate || "" : "",
   };
+}
+
+function apiTeamName_(team) {
+  if (!team) return "";
+  return team.name || team.shortName || team.tla || "";
 }
 
 function scorePair_(node) {
@@ -3630,6 +3960,7 @@ function writeResultsToSheet_(ss, sheetName, results) {
     "Tiempo reglamentario completo",
     "Ganador",
     "Ganador etiqueta",
+    "Ganador equipo",
     "Ganador partido",
     "Actualizado API",
     "Fecha UTC API",
@@ -3657,6 +3988,7 @@ function writeResultsToSheet_(ss, sheetName, results) {
       result.regularTimeComplete,
       result.winner,
       result.winnerLabel,
+      result.winnerTeam || "",
       result.matchWinner,
       result.apiUpdatedAt,
       result.utcDate,
@@ -3894,6 +4226,71 @@ function rebuildQuarterfinalsRankings_(ss, results, previousCumulative) {
   return { phase: phase, cumulative: cumulative };
 }
 
+function rebuildFinalPhaseRankings_(ss, results, previousCumulative) {
+  const existingNames = readExistingParticipantNames_(ss);
+  const submittedParticipants = readFinalPhaseParticipants_(ss);
+  const submittedByName = {};
+  submittedParticipants.forEach(function(participant) {
+    submittedByName[normalizeParticipantName_(participant.name)] = participant;
+  });
+  const finishedResults = {};
+  (results || []).forEach(function(result) {
+    if (isQuinielaResultComplete_(result)) finishedResults[result.matchId] = result;
+  });
+  const computedMatches = Object.keys(finishedResults).length;
+  const phase = existingNames.map(function(name) {
+    const participant = submittedByName[normalizeParticipantName_(name)] || { selections: [] };
+    let hits = 0;
+    (participant.selections || []).forEach(function(selection) {
+      const result = finishedResults[selection.id];
+      if (finalPhaseSelectionHits_(selection, result)) hits += 1;
+    });
+    return {
+      name: name,
+      points: hits * POINTS_PER_HIT,
+      hits: hits,
+      computedMatches: computedMatches,
+      totalPredictions: (participant.selections || []).length,
+    };
+  });
+  sortRankingRows_(phase);
+  applyRankingMovement_(ss, FINAL_PHASE_RANKING_SHEET, phase, computedMatches);
+  writeExtendedRanking_(ss, FINAL_PHASE_RANKING_SHEET, phase);
+
+  const previousByName = {};
+  (previousCumulative || []).forEach(function(row) {
+    previousByName[normalizeParticipantName_(row.name)] = row;
+  });
+  const phaseByName = {};
+  phase.forEach(function(row) { phaseByName[normalizeParticipantName_(row.name)] = row; });
+  const cumulative = existingNames.map(function(name) {
+    const key = normalizeParticipantName_(name);
+    const previousRow = previousByName[key] || {};
+    const phaseRow = phaseByName[key] || {};
+    return {
+      name: name,
+      points: Number(previousRow.points || 0) + Number(phaseRow.points || 0),
+      hits: Number(previousRow.hits || 0) + Number(phaseRow.hits || 0),
+      computedMatches: Number(previousRow.computedMatches || 0) + computedMatches,
+      totalPredictions: Number(previousRow.totalPredictions || 0) + Number(phaseRow.totalPredictions || 0),
+    };
+  });
+  sortRankingRows_(cumulative);
+  const cumulativeComputed = cumulative.length ? Number(cumulative[0].computedMatches || 0) : computedMatches;
+  applyRankingMovement_(ss, CUMULATIVE_RANKING_SHEET, cumulative, cumulativeComputed);
+  writeExtendedRanking_(ss, CUMULATIVE_RANKING_SHEET, cumulative);
+  return { phase: phase, cumulative: cumulative };
+}
+
+function finalPhaseSelectionHits_(selection, result) {
+  if (!selection || !result || !isQuinielaResultComplete_(result)) return false;
+  if (selection.pick === "draw" || result.winner === "draw") return selection.pick === result.winner;
+  if (selection.selectedTeam && result.winnerTeam) {
+    return normalizeTeamName_(selection.selectedTeam) === normalizeTeamName_(result.winnerTeam);
+  }
+  return selection.pick === result.winner;
+}
+
 function readRoundOf32Participants_(ss) {
   return readPhaseParticipants_(ss, ROUND_OF_32_RESPONSES_SHEET);
 }
@@ -3904,6 +4301,10 @@ function readOctavosParticipants_(ss) {
 
 function readQuarterfinalsParticipants_(ss) {
   return readPhaseParticipants_(ss, QUARTERFINALS_RESPONSES_SHEET);
+}
+
+function readFinalPhaseParticipants_(ss) {
+  return readPhaseParticipants_(ss, FINAL_PHASE_RESPONSES_SHEET);
 }
 
 function readPhaseParticipants_(ss, sheetName) {
@@ -3920,7 +4321,15 @@ function readPhaseParticipants_(ss, sheetName) {
     const picksByMatchId = {};
     selections.forEach(function(selection) {
       if (!selection || !selection.id) return;
-      picksByMatchId[selection.id] = { pick: selection.pick || "", pickLabel: selection.pickLabel || "" };
+      picksByMatchId[selection.id] = {
+        pick: selection.pick || "",
+        pickLabel: selection.pickLabel || "",
+        selectedTeam: selection.selectedTeam || "",
+        advancePick: selection.advancePick || "",
+        advanceTeam: selection.advanceTeam || "",
+        home: selection.home || "",
+        away: selection.away || "",
+      };
     });
     participants.push({
       number: participants.length + 1,
@@ -4042,6 +4451,7 @@ function readResultsFromSheet_(ss, sheetName) {
       regularTimeComplete: getCellByHeader_(row, headers, "Tiempo reglamentario completo"),
       winner: getCellByHeader_(row, headers, "Ganador"),
       winnerLabel: getCellByHeader_(row, headers, "Ganador etiqueta"),
+      winnerTeam: getCellByHeader_(row, headers, "Ganador equipo"),
       matchWinner: getCellByHeader_(row, headers, "Ganador partido"),
       apiUpdatedAt: getCellByHeader_(row, headers, "Actualizado API"),
       utcDate: getCellByHeader_(row, headers, "Fecha UTC API"),
