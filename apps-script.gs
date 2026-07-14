@@ -4288,6 +4288,9 @@ function finalPhaseSelectionHits_(selection, result) {
   if (selection.selectedTeam && result.winnerTeam) {
     return normalizeTeamName_(selection.selectedTeam) === normalizeTeamName_(result.winnerTeam);
   }
+  if (selection.pickLabel && result.winnerTeam) {
+    return normalizeTeamName_(selection.pickLabel) === normalizeTeamName_(result.winnerTeam);
+  }
   return selection.pick === result.winner;
 }
 
@@ -4317,7 +4320,14 @@ function readPhaseParticipants_(ss, sheetName) {
   return values.slice(1).reduce(function(participants, row) {
     const name = nameIndex >= 0 ? String(row[nameIndex] || "").trim() : "";
     if (!name) return participants;
-    const selections = jsonIndex >= 0 ? parseSelectionsJson_(row[jsonIndex]) : [];
+    const selections = (jsonIndex >= 0 ? parseSelectionsJson_(row[jsonIndex]) : []).map(function(selection) {
+      if (!selection || !selection.id) return selection;
+      const copy = Object.assign({}, selection);
+      if (!copy.selectedTeam && copy.pickLabel && normalizeTeamName_(copy.pickLabel) !== "empate") {
+        copy.selectedTeam = copy.pickLabel;
+      }
+      return copy;
+    });
     const picksByMatchId = {};
     selections.forEach(function(selection) {
       if (!selection || !selection.id) return;

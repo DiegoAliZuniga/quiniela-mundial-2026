@@ -2011,16 +2011,28 @@
       return row ? Number(row.points || 0) : Number(fallback || 0);
     }
 
+    function hasComputedExportMatches(matches, resultsById) {
+      return (Array.isArray(matches) ? matches : []).some((match) => isComputed(resultsById.get(String(match.id || ""))));
+    }
+
     function roundExportPoints(participant, round, matches, resultsById) {
-      return exportRankingPoints(round.ranking, participant, scoreParticipant(participant, matches, resultsById));
+      const computed = scoreParticipant(participant, matches, resultsById);
+      return hasComputedExportMatches(matches, resultsById) ? computed : exportRankingPoints(round.ranking, participant, computed);
     }
 
     function cumulativeExportPoints(participant, round, matches, resultsById) {
       const phase = roundExportPoints(participant, round, matches, resultsById);
+      if (hasComputedExportMatches(matches, resultsById)) {
+        const previous = Math.max(0, exportRankingPoints(round.cumulativeRanking, participant, 0) - exportRankingPoints(round.ranking, participant, 0));
+        return previous + phase;
+      }
       return exportRankingPoints(round.cumulativeRanking, participant, phase);
     }
 
     function previousExportPoints(participant, round, matches, resultsById) {
+      if (hasComputedExportMatches(matches, resultsById)) {
+        return Math.max(0, exportRankingPoints(round.cumulativeRanking, participant, 0) - exportRankingPoints(round.ranking, participant, 0));
+      }
       return Math.max(0, cumulativeExportPoints(participant, round, matches, resultsById) - roundExportPoints(participant, round, matches, resultsById));
     }
 
@@ -2068,6 +2080,9 @@
       if (pick.pick === "draw" || result.winner === "draw") return pick.pick === result.winner;
       if (pick.selectedTeam && result.winnerTeam) {
         return exportParticipantKey(pick.selectedTeam) === exportParticipantKey(result.winnerTeam);
+      }
+      if (pick.pickLabel && result.winnerTeam) {
+        return exportParticipantKey(pick.pickLabel) === exportParticipantKey(result.winnerTeam);
       }
       return pick.pick === result.winner;
     }
