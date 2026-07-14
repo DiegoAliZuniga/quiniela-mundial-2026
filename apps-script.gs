@@ -4286,10 +4286,10 @@ function finalPhaseSelectionHits_(selection, result) {
   if (!selection || !result || !isQuinielaResultComplete_(result)) return false;
   if (selection.pick === "draw" || result.winner === "draw") return selection.pick === result.winner;
   if (selection.selectedTeam && result.winnerTeam) {
-    return normalizeTeamName_(selection.selectedTeam) === normalizeTeamName_(result.winnerTeam);
+    if (normalizeTeamName_(selection.selectedTeam) === normalizeTeamName_(result.winnerTeam)) return true;
   }
   if (selection.pickLabel && result.winnerTeam) {
-    return normalizeTeamName_(selection.pickLabel) === normalizeTeamName_(result.winnerTeam);
+    if (normalizeTeamName_(selection.pickLabel) === normalizeTeamName_(result.winnerTeam)) return true;
   }
   return selection.pick === result.winner;
 }
@@ -4916,13 +4916,43 @@ function hasAnyAlias_(aliases, variants) {
 }
 
 function normalizeTeamName_(value) {
-  return String(value || "")
+  const normalized = String(value || "")
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/&/g, " and ")
     .replace(/[^a-z0-9]+/g, " ")
     .trim();
+  const aliases = {
+    "spain": "espana",
+    "france": "francia",
+    "england": "inglaterra",
+    "argentina": "argentina",
+    "morocco": "marruecos",
+    "belgium": "belgica",
+    "norway": "noruega",
+    "switzerland": "suiza",
+    "canada": "canada",
+    "mexico": "mexico",
+    "brazil": "brasil",
+    "japan": "japon",
+    "paraguay": "paraguay",
+    "portugal": "portugal",
+    "croatia": "croacia",
+    "colombia": "colombia",
+    "ghana": "ghana",
+    "algeria": "argelia",
+    "egypt": "egipto",
+    "united states": "estados unidos",
+    "usa": "estados unidos",
+    "united states of america": "estados unidos",
+    "ivory coast": "costa de marfil",
+    "cote d ivoire": "costa de marfil",
+    "cote divoire": "costa de marfil",
+    "netherlands": "paises bajos",
+    "germany": "alemania"
+  };
+  return aliases[normalized] || normalized;
 }
 
 function numberOrBlank_(value) {

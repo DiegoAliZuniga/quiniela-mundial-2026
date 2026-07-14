@@ -896,6 +896,35 @@
       return String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
     }
 
+    function teamKey(value) {
+      const raw = participantKey(value).replace(/&/g, " and ").replace(/[^a-z0-9]+/g, " ").trim();
+      const aliases = {
+        "spain": "espana",
+        "france": "francia",
+        "england": "inglaterra",
+        "argentina": "argentina",
+        "morocco": "marruecos",
+        "belgium": "belgica",
+        "norway": "noruega",
+        "switzerland": "suiza",
+        "canada": "canada",
+        "mexico": "mexico",
+        "brazil": "brasil",
+        "japan": "japon",
+        "paraguay": "paraguay",
+        "portugal": "portugal",
+        "croatia": "croacia",
+        "colombia": "colombia",
+        "ghana": "ghana",
+        "algeria": "argelia",
+        "egypt": "egipto",
+        "united states": "estados unidos",
+        "usa": "estados unidos",
+        "united states of america": "estados unidos"
+      };
+      return aliases[raw] || raw;
+    }
+
     function rankingPoints(rows, participant, fallback) {
       const key = participantKey(participant && participant.name);
       const row = (Array.isArray(rows) ? rows : []).find((item) => participantKey(item && item.name) === key);
@@ -1259,10 +1288,10 @@
       if (!pick || !result) return false;
       if (pick.pick === "draw" || result.winner === "draw") return pick.pick === result.winner;
       if (pick.selectedTeam && result.winnerTeam) {
-        return participantKey(pick.selectedTeam) === participantKey(result.winnerTeam);
+        if (teamKey(pick.selectedTeam) === teamKey(result.winnerTeam)) return true;
       }
       if (pick.pickLabel && result.winnerTeam) {
-        return participantKey(pick.pickLabel) === participantKey(result.winnerTeam);
+        if (teamKey(pick.pickLabel) === teamKey(result.winnerTeam)) return true;
       }
       return pick.pick === result.winner;
     }

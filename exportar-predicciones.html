@@ -2005,6 +2005,35 @@
       return String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
     }
 
+    function exportTeamKey(value) {
+      const raw = exportParticipantKey(value).replace(/&/g, " and ").replace(/[^a-z0-9]+/g, " ").trim();
+      const aliases = {
+        "spain": "espana",
+        "france": "francia",
+        "england": "inglaterra",
+        "argentina": "argentina",
+        "morocco": "marruecos",
+        "belgium": "belgica",
+        "norway": "noruega",
+        "switzerland": "suiza",
+        "canada": "canada",
+        "mexico": "mexico",
+        "brazil": "brasil",
+        "japan": "japon",
+        "paraguay": "paraguay",
+        "portugal": "portugal",
+        "croatia": "croacia",
+        "colombia": "colombia",
+        "ghana": "ghana",
+        "algeria": "argelia",
+        "egypt": "egipto",
+        "united states": "estados unidos",
+        "usa": "estados unidos",
+        "united states of america": "estados unidos"
+      };
+      return aliases[raw] || raw;
+    }
+
     function exportRankingPoints(rows, participant, fallback) {
       const key = exportParticipantKey(participant && participant.name);
       const row = (Array.isArray(rows) ? rows : []).find((item) => exportParticipantKey(item && item.name) === key);
@@ -2079,10 +2108,10 @@
       if (!pick || !result) return false;
       if (pick.pick === "draw" || result.winner === "draw") return pick.pick === result.winner;
       if (pick.selectedTeam && result.winnerTeam) {
-        return exportParticipantKey(pick.selectedTeam) === exportParticipantKey(result.winnerTeam);
+        if (exportTeamKey(pick.selectedTeam) === exportTeamKey(result.winnerTeam)) return true;
       }
       if (pick.pickLabel && result.winnerTeam) {
-        return exportParticipantKey(pick.pickLabel) === exportParticipantKey(result.winnerTeam);
+        if (exportTeamKey(pick.pickLabel) === exportTeamKey(result.winnerTeam)) return true;
       }
       return pick.pick === result.winner;
     }
