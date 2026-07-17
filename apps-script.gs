@@ -2237,12 +2237,12 @@ const FINAL_PHASE_FALLBACK_MATCHES = [
     "crTime": "3:00 p.m.",
     "crTimeMinutes": 900,
     "home": {
-      "name": "Perdedor semifinal 1",
-      "flagCode": ""
+      "name": "Francia",
+      "flagCode": "fr"
     },
     "away": {
-      "name": "Perdedor semifinal 2",
-      "flagCode": ""
+      "name": "Inglaterra",
+      "flagCode": "gb-eng"
     }
   },
   {
@@ -2255,12 +2255,12 @@ const FINAL_PHASE_FALLBACK_MATCHES = [
     "crTime": "1:00 p.m.",
     "crTimeMinutes": 780,
     "home": {
-      "name": "Ganador semifinal 1",
-      "flagCode": ""
+      "name": "España",
+      "flagCode": "es"
     },
     "away": {
-      "name": "Ganador semifinal 2",
-      "flagCode": ""
+      "name": "Argentina",
+      "flagCode": "ar"
     }
   }
 ];

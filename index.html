@@ -750,6 +750,23 @@
       renderRanking();
     }
 
+    function applyConfirmedFinalPhaseTeams(matches) {
+      const confirmed = {
+        "FP-03": {
+          home: { name: "Francia", flagCode: "fr" },
+          away: { name: "Inglaterra", flagCode: "gb-eng" },
+        },
+        "FP-04": {
+          home: { name: "España", flagCode: "es" },
+          away: { name: "Argentina", flagCode: "ar" },
+        },
+      };
+      return (matches || []).map((match) => {
+        const teams = confirmed[match && match.id];
+        return teams ? { ...match, home: teams.home, away: teams.away } : match;
+      });
+    }
+
     function normalizePublicDataPayload(data) {
       return {
         results: Array.isArray(data && data.results)
@@ -770,7 +787,7 @@
         } : { matches: [], results: [] },
         finalPhaseRanking: Array.isArray(data && data.finalPhaseRanking) ? data.finalPhaseRanking : [],
         finalPhase: data && data.finalPhase ? {
-          matches: Array.isArray(data.finalPhase.matches) ? data.finalPhase.matches : [],
+          matches: applyConfirmedFinalPhaseTeams(Array.isArray(data.finalPhase.matches) ? data.finalPhase.matches : []),
           results: Array.isArray(data.finalPhase.results) ? data.finalPhase.results : [],
         } : { matches: [], results: [] },
         apiState: data && data.apiState ? data.apiState : null,

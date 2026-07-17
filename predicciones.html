@@ -693,6 +693,23 @@
     window.addEventListener("focus", refreshPredictionsNow);
     window.addEventListener("pageshow", refreshPredictionsNow);
 
+    function applyConfirmedFinalPhaseTeams(matches) {
+      const confirmed = {
+        "FP-03": {
+          home: { name: "Francia", flagCode: "fr" },
+          away: { name: "Inglaterra", flagCode: "gb-eng" },
+        },
+        "FP-04": {
+          home: { name: "España", flagCode: "es" },
+          away: { name: "Argentina", flagCode: "ar" },
+        },
+      };
+      return (matches || []).map((match) => {
+        const teams = confirmed[match && match.id];
+        return teams ? { ...match, home: teams.home, away: teams.away } : match;
+      });
+    }
+
     function normalizePredictionsPayload(data) {
       return {
         results: Array.isArray(data && data.results)
@@ -703,7 +720,7 @@
         generatedAt: data && data.generatedAt ? data.generatedAt : "",
         hiddenParticipants: Number(data && data.hiddenParticipants ? data.hiddenParticipants : 0),
         roundOf32: data && data.finalPhase ? {
-          matches: sortMatchesChronologically(Array.isArray(data.finalPhase.matches) ? data.finalPhase.matches : []),
+          matches: sortMatchesChronologically(applyConfirmedFinalPhaseTeams(Array.isArray(data.finalPhase.matches) ? data.finalPhase.matches : [])),
           results: Array.isArray(data.finalPhase.results) ? data.finalPhase.results : [],
           participants: Array.isArray(data.finalPhase.participants) ? data.finalPhase.participants : [],
           totalParticipants: Number(data.finalPhase.totalParticipants || 0),
