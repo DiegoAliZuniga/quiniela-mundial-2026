@@ -258,6 +258,11 @@
       padding: 10px 6px;
     }
 
+    .podium-names {
+      display: grid;
+      gap: 3px;
+    }
+
     .podium-name {
       font-size: 1rem;
       font-weight: 950;
@@ -893,18 +898,34 @@
 
     function renderAwards(source) {
       const ranking = sortedRanking(source);
+      const podiumGroups = [];
+      ranking.forEach((row) => {
+        const points = numberValue(row.points);
+        const current = podiumGroups[podiumGroups.length - 1];
+        if (!current || current.points !== points) {
+          if (podiumGroups.length < 3) podiumGroups.push({ points, rows: [row] });
+          return;
+        }
+        current.rows.push(row);
+      });
+      podiumGroups.forEach((group) => group.rows.sort((a, b) =>
+        String(a.name || "").localeCompare(String(b.name || ""), "es")
+      ));
       const podiumOrder = [
         { rank: 2, className: "second" },
         { rank: 1, className: "first" },
         { rank: 3, className: "third" },
       ];
       podiumBoard.innerHTML = podiumOrder.map((place) => {
-        const row = ranking[place.rank - 1];
+        const group = podiumGroups[place.rank - 1];
+        const names = group && group.rows.length
+          ? group.rows.map((row) => `<span class="podium-name">${escapeHtml(row.name || "Por definir")}</span>`).join("")
+          : '<span class="podium-name">Por definir</span>';
         return `
           <div class="podium-place ${place.className}">
             <div class="podium-person">
-              <span class="podium-name">${escapeHtml(row && row.name ? row.name : "Por definir")}</span>
-              <span class="podium-points">${row ? `${escapeHtml(row.points)} pts` : "Sin puntaje"}</span>
+              <span class="podium-names">${names}</span>
+              <span class="podium-points">${group ? `${escapeHtml(group.points)} pts${group.rows.length > 1 ? " cada uno" : ""}` : "Sin puntaje"}</span>
             </div>
             <div class="podium-step" aria-label="Lugar ${place.rank}">${place.rank}</div>
           </div>
