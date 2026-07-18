@@ -190,6 +190,15 @@
       line-height: 1.42;
     }
 
+    .projection-note {
+      max-width: 860px;
+      margin: 7px 0 0;
+      color: #334155;
+      font-size: 0.88rem;
+      font-weight: 700;
+      line-height: 1.42;
+    }
+
     .status-pill {
       display: inline-flex;
       align-items: center;
@@ -599,6 +608,7 @@
         <div>
           <h2 class="panel-title">Fase final</h2>
           <p class="panel-copy" id="roundStatusText">Cargando predicciones de la fase…</p>
+          <p class="projection-note"><strong>Tercer lugar y final:</strong> cada celda conserva el equipo ganador de la llave proyectada por esa persona. Puede aparecer un equipo que no llegó al cruce oficial.</p>
         </div>
         <div class="toolbar">
           <span class="status-pill" id="roundParticipantCount">0 participantes</span>
@@ -1138,7 +1148,14 @@
       const stateClass = computed && pick
         ? (predictionHitsResult(pick, result) ? "pick-hit" : "pick-miss")
         : "pick-pending";
-      return `<td class="player-cell ${stateClass}">${escapeHtml(label)}</td>`;
+      const isProjectedFixture = match && (match.stage === "THIRD_PLACE" || match.stage === "FINAL");
+      const projectedHome = pick && pick.home ? pick.home : "";
+      const projectedAway = pick && pick.away ? pick.away : "";
+      const projectionTitle = isProjectedFixture && projectedHome && projectedAway
+        ? `Llave proyectada: ${projectedHome} vs ${projectedAway}. Equipo elegido: ${label || "Sin selección"}.`
+        : "";
+      const titleAttribute = projectionTitle ? ` title="${escapeHtml(projectionTitle)}"` : "";
+      return `<td class="player-cell ${stateClass}"${titleAttribute}>${escapeHtml(label)}</td>`;
     }
 
     function renderPointsRow(group, matches, columns, resultsById) {

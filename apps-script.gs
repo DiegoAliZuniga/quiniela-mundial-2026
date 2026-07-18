@@ -2566,11 +2566,13 @@ function getPublicData_() {
   const ss = getSpreadsheet_();
   const cumulativeRanking = readExtendedRanking_(ss, CUMULATIVE_RANKING_SHEET);
   const finalPhaseRanking = readExtendedRanking_(ss, FINAL_PHASE_RANKING_SHEET);
+  const participantProfiles = readParticipantProfiles_(ss);
   const payload = {
     ok: true,
     generatedAt: new Date().toISOString(),
     results: [],
     ranking: cumulativeRanking.length ? cumulativeRanking : readRanking_(ss),
+    championPredictions: participantProfiles,
     roundOf32: { matches: [], results: [] },
     octavos: {
       matches: cloneOctavosFallbackMatches_(),

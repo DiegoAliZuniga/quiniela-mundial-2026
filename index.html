@@ -204,6 +204,198 @@
       line-height: 1.5;
     }
 
+    .awards-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 2.4fr) minmax(250px, 0.9fr);
+      gap: 18px;
+      align-items: stretch;
+      margin-bottom: 22px;
+    }
+
+    .podium-shell,
+    .saltiest-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.94);
+      box-shadow: var(--shadow);
+    }
+
+    .podium-shell {
+      padding: 24px 24px 0;
+      overflow: hidden;
+    }
+
+    .awards-kicker {
+      color: var(--blue);
+      font-size: 0.82rem;
+      font-weight: 950;
+      text-transform: uppercase;
+    }
+
+    .podium {
+      min-height: 280px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      align-items: end;
+      margin-top: 16px;
+    }
+
+    .podium-place {
+      min-width: 0;
+      display: grid;
+      grid-template-rows: minmax(84px, auto) auto;
+      align-items: end;
+      text-align: center;
+    }
+
+    .podium-person {
+      align-self: stretch;
+      display: flex;
+      flex-direction: column;
+      justify-content: end;
+      gap: 4px;
+      padding: 10px 6px;
+    }
+
+    .podium-name {
+      font-size: 1rem;
+      font-weight: 950;
+      line-height: 1.15;
+      overflow-wrap: anywhere;
+    }
+
+    .podium-points {
+      color: rgba(7, 24, 39, 0.64);
+      font-size: 0.9rem;
+      font-weight: 900;
+    }
+
+    .podium-step {
+      display: grid;
+      place-items: center;
+      min-height: 88px;
+      border-radius: 8px 8px 0 0;
+      color: #071827;
+      font-size: 2rem;
+      font-weight: 950;
+    }
+
+    .podium-place.first .podium-step {
+      min-height: 142px;
+      background: #e9c46a;
+    }
+
+    .podium-place.second .podium-step {
+      min-height: 108px;
+      background: #bcc7d1;
+    }
+
+    .podium-place.third .podium-step {
+      background: #c98255;
+    }
+
+    .saltiest-card {
+      display: grid;
+      align-content: center;
+      justify-items: start;
+      gap: 12px;
+      padding: 28px;
+      color: var(--ink);
+      border-top: 6px solid #d1495b;
+    }
+
+    .champion-award-card {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: 88px minmax(0, 1fr);
+      gap: 20px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-left: 6px solid #e9c46a;
+      border-radius: var(--radius);
+      padding: 22px 24px;
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.94);
+      box-shadow: var(--shadow);
+    }
+
+    .champion-award-logo {
+      width: 72px;
+      height: 92px;
+      display: block;
+      object-fit: contain;
+      border-radius: 8px;
+      background: #071827;
+    }
+
+    .champion-award-content {
+      min-width: 0;
+      display: grid;
+      gap: 8px;
+    }
+
+    .champion-award-title {
+      font-size: 1.35rem;
+      line-height: 1.1;
+    }
+
+    .champion-award-status {
+      color: #8a6500;
+      font-weight: 950;
+    }
+
+    .champion-award-copy {
+      color: rgba(7, 24, 39, 0.66);
+      font-weight: 850;
+      line-height: 1.4;
+    }
+
+    .champion-winners {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 2px;
+    }
+
+    .champion-winner {
+      border: 1px solid rgba(0, 119, 182, 0.22);
+      border-radius: 8px;
+      padding: 7px 10px;
+      color: #075985;
+      background: #eefaff;
+      font-weight: 950;
+    }
+
+    .salt-image {
+      width: 180px;
+      height: 120px;
+      display: block;
+      padding: 7px;
+      border-radius: 8px;
+      background: #dff4fa;
+      object-fit: contain;
+      object-position: left center;
+    }
+
+    .saltiest-card h3 {
+      font-size: 1.32rem;
+      line-height: 1.1;
+    }
+
+    .saltiest-name {
+      font-size: 1.65rem;
+      font-weight: 950;
+      line-height: 1.05;
+      overflow-wrap: anywhere;
+    }
+
+    .saltiest-detail {
+      color: rgba(7, 24, 39, 0.66);
+      font-weight: 850;
+      line-height: 1.35;
+    }
+
     .ranking-board {
       display: grid;
       gap: 10px;
@@ -318,6 +510,39 @@
         align-items: start;
         flex-direction: column;
       }
+
+      .awards-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .champion-award-card {
+        grid-column: auto;
+        grid-template-columns: 64px minmax(0, 1fr);
+        gap: 14px;
+        padding: 18px;
+      }
+
+      .champion-award-logo {
+        width: 56px;
+        height: 74px;
+      }
+
+      .podium-shell {
+        padding-inline: 14px;
+      }
+
+      .podium {
+        min-height: 250px;
+        gap: 7px;
+      }
+
+      .podium-name {
+        font-size: 0.86rem;
+      }
+
+      .podium-points {
+        font-size: 0.78rem;
+      }
     }
   </style>
 </head>
@@ -356,13 +581,40 @@
   </section>
 
   <section class="section ice" aria-label="Ranking de la quiniela">
-    <div class="wrap ranking-card">
-      <h2>Ranking acumulado de la quiniela</h2>
-      <div class="ranking-board" id="rankingBoard">
-        <p>Esta seccion se activara cuando se definan los resultados oficiales y se calcule el puntaje de cada participante.</p>
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Premiación general</h2>
+        <p class="section-note">Ranking acumulado</p>
       </div>
-      <p class="sync-note" id="syncNote"></p>
-      <p>Esta sección se activará cuando se definan los resultados oficiales y se calcule el puntaje de cada participante.</p>
+      <div class="awards-layout">
+        <div class="podium-shell">
+          <p class="awards-kicker">Primeros tres lugares</p>
+          <div class="podium" id="podiumBoard" aria-label="Podio de la quiniela"></div>
+        </div>
+        <aside class="saltiest-card" aria-label="Participante más salado">
+          <img class="salt-image" src="assets/salt-shaker.png" alt="Salero derramando sal">
+          <h3>Participante más salado</h3>
+          <p class="saltiest-name" id="saltiestName">Por definir</p>
+          <p class="saltiest-detail" id="saltiestDetail">Se mostrará al participante con menor puntaje acumulado.</p>
+        </aside>
+        <aside class="champion-award-card" aria-label="Participantes que predijeron al campeón">
+          <img class="champion-award-logo" src="assets/world-cup-favicon.webp" alt="Trofeo de la Copa Mundial">
+          <div class="champion-award-content">
+            <h3 class="champion-award-title">Predijeron al campeón</h3>
+            <p class="champion-award-status" id="championAwardStatus">Pendiente de la final</p>
+            <p class="champion-award-copy" id="championAwardCopy">Aquí aparecerán quienes eligieron correctamente al campeón del Mundial.</p>
+            <div class="champion-winners" id="championWinners"></div>
+          </div>
+        </aside>
+      </div>
+      <div class="ranking-card">
+        <h2>Ranking acumulado de la quiniela</h2>
+        <div class="ranking-board" id="rankingBoard">
+          <p>Esta seccion se activara cuando se definan los resultados oficiales y se calcule el puntaje de cada participante.</p>
+        </div>
+        <p class="sync-note" id="syncNote"></p>
+        <p>Esta sección se activará cuando se definan los resultados oficiales y se calcule el puntaje de cada participante.</p>
+      </div>
     </div>
   </section>
 
@@ -402,9 +654,15 @@
     const liveClock = document.getElementById("liveClock");
     const rankingBoard = document.getElementById("rankingBoard");
     const roundRankingBoard = document.getElementById("roundRankingBoard");
+    const podiumBoard = document.getElementById("podiumBoard");
+    const saltiestName = document.getElementById("saltiestName");
+    const saltiestDetail = document.getElementById("saltiestDetail");
+    const championAwardStatus = document.getElementById("championAwardStatus");
+    const championAwardCopy = document.getElementById("championAwardCopy");
+    const championWinners = document.getElementById("championWinners");
     const syncNote = document.getElementById("syncNote");
     const roundSyncNote = document.getElementById("roundSyncNote");
-    let publicData = { results: [], ranking: [], roundOf32: { matches: [], results: [] }, octavos: { matches: [], results: [] }, quarterfinals: { matches: [], results: [] }, finalPhaseRanking: [], finalPhase: { matches: [], results: [] }, apiState: null, generatedAt: "" };
+    let publicData = { results: [], ranking: [], championPredictions: [], roundOf32: { matches: [], results: [] }, octavos: { matches: [], results: [] }, quarterfinals: { matches: [], results: [] }, finalPhaseRanking: [], finalPhase: { matches: [], results: [] }, apiState: null, generatedAt: "" };
     let publicResultsById = new Map();
     let publicDataSignature = "";
     let publicDataRefreshTimer = null;
@@ -609,6 +867,8 @@
     }
 
     function renderRanking() {
+      renderAwards(publicData.ranking);
+      renderChampionAward();
       renderRankingBoard(rankingBoard, publicData.ranking, "El ranking acumulado se activará cuando se calculen los resultados oficiales.");
       renderRankingBoard(roundRankingBoard, publicData.finalPhaseRanking, "El ranking de fase final se activará cuando se contabilicen resultados de esta fase.");
 
@@ -623,13 +883,94 @@
       }
     }
 
-    function renderRankingBoard(board, source, emptyMessage) {
-      if (!board) return;
-      const ranking = Array.isArray(source) ? source.slice().sort((a, b) =>
+    function sortedRanking(source) {
+      return Array.isArray(source) ? source.slice().sort((a, b) =>
         numberValue(b.points) - numberValue(a.points) ||
         numberValue(b.hits) - numberValue(a.hits) ||
         String(a.name || "").localeCompare(String(b.name || ""), "es")
       ) : [];
+    }
+
+    function renderAwards(source) {
+      const ranking = sortedRanking(source);
+      const podiumOrder = [
+        { rank: 2, className: "second" },
+        { rank: 1, className: "first" },
+        { rank: 3, className: "third" },
+      ];
+      podiumBoard.innerHTML = podiumOrder.map((place) => {
+        const row = ranking[place.rank - 1];
+        return `
+          <div class="podium-place ${place.className}">
+            <div class="podium-person">
+              <span class="podium-name">${escapeHtml(row && row.name ? row.name : "Por definir")}</span>
+              <span class="podium-points">${row ? `${escapeHtml(row.points)} pts` : "Sin puntaje"}</span>
+            </div>
+            <div class="podium-step" aria-label="Lugar ${place.rank}">${place.rank}</div>
+          </div>
+        `;
+      }).join("");
+
+      if (ranking.length === 0) {
+        saltiestName.textContent = "Por definir";
+        saltiestDetail.textContent = "Se mostrará al participante con menor puntaje acumulado.";
+        return;
+      }
+      const saltiest = ranking.slice().sort((a, b) =>
+        numberValue(a.points) - numberValue(b.points) ||
+        numberValue(a.hits) - numberValue(b.hits) ||
+        String(a.name || "").localeCompare(String(b.name || ""), "es")
+      )[0];
+      saltiestName.textContent = saltiest.name || "Por definir";
+      saltiestDetail.textContent = `${numberValue(saltiest.points)} pts · menor puntaje acumulado`;
+    }
+
+    function championKey(value) {
+      const normalized = String(value || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
+      const aliases = { spain: "espana", argentina: "argentina" };
+      return aliases[normalized] || normalized;
+    }
+
+    function officialChampion() {
+      const results = publicData.finalPhase && Array.isArray(publicData.finalPhase.results) ? publicData.finalPhase.results : [];
+      const matches = publicData.finalPhase && Array.isArray(publicData.finalPhase.matches) ? publicData.finalPhase.matches : [];
+      const result = results.find((item) => item && item.matchId === "FP-04");
+      const match = matches.find((item) => item && item.id === "FP-04");
+      if (!result || !match || !FINISHED_STATUSES.has(result.status)) return null;
+      const side = result.matchWinner === "home" || result.matchWinner === "away"
+        ? result.matchWinner
+        : result.winner === "home" || result.winner === "away" ? result.winner : "";
+      return side && match[side] ? match[side] : null;
+    }
+
+    function renderChampionAward() {
+      const champion = officialChampion();
+      const predictions = Array.isArray(publicData.championPredictions) ? publicData.championPredictions : [];
+      championWinners.innerHTML = "";
+      if (!champion || !champion.name) {
+        championAwardStatus.textContent = "Pendiente de la final";
+        championAwardCopy.textContent = "Aquí aparecerán quienes eligieron correctamente al campeón del Mundial.";
+        return;
+      }
+      const winners = predictions
+        .filter((participant) => championKey(participant && participant.champion) === championKey(champion.name))
+        .sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""), "es"));
+      championAwardStatus.textContent = `Campeón oficial: ${champion.name}`;
+      championAwardCopy.textContent = winners.length
+        ? `${winners.length} ${winners.length === 1 ? "participante acertó" : "participantes acertaron"} el campeón.`
+        : "Ningún participante predijo al campeón oficial.";
+      championWinners.innerHTML = winners.map((participant) =>
+        `<span class="champion-winner">${escapeHtml(participant.name || "Participante")}</span>`
+      ).join("");
+    }
+
+    function renderRankingBoard(board, source, emptyMessage) {
+      if (!board) return;
+      const ranking = sortedRanking(source);
       if (ranking.length === 0) {
         board.innerHTML = `<p>${escapeHtml(emptyMessage)}</p>`;
         return;
@@ -773,6 +1114,7 @@
           ? data.results.filter((result) => result && (result.matchId || result.apiId || result.home || result.away || result.status || result.winner))
           : [],
         ranking: Array.isArray(data && data.ranking) ? data.ranking : [],
+        championPredictions: Array.isArray(data && data.championPredictions) ? data.championPredictions : [],
         roundOf32: data && data.roundOf32 ? {
           matches: Array.isArray(data.roundOf32.matches) ? data.roundOf32.matches : [],
           results: Array.isArray(data.roundOf32.results) ? data.roundOf32.results : [],
@@ -820,6 +1162,11 @@
           row.hits,
           row.computedMatches,
           row.movement,
+        ]),
+        championPredictions: payload.championPredictions.map((participant) => [
+          participant.name,
+          participant.champion,
+          participant.championFlagCode,
         ]),
         roundOf32: {
           matches: payload.roundOf32.matches,
