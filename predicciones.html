@@ -1321,11 +1321,9 @@
     function predictionHitsResult(pick, result) {
       if (!pick || !result) return false;
       if (pick.pick === "draw" || result.winner === "draw") return pick.pick === result.winner;
-      if (pick.selectedTeam && result.winnerTeam) {
-        if (teamKey(pick.selectedTeam) === teamKey(result.winnerTeam)) return true;
-      }
-      if (pick.pickLabel && result.winnerTeam) {
-        if (teamKey(pick.pickLabel) === teamKey(result.winnerTeam)) return true;
+      const selectedTeam = pick.selectedTeam || pick.pickLabel || "";
+      if (selectedTeam && result.winnerTeam) {
+        return teamKey(selectedTeam) === teamKey(result.winnerTeam);
       }
       return pick.pick === result.winner;
     }

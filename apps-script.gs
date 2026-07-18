@@ -4287,11 +4287,9 @@ function rebuildFinalPhaseRankings_(ss, results, previousCumulative) {
 function finalPhaseSelectionHits_(selection, result) {
   if (!selection || !result || !isQuinielaResultComplete_(result)) return false;
   if (selection.pick === "draw" || result.winner === "draw") return selection.pick === result.winner;
-  if (selection.selectedTeam && result.winnerTeam) {
-    if (normalizeTeamName_(selection.selectedTeam) === normalizeTeamName_(result.winnerTeam)) return true;
-  }
-  if (selection.pickLabel && result.winnerTeam) {
-    if (normalizeTeamName_(selection.pickLabel) === normalizeTeamName_(result.winnerTeam)) return true;
+  const selectedTeam = selection.selectedTeam || selection.pickLabel || "";
+  if (selectedTeam && result.winnerTeam) {
+    return normalizeTeamName_(selectedTeam) === normalizeTeamName_(result.winnerTeam);
   }
   return selection.pick === result.winner;
 }
